@@ -83,7 +83,8 @@ internal fun Flow<PagingData<CardListItemEntity>>.withCategoryHeaders(
 
         if (headerOptions.first) {
             val value = with(afterItem) {
-                val resolvedPackName = if (cyclePosition < 50) cycleName else packName
+                //Show all cycles made just for data integrity as packs, not cycles
+                val resolvedPackName = if (cyclePosition == 13 || cyclePosition < 50) cycleName else packName
 
                 when(headerOptions.second) {
                     CardsHeaderType.TYPE -> subTypeName ?: typeName

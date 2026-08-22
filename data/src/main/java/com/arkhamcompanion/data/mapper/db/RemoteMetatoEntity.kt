@@ -21,7 +21,7 @@ fun Cycle.toEntity(name: String): CycleEntity {
         name = name,
         position = position,
         official = official,
-        chapter = chapter,
+        chapter = chapter ?: (if (official) 2 else null),
     )
 }
 
@@ -37,7 +37,7 @@ fun Pack.toEntity(name: String): PackEntity {
         position = position,
         official = official,
         reprint = reprint ?: false,
-        chapter = chapter,
+        chapter = chapter ?: (if (official) 2 else null),
     )
 }
 

@@ -10,7 +10,15 @@ import androidx.room3.withWriteTransaction
 import com.arkhamcompanion.data.local.ArkhamDatabase
 import com.arkhamcompanion.data.local.LoggingPagingSource
 import com.arkhamcompanion.data.local.cards.CardCacheData
+import com.arkhamcompanion.data.local.cards.CardEntity
+import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
+import com.arkhamcompanion.data.local.cards.CardTypeEntity
 import com.arkhamcompanion.data.local.cards.patches.CardPatchRegistry
+import com.arkhamcompanion.data.local.meta.CycleEntity
+import com.arkhamcompanion.data.local.meta.EncounterSetEntity
+import com.arkhamcompanion.data.local.meta.FactionEntity
+import com.arkhamcompanion.data.local.meta.PackEntity
+import com.arkhamcompanion.data.local.meta.TabooSetEntity
 import com.arkhamcompanion.data.mapper.db.toData
 import com.arkhamcompanion.data.mapper.db.toEntity
 import com.arkhamcompanion.data.mapper.domain.cards.toDetailsWithPackInfo
@@ -100,8 +108,13 @@ class CardsRepositoryImpl @Inject constructor(
         }
         val tabooSetEntities = playerCards.taboo_set.map { it.tabooSet.toEntity() }
 
+        val typeMap = cardTypeEntities.associateBy { it.code }
+        val subtypeMap = cardSubtypeEntities.associateBy { it.code }.filter { it.key != "storyweakness" }
+        val factionMap = factionEntities.associateBy { it.code }
         val packMap = packEntities.associateBy { it.code }
         val cycleMap = cycleEntities.associateBy { it.code }
+        val encounterSetMap = encounterSetEntities.associateBy { it.code }
+        val tabooSetMap = tabooSetEntities.associateBy { it.id }
 
         val playerEntities = playerCards.all_card.map {
             val pack = packMap[it.singleCard.pack_code]!!
@@ -130,7 +143,28 @@ class CardsRepositoryImpl @Inject constructor(
         }
         onProgress(0.55f)
 
-        val allCards = playerEntities + encounterEntities
+        var allCards = playerEntities + encounterEntities
+
+        var relationErrors = 0
+        //TODO: Replace with card-patches from arkham.build on release
+        allCards = allCards.checkRelations(
+            typeMap,
+            subtypeMap,
+            factionMap,
+            packMap,
+            cycleMap,
+            encounterSetMap,
+            tabooSetMap,
+            onErrorCount = { relationErrors++ }
+        )
+
+        if (relationErrors > 0) {
+            analyticsRepository.logError(
+                IllegalStateException("$relationErrors relation errors were found")
+            )
+        }
+
+        onProgress(0.65f)
 
         db.withWriteTransaction {
             cardsDao.deleteAllCards()
@@ -165,6 +199,57 @@ class CardsRepositoryImpl @Inject constructor(
 
         if (compared) updatedAt?.translation_updated_at.toString()
         else updatedAt?.cards_updated_at.toString()
+    }
+
+    private fun List<CardEntity>.checkRelations(
+        typeMap: Map<String, CardTypeEntity>,
+        subtypeMap: Map<String, CardSubtypeEntity>,
+        factionMap: Map<String, FactionEntity>,
+        packMap: Map<String, PackEntity>,
+        cycleMap: Map<String, CycleEntity>,
+        encounterSetMap: Map<String, EncounterSetEntity>,
+        tabooSetMap: Map<Int, TabooSetEntity>,
+        onErrorCount: () -> Unit
+    ): List<CardEntity> = filter {
+        var cardIsOkay = true
+
+        if (typeMap[it.typeCode] == null) {
+            analyticsRepository.logMessage("Unknown card type: ${it.typeCode}")
+            onErrorCount()
+            cardIsOkay = false
+        }
+        if (it.subTypeCode != null && subtypeMap[it.subTypeCode] == null) {
+            analyticsRepository.logMessage("Unknown card subtype: ${it.subTypeCode}")
+            onErrorCount()
+            cardIsOkay = false
+        }
+        if (factionMap[it.factionCode] == null) {
+            analyticsRepository.logMessage("Unknown card faction: ${it.factionCode}")
+            onErrorCount()
+            cardIsOkay = false
+        }
+        if (packMap[it.packCode] == null) {
+            analyticsRepository.logMessage("Unknown card pack: ${it.packCode}")
+            onErrorCount()
+            cardIsOkay = false
+        }
+        if (cycleMap[it.cycleCode] == null) {
+            analyticsRepository.logMessage("Unknown card cycle: ${it.cycleCode}")
+            onErrorCount()
+            cardIsOkay = false
+        }
+        if (it.encounterCode != null && encounterSetMap[it.encounterCode] == null) {
+            analyticsRepository.logMessage("Unknown card encounter: ${it.encounterCode}")
+            onErrorCount()
+            cardIsOkay = false
+        }
+        if (it.tabooSetId != null && tabooSetMap[it.tabooSetId] == null) {
+            analyticsRepository.logMessage("Unknown card taboo: ${it.tabooSetId}")
+            onErrorCount()
+            cardIsOkay = false
+        }
+
+        cardIsOkay
     }
 
     override suspend fun isCardsTableExists(): Boolean = cardsDao.isExists()
