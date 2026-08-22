@@ -556,6 +556,7 @@ enum class PackIcon(
     Carnevale("carnevale", 0xEB0C),
     CurseOfTheRougarou("curse_of_the_rougarou", 0xEB0D),
     TheBayou("the_bayou", 0xEB0E),
+    Afflicted("afflicted", 0xEB0F),
     Novella("novella", 0xEB10),
     Blbe("blbe", 0xEB11),
     BlobThatAteEverythingElse("blob_that_ate_everything_else", 0xEB12),
@@ -651,6 +652,7 @@ enum class PackIcon(
     Marie("marie", 0xEB6C),
     Andre("andre", 0xEB6D),
     Miguel("miguel", 0xEB6E),
+    AgentsOfZburamoarte("agents_of_zburamoarte", 0xEB6F),
     ArcaneLock("arcane_lock", 0xEB70),
     ArkhamCh2("arkham_ch2", 0xEB71),
     AshenPilgrims("ashen_pilgrims", 0xEB72),
@@ -675,7 +677,24 @@ enum class PackIcon(
     Torment("torment", 0xEB85),
     WhippoorwillsCh2("whippoorwills_ch2", 0xEB86),
     Carolyn("carolyn", 0xEB87),
-    Tommy("tommy", 0xEB88);
+    Tommy("tommy", 0xEB88),
+    BloodBlight("blood_blight", 0xEB89),
+    BloodMoney("blood_money", 0xEB8A),
+    BloodMoon("blood_moon", 0xEB8B),
+    Bloodthirst("bloodthirst", 0xEB8C),
+    ChildrenOfBlood("children_of_blood", 0xEB8D),
+    Cob("cob", 0xEB8E),
+    FriendsInLowPlaces("friends_in_low_places", 0xEB8F),
+    Hunted("hunted", 0xEB90),
+    Infected("infected", 0xEB91),
+    Misinformation("misinformation", 0xEB92),
+    Mongrels("mongrels", 0xEB93),
+    NewHorizons("new_horizons", 0xEB94),
+    PreyedUpon("preyed_upon", 0xEB95),
+    RiverOfBlood("river_of_blood", 0xEB96),
+    SanguineSecrets("sanguine_secrets", 0xEB97),
+    Stalked("stalked", 0xEB98),
+    Vermin("vermin", 0xEB99);
 
     override val glyph: String
         get() = code.toChar().toString()
