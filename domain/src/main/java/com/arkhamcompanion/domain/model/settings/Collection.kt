@@ -11,3 +11,6 @@ data class Collection(
     @Serializable(with = ImmutableStringSetSerializer::class)
     val reprintPacks: ImmutableSet<String>,
 )
+
+fun Collection.isEmpty(): Boolean = packs.isEmpty() && reprintPacks.isEmpty()
+fun Collection.isNotEmpty(): Boolean = !isEmpty()

@@ -4,14 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.arkhamcompanion.UiErrorState
+import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
+import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -110,5 +114,49 @@ class CardsViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000L),
         initialValue = persistentListOf()
     )
+
+    private fun updateCardFilters(update: (CardFilters) -> CardFilters) {
+        _cardFilters.update { update(it) }
+    }
+
+    fun clearCardFilters() {
+        _cardFilters.value = CardFilters()
+    }
+
+    fun updateFactions(value: Faction) =
+        updateCardFilters {
+            it.copy(factions = it.factions.toggle(value))
+        }
+
+    fun updateLevelRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                levelFilter = it.levelFilter.copy(
+                    range = range,
+                    forcedRange = null,
+                )
+            )
+        }
+    }
+
+    fun toggleForcedLevelRange(value: NullableIntRange) {
+        updateCardFilters {
+            val level = it.levelFilter
+
+            it.copy(
+                levelFilter = level.copy(
+                    forcedRange = if (level.forcedRange == value) {
+                        null
+                    } else {
+                        value
+                    }
+                )
+            )
+        }
+    }
+
+    private fun <T> ImmutableSet<T>.toggle(value: T): ImmutableSet<T> =
+        (if (value in this) minus(value) else plus(value))
+            .toImmutableSet()
 
 }

@@ -62,4 +62,7 @@ interface MetaDao {
         ORDER BY p.chapter DESC, c.position, p.reprint DESC, p.position
     """)
     fun getAllPacks(): Flow<List<FullPackEntity>>
+
+    @Query("SELECT * FROM faction")
+    fun getAllFactions(): Flow<List<FactionEntity>>
 }

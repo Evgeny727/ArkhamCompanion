@@ -4,30 +4,33 @@ import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.settings.Collection
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 
 data class CardFilters(
-    val factions: Set<Faction> = emptySet(),
-    val levelFilter: LevelFilter? = null,
-    val types: Set<CardType> = emptySet(),
-    val subTypes: Set<CardSubType?> = emptySet(),
-    val costFilter: CostFilter? = null,
-    val skillsFilter: SkillsFilter? = null,
-    val actions: Set<String> = emptySet(),
-    val traits: Set<String> = emptySet(),
-    val healthSanityFilter: HealthSanityFilter? = null,
-    val assetFilter: AssetFilter? = null,
-    val propertiesFilter: PropertiesFilter? = null,
-    val enemyFilter: EnemyFilter? = null,
-    val locationFilter: LocationFilter? = null,
-    val encounterSets: Set<String> = emptySet(),
+    val factions: ImmutableSet<Faction> = persistentSetOf(),
+    val levelFilter: LevelFilter = LevelFilter(),
+    val types: ImmutableSet<CardType> = persistentSetOf(),
+    val subTypes: ImmutableSet<CardSubType?> = persistentSetOf(),
+    val costFilter: CostFilter = CostFilter(),
+    val skillsFilter: SkillsFilter = SkillsFilter(),
+    val actions: ImmutableSet<String> = persistentSetOf(),
+    val traits: ImmutableSet<String> = persistentSetOf(),
+    val healthSanityFilter: HealthSanityFilter = HealthSanityFilter(),
+    val assetFilter: AssetFilter = AssetFilter(),
+    val propertiesFilter: PropertiesFilter = PropertiesFilter(),
+    val enemyFilter: EnemyFilter = EnemyFilter(),
+    val locationFilter: LocationFilter = LocationFilter(),
+    val encounterSets: ImmutableSet<String> = persistentSetOf(),
     val officialFilter: Boolean? = null,
-    val packs: Collection? = null,
+    val packs: Collection = Collection(persistentSetOf(), persistentSetOf()),
     val tabooSetId: String? = null,
-    val illustrators: Set<String> = emptySet(),
+    val illustrators: ImmutableSet<String> = persistentSetOf(),
 )
 
 data class LevelFilter(
     val range: NullableIntRange = NullableIntRange(null, 5),
+    val forcedRange: NullableIntRange? = null,
 )
 
 data class CostFilter(
@@ -47,9 +50,9 @@ data class SkillsFilter(
 )
 
 data class AssetFilter(
-    val slots: Set<String> = emptySet(),
-    val uses: Set<String> = emptySet(),
-    val skillBoosts: Set<String> = emptySet(),
+    val slots: ImmutableSet<String> = persistentSetOf(),
+    val uses: ImmutableSet<String> = persistentSetOf(),
+    val skillBoosts: ImmutableSet<String> = persistentSetOf(),
 )
 
 data class HealthSanityFilter(
@@ -94,4 +97,10 @@ data class LocationFilter(
 data class NullableIntRange(
     val min: Int?,
     val max: Int?,
-)
+) {
+    operator fun contains(value: Int?): Boolean {
+        if (value == null) return min == null || max == null
+        else if (min == null && max == null) return false
+        return (min == null || value >= min) && (max == null || value <= max)
+    }
+}

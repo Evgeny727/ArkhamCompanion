@@ -30,6 +30,8 @@ import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CodeWithTaboo
+import com.arkhamcompanion.domain.model.settings.isEmpty
+import com.arkhamcompanion.domain.model.settings.isNotEmpty
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.getCurrentDateTime
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.isAtLeastTwoWeeksApart
@@ -463,7 +465,7 @@ class CardsRepositoryImpl @Inject constructor(
                         )""".trimIndent() else ""
                     }
                     ${ if (searchConfig.preferences.ignoreCollection 
-                        || searchConfig.filters.packs == null) "" 
+                        || searchConfig.filters.packs.isNotEmpty()) "" 
                     else """ AND (
                         c.pack_code IN ($packsQuery) 
                         OR c.reprint_pack_code IN ($reprintsQuery)
@@ -587,7 +589,11 @@ class CardsRepositoryImpl @Inject constructor(
         }
     }
 
+    private val defaultFilters = CardFilters()
+
     private fun CardFilters.buildFiltersQuery(): String {
+        if (this == defaultFilters) return ""
+
         val filtersListBuilder = buildList {
             var codes: MutableSet<String>? = null
 
@@ -603,39 +609,43 @@ class CardsRepositoryImpl @Inject constructor(
             *  First build filters with indexed fields
             */
 
-            propertiesFilter?.let { properties ->
-                if (properties.fast) {
+            propertiesFilter.run {
+                if (this == defaultFilters.propertiesFilter) return@run
+
+                if (fast) {
                     applyCodes(CardCache.properties["fast"].orEmpty())
                 }
-                if (properties.healsDamage) {
+                if (healsDamage) {
                     applyCodes(CardCache.tags["hd"].orEmpty())
                 }
-                if (properties.healsHorror) {
+                if (healsHorror) {
                     applyCodes(CardCache.tags["hh"].orEmpty())
                 }
-                if (properties.seal) {
+                if (seal) {
                     applyCodes(CardCache.tags["se"].orEmpty())
                 }
-                if (properties.succeedBy) {
+                if (succeedBy) {
                     applyCodes(CardCache.properties["succeeds_by"].orEmpty())
                 }
             }
 
-            assetFilter?.let { asset ->
+            assetFilter.run {
+                if (this == defaultFilters.assetFilter) return@run
+
                 applyCodes(
-                    asset.skillBoosts.flatMap {
+                    skillBoosts.flatMap {
                         CardCache.skillBoosts[it].orEmpty()
                     }.toSet()
                 )
 
                 applyCodes(
-                    asset.uses.flatMap {
+                    uses.flatMap {
                         CardCache.uses[it].orEmpty()
                     }.toSet()
                 )
 
                 applyCodes(
-                    asset.slots.flatMap {
+                    slots.flatMap {
                         CardCache.slots[it].orEmpty()
                     }.toSet()
                 )
@@ -677,14 +687,18 @@ class CardsRepositoryImpl @Inject constructor(
                 """.trimIndent())
             }
 
-            levelFilter?.let { level ->
-                val (min, max) = level.range
-                add("""
-                    (
-                        (${if (min == null) "c.xp IS NULL OR " else ""} c.xp >= ${min})
-                        AND (${if (max == null) "c.xp IS NULL OR " else ""} c.xp <= ${max})
-                    )
-                """.trimIndent())
+            levelFilter.run {
+                if (this == defaultFilters.levelFilter) return@run
+
+                val result = forcedRange ?: range
+                val (min, max) = result
+                add(
+                    when {
+                        max == null -> "(c.xp IS NULL)"
+                        min == null -> "(c.xp IS NULL OR c.xp <= $max)"
+                        else -> "(c.xp BETWEEN $min AND $max)"
+                    }
+                )
             }
 
             if (types.isNotEmpty()) {
@@ -713,9 +727,11 @@ class CardsRepositoryImpl @Inject constructor(
                 add("c.encounter_code IN ($encounterSetsString)")
             }
 
-            packs?.let { collection ->
-                val packsString = collection.packs.joinToString(",") { "'$it'" }
-                val reprintsString = collection.reprintPacks.joinToString(",") { "'$it'" }
+            packs.run {
+                if (isEmpty()) return@run
+
+                val packsString = packs.joinToString(",") { "'$it'" }
+                val reprintsString = reprintPacks.joinToString(",") { "'$it'" }
                 add("""
                     (
                         c.pack_code IN ($packsString) 
@@ -732,37 +748,38 @@ class CardsRepositoryImpl @Inject constructor(
             *  Non-indexed filters
             */
 
-            costFilter?.let { cost ->
-                val (min, max) = cost.range
+            costFilter.run {
+                if (this == defaultFilters.costFilter) return@run
+
+                val (min, max) = range
                 add("""
                     (
-                        ${if (cost.xCost) "c.cost = -2 OR " else ""}
+                        ${if (xCost) "c.cost = -2 OR " else ""}
                         (
-                            (
-                                (${
-                                    if (min == null) "c.cost IS NULL OR " 
-                                    else ""
-                                } c.cost >= ${min}) 
-                                AND (${
-                                    if (max == null) "c.cost IS NULL OR " 
-                                    else ""
-                                } c.cost <= ${max})
-                            ) 
-                            ${if (cost.evenCost || cost.oddCost) """
-                                AND c.cost % 2 = ${if (cost.evenCost) "0" else "1"}
+                            (${
+                                when {
+                                    max == null -> "c.cost IS NULL"
+                                    min == null -> "c.cost IS NULL OR c.cost <= $max"
+                                    else -> "c.cost BETWEEN $min AND $max"
+                                }
+                            }) 
+                            ${if (evenCost || oddCost) """
+                                AND c.cost % 2 = ${if (evenCost) "0" else "1"}
                             """.trimIndent() else ""}
                         )
                     )
                 """.trimIndent())
             }
 
-            skillsFilter?.let { skills ->
-                skills.willpower?.let { add("c.skill_willpower >= $it") }
-                skills.intellect?.let { add("c.skill_intellect >= $it") }
-                skills.combat?.let { add("c.skill_combat >= $it") }
-                skills.agility?.let { add("c.skill_agility >= $it") }
-                skills.wild?.let { add("c.skill_wild >= $it") }
-                skills.any?.let {
+            skillsFilter.run {
+                if (this == defaultFilters.skillsFilter) return@run
+
+                willpower?.let { add("c.skill_willpower >= $it") }
+                intellect?.let { add("c.skill_intellect >= $it") }
+                combat?.let { add("c.skill_combat >= $it") }
+                agility?.let { add("c.skill_agility >= $it") }
+                wild?.let { add("c.skill_wild >= $it") }
+                any?.let {
                     add("""
                         (
                             c.skill_willpower >= $it
@@ -775,17 +792,20 @@ class CardsRepositoryImpl @Inject constructor(
                 }
             }
 
-            healthSanityFilter?.let { (health, sanity, includeX, healthPerInvestigator) ->
+            healthSanityFilter.run {
+                if (this == defaultFilters.healthSanityFilter) return@run
+
                 health.run {
                     add("""
                         (
-                            ${if (includeX) "c.health = -2 OR " else ""}
-                            (
-                                ${if (min == null) "c.health IS NULL OR " else ""}
-                                (c.health >= $min AND c.health <= $max ${
-                                    if (healthPerInvestigator) "AND c.health_per_investigator = 1" else ""
-                                })
-                            )
+                            ${if (includeXHealthOrSanity) "c.health = -2 OR " else ""}
+                            (${
+                                when {
+                                    max == null -> "c.health IS NULL"
+                                    min == null -> "c.health IS NULL OR c.health <= $max"
+                                    else -> "c.health BETWEEN $min AND $max"
+                                } + if (healthPerInvestigator) " AND c.health_per_investigator = 1" else ""
+                            })
                         )
                     """.trimIndent())
                 }
@@ -793,91 +813,114 @@ class CardsRepositoryImpl @Inject constructor(
                 sanity.run {
                     add("""
                         (
-                            ${if (includeX) "c.sanity = -2 OR " else ""}
-                            (
-                                ${if (min == null) "c.sanity IS NULL OR " else ""}
-                                (c.sanity >= $min AND c.sanity <= $max)
-                            )
-                        )
-                    """.trimIndent())
-                }
-            }
-
-            propertiesFilter?.let { properties ->
-                with(properties) {
-                    if (customizable) add("c.customization_text IS NOT NULL")
-                    if (exile) add("c.exile = 1")
-                    if (exceptional) add("c.exceptional = 1")
-                    if (multiclass) add("c.faction2_code IS NOT NULL")
-                    if (myriad) add("c.myriad = 1")
-                    if (permanent) add("c.permanent = 1")
-                    if (specialist) add("c.restrictions LIKE '{\"trait\":%'")
-                    if (unique) add("c.is_unique = 1")
-                    if (victory) add("c.victory IS NOT NULL")
-                }
-            }
-
-            enemyFilter?.let { enemy ->
-                enemy.fight.run {
-                    add("""
-                        (
-                            ${if (min == null) "c.enemy_fight IS NULL OR " else ""}
-                            (c.enemy_fight >= $min AND c.enemy_fight <= $max)
-                        )
-                    """.trimIndent())
-                }
-
-                enemy.evade.run {
-                    add("""
-                        (
-                            ${if (min == null) "c.enemy_evade IS NULL OR " else ""}
-                            (c.enemy_evade >= $min AND c.enemy_evade <= $max)
-                        )
-                    """.trimIndent())
-                }
-
-                enemy.damage.run {
-                    add("""
-                        (
-                            ${if (min == null) "c.enemy_damage IS NULL OR " else ""}
-                            (c.enemy_damage >= $min AND c.enemy_damage <= $max)
-                        )
-                    """.trimIndent())
-                }
-
-                enemy.horror.run {
-                    add("""
-                        (
-                            ${if (min == null) "c.enemy_horror IS NULL OR " else ""}
-                            (c.enemy_horror >= $min AND c.enemy_horror <= $max)
-                        )
-                    """.trimIndent())
-                }
-
-                if (enemy.vengeance) add("c.vengeance IS NOT NULL")
-            }
-
-            locationFilter?.let { location ->
-                location.shroud.run {
-                    add("""
-                        (
-                            ${if (location.xShroud) "c.shroud = -2 OR " else ""}
-                            (
-                                ${if (min == null) "c.shroud IS NULL OR " else ""}
-                                (c.shroud >= $min AND c.shroud <= $max)
-                            )
-                        )
-                    """.trimIndent())
-                }
-
-                location.clues.run {
-                    add("""
-                        (
-                            ${if (min == null) "c.clues IS NULL OR " else ""}
-                            (c.clues >= $min AND c.clues <= $max ${
-                                if (location.perInvestigatorClues) "AND c.clues_fixed = 0" else ""
+                            ${if (includeXHealthOrSanity) "c.sanity = -2 OR " else ""}
+                            (${
+                                when {
+                                    max == null -> "c.sanity IS NULL"
+                                    min == null -> "c.sanity IS NULL OR c.sanity <= $max"
+                                    else -> "c.sanity BETWEEN $min AND $max"
+                                }
                             })
                         )
+                    """.trimIndent())
+                }
+            }
+
+            propertiesFilter.run {
+                if (this == defaultFilters.propertiesFilter) return@run
+
+                if (customizable) add("c.customization_text IS NOT NULL")
+                if (exile) add("c.exile = 1")
+                if (exceptional) add("c.exceptional = 1")
+                if (multiclass) add("c.faction2_code IS NOT NULL")
+                if (myriad) add("c.myriad = 1")
+                if (permanent) add("c.permanent = 1")
+                if (specialist) add("c.restrictions LIKE '{\"trait\":%'")
+                if (unique) add("c.is_unique = 1")
+                if (victory) add("c.victory IS NOT NULL")
+            }
+
+            enemyFilter.run {
+                if (this == defaultFilters.enemyFilter) return@run
+
+                fight.run {
+                    add("""
+                        (${
+                            when {
+                                max == null -> "c.enemy_fight IS NULL"
+                                min == null -> "c.enemy_fight IS NULL OR c.enemy_fight <= $max"
+                                else -> "c.enemy_fight BETWEEN $min AND $max"
+                            }
+                        })
+                    """.trimIndent())
+                }
+
+                evade.run {
+                    add("""
+                        (${
+                            when {
+                                max == null -> "c.enemy_evade IS NULL"
+                                min == null -> "c.enemy_evade IS NULL OR c.enemy_evade <= $max"
+                                else -> "c.enemy_evade BETWEEN $min AND $max"
+                            }
+                        })
+                    """.trimIndent())
+                }
+
+                damage.run {
+                    add("""
+                        (${
+                            when {
+                                max == null -> "c.enemy_damage IS NULL"
+                                min == null -> "c.enemy_damage IS NULL OR c.enemy_damage <= $max"
+                                else -> "c.enemy_damage BETWEEN $min AND $max"
+                            }
+                        })
+                    """.trimIndent())
+                }
+
+                horror.run {
+                    add("""
+                        (${
+                            when {
+                                max == null -> "c.enemy_horror IS NULL"
+                                min == null -> "c.enemy_horror IS NULL OR c.enemy_horror <= $max"
+                                else -> "c.enemy_horror BETWEEN $min AND $max"
+                            }
+                        })
+                    """.trimIndent())
+                }
+
+                if (vengeance) add("c.vengeance IS NOT NULL")
+            }
+
+            locationFilter.run {
+                if (this == defaultFilters.locationFilter) return@run
+
+                shroud.run {
+                    add("""
+                        (
+                            ${if (xShroud) "c.shroud = -2 OR " else ""}
+                            (${
+                                when {
+                                    max == null -> "c.shroud IS NULL"
+                                    min == null -> "c.shroud IS NULL OR c.shroud <= $max"
+                                    else -> "c.shroud BETWEEN $min AND $max"
+                                }
+                            })
+                        )
+                    """.trimIndent())
+                }
+
+                clues.run {
+                    add("""
+                        (${
+                            when {
+                                max == null -> "c.clues IS NULL"
+                                min == null -> "c.clues IS NULL OR c.clues <= $max"
+                                else -> "c.clues BETWEEN $min AND $max"
+                            } + if (perInvestigatorClues) " AND c.clues_fixed = 0" else ""
+                        })
                     """.trimIndent())
                 }
             }

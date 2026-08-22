@@ -164,6 +164,7 @@ internal fun factionIcon(faction: Faction, faction2: Faction? = null, subType: C
         Faction.Rogue -> AppIcon.Rogue
         Faction.Guardian -> AppIcon.Guardian
         Faction.Survivor -> AppIcon.Survivor
+        Faction.Mythos -> AppIcon.AutoFail
         else -> AppIcon.Neutral
     }
 }

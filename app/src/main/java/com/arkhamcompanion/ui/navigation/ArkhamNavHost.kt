@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -74,6 +75,7 @@ import com.arkhamcompanion.ui.cards.CardDetailsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsViewModel
 import com.arkhamcompanion.ui.cards.Cards
 import com.arkhamcompanion.ui.cards.CardsFiltersScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
 import com.arkhamcompanion.ui.cards.CardsScreen
 import com.arkhamcompanion.ui.cards.CardsSortScreen
 import com.arkhamcompanion.ui.cards.CardsSortViewModel
@@ -281,7 +283,6 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                     }
                     composable<SettingsAbout> {
 
-                        //TODO: add about screen
                         AboutScreen(innerPadding)
 
                         title = stringResource(R.string.about_arkham_companion)
@@ -420,19 +421,33 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                             )
                         }
                     }
-                    composable<CardsFiltersScreen> {
+                    composable<CardsFiltersScreen> {backStackEntry ->
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentEntry)
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
 
-                        CardsFiltersScreen(innerPadding)
+                        CardsFiltersScreen(
+                            cardsViewModel = cardsViewModel,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            innerPadding = innerPadding
+                        )
 
                         title = stringResource(R.string.filters)
-                        subtitle = null
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
                         color = baseColor
                         contentColor = baseContentColor
                         rightActions = {
                             ArkhamAppBarAction(
                                 contentColor = CustomTheme.colors.m,
-                                onClick = {},
-                                iconGlyph = AppIcon.Trash,
+                                onClick = cardsViewModel::clearCardFilters,
+                                iconGlyph = AppIcon.FilterClear,
                             )
                         }
                         leftAction = { color ->
