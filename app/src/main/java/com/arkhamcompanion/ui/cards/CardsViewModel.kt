@@ -56,7 +56,7 @@ class CardsViewModel @Inject constructor(
     val searchOptions = _searchOptions.asStateFlow()
 
     fun updateSearchQuery(query: String) {
-        _searchOptions.update { it.copy(searchQuery = query.trim()) }
+        _searchOptions.update { it.copy(searchQuery = query) }
     }
 
     fun clearSearchQuery() {
@@ -93,7 +93,7 @@ class CardsViewModel @Inject constructor(
     ) { spoilerState, searchOptions, cardsSearchPreferences, cardFilters ->
         CardSearchConfig(
             spoilerState,
-            searchOptions,
+            searchOptions.copy(searchQuery = searchOptions.searchQuery.trim()),
             cardsSearchPreferences,
             cardFilters
         )

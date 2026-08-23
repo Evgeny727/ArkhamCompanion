@@ -4,8 +4,6 @@ import androidx.paging.PagingData
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
-import com.arkhamcompanion.domain.model.cards.CardSearchOptions
-import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
 import com.arkhamcompanion.domain.model.cards.CodeWithTaboo
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow

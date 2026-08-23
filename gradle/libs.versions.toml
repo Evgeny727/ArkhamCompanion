@@ -15,6 +15,7 @@ splashscreen = "1.2.0"
 datastore = "1.2.1"
 paging = "3.5.0"
 room = "3.0.0"
+sqlite = "2.7.0"
 
 coil = "3.5.0"
 serializationJson = "1.11.0"
@@ -68,6 +69,7 @@ androidx-paging-common = { group = "androidx.paging", name = "paging-common", ve
 androidx-room-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room" }
 androidx-room-paging = { group = "androidx.room3", name = "room3-paging", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 # Network / image / misc
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }

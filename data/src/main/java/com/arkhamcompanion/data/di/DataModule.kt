@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room3.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.arkhamcompanion.data.local.ArkhamDatabase
 import dagger.Module
 import dagger.Provides
@@ -30,6 +31,7 @@ object DataModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): ArkhamDatabase {
         return Room.databaseBuilder<ArkhamDatabase>(context, name = "arkham_database")
+            .setDriver(BundledSQLiteDriver())
             .build()
     }
 

@@ -1,7 +1,6 @@
 package com.arkhamcompanion.data.repository
 
 import android.content.Context
-import android.os.Build
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -76,8 +75,6 @@ class CardsRepositoryImpl @Inject constructor(
     private val cardsDao = db.cardsDao()
     private val metaDao = db.metaDao()
 
-    private val supportsWindowFunctions = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-
     override suspend fun downloadAllCards(locale: String, onProgress: (Float) -> Unit) = runCatching {
         val translationData = cardsRemoteDataSource.fetchAllTranslationData(locale).dataAssertNoErrors
         onProgress(0.15f)
@@ -109,7 +106,7 @@ class CardsRepositoryImpl @Inject constructor(
         val tabooSetEntities = playerCards.taboo_set.map { it.tabooSet.toEntity() }
 
         val typeMap = cardTypeEntities.associateBy { it.code }
-        val subtypeMap = cardSubtypeEntities.associateBy { it.code }.filter { it.key != "storyweakness" }
+        val subtypeMap = cardSubtypeEntities.associateBy { it.code }
         val factionMap = factionEntities.associateBy { it.code }
         val packMap = packEntities.associateBy { it.code }
         val cycleMap = cycleEntities.associateBy { it.code }
@@ -382,7 +379,7 @@ class CardsRepositoryImpl @Inject constructor(
             searchConfig.spoiler
         )
 
-        val filterClause = searchConfig.filters.buildFiltersQuery()
+        val filterClause = searchConfig.filters.buildFiltersQuery("candidate")
 
         val searchQuery = buildSearchQuery(
             searchConfig.options,
@@ -398,61 +395,26 @@ class CardsRepositoryImpl @Inject constructor(
             packs to reprints
         }
 
-        val rankedQueryPart = if (supportsWindowFunctions)
-            """
-                SELECT *, ROW_NUMBER() OVER (
-                    PARTITION BY
-                        COALESCE(duplicate_of_code, code)
-                    ORDER BY
-                        CASE
-                            WHEN duplicate_of_code IS NULL THEN 0
-                            ELSE 1
-                        END,
-                        code
-                ) AS duplicate_rank FROM filtered_cards
-            """.trimIndent()
-        else """
-            WITH deduplicated_cards AS (
-                SELECT
+        val rankedQueryPart = """
+            SELECT *, ROW_NUMBER() OVER (
+                PARTITION BY
+                    COALESCE(duplicate_of_code, code)
+                ORDER BY
                     CASE
-                        WHEN COUNT(
-                            CASE WHEN duplicate_of_code IS NULL THEN 1 END
-                        ) > 0
-                        THEN MIN(
-                            CASE WHEN duplicate_of_code IS NULL THEN code END
-                        )
-                        ELSE MIN(code)
-                    END AS winner_code
-                FROM filtered_cards
-                GROUP BY COALESCE(duplicate_of_code, code)
-            )
-            SELECT fc.*
-            FROM filtered_cards fc
-            JOIN deduplicated_cards dc
-                ON dc.winner_code = fc.code
+                        WHEN duplicate_of_code IS NULL THEN 0
+                        ELSE 1
+                    END,
+                    code
+            ) AS duplicate_rank FROM filtered_cards
         """.trimIndent()
 
         val spoilerQueryPart = if (searchConfig.spoiler) {
-            if (supportsWindowFunctions) "SELECT ${projection ?: "*"}, MIN(pack_position) OVER (" +
-                    "PARTITION BY encounter_code" +
-                    ") AS encounter_group FROM ranked_cards "
-            else """
-                SELECT ${projection ?: "*"} FROM (
-                    SELECT rc.*, eg.encounter_group
-                    FROM ranked_cards rc
-                    JOIN (
-                        SELECT encounter_code, MIN(pack_position) AS encounter_group
-                        FROM ranked_cards 
-                        GROUP BY encounter_code
-                    ) eg
-                        ON eg.encounter_code = rc.encounter_code
-                )
-            """.trimIndent()
-        }
-        else "SELECT ${projection ?: "*"} FROM ranked_cards "
+            "SELECT ${projection ?: "*"}, MIN(pack_position) OVER (" +
+                "PARTITION BY encounter_code" +
+                ") AS encounter_group FROM ranked_cards "
+        } else "SELECT ${projection ?: "*"} FROM ranked_cards "
 
-        val finalQueryPart = spoilerQueryPart +
-                (if (supportsWindowFunctions) "WHERE duplicate_rank = 1" else "") +
+        val finalQueryPart = spoilerQueryPart + "WHERE duplicate_rank = 1" +
                 if (sortClause.isNotEmpty()) " ORDER BY $sortClause" else ""
 
         return RoomRawQuery(
@@ -540,13 +502,11 @@ class CardsRepositoryImpl @Inject constructor(
                     CROSS JOIN selected_taboo taboo
                     WHERE c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL" else "NULL"} 
                     ${if (filterClause.isNotBlank())
-                        """ AND (
-                            $filterClause 
-                            OR EXISTS (
-                                SELECT 1
-                                FROM card back
-                                WHERE back.code = c.back_link_id AND $filterClause
-                            )
+                        """ AND EXISTS (
+                            SELECT 1
+                            FROM card candidate
+                            WHERE (candidate.code = c.code OR candidate.code = c.back_link_id) 
+                            AND $filterClause
                         )""".trimIndent() else ""
                     }
                     ${ if (searchConfig.preferences.ignoreCollection 
@@ -588,14 +548,15 @@ class CardsRepositoryImpl @Inject constructor(
                             "c.preview = 0)" 
                          }
                     ${if (isQueryNotBlank)
-                        """AND ((${searchQuery.searchFieldsQuery}) 
-                            ${if (searchConfig.options.searchBack)
-                                """OR EXISTS (
-                                    SELECT 1
-                                    FROM card back
-                                    WHERE back.code = c.back_link_id
-                                    AND (${searchQuery.backLinkCardFieldsQuery})
-                                )""".trimIndent() else ""}
+                        """ AND EXISTS (
+                            SELECT 1
+                            FROM card search
+                            WHERE (search.code = c.code ${
+                                if (searchConfig.options.searchBack) 
+                                    "OR search.code = c.back_link_id"
+                                else ""
+                            })
+                            AND (${searchQuery.searchFieldsQuery})
                         )""".trimIndent() else ""}
                 ),
                 
@@ -613,9 +574,6 @@ class CardsRepositoryImpl @Inject constructor(
                 if (isQueryNotBlank) {
                     repeat(searchQuery.searchFieldsAmount) {
                         statement.bindText(index++, searchQuery.sqlQuery)
-                        if (searchConfig.options.searchBack) {
-                            statement.bindText(index++, searchQuery.sqlQuery)
-                        }
                     }
                 }
             }
@@ -637,13 +595,11 @@ class CardsRepositoryImpl @Inject constructor(
 
         val searchFields = searchOptions.buildSearchFields(shouldIncludeRealFields)
 
-        val searchFieldsQuery = searchFields.joinToString(" OR ") { "c.$it LIKE ?" }
-        val backLinkCardFieldsQuery = searchFields.joinToString(" OR ") { "back.$it LIKE ?" }
+        val searchFieldsQuery = searchFields.joinToString(" OR ") { "search.$it LIKE ?" }
 
         return SqlSearchOptions(
             sqlQuery,
             searchFieldsQuery,
-            backLinkCardFieldsQuery,
             searchFields.size
         )
     }
@@ -676,7 +632,7 @@ class CardsRepositoryImpl @Inject constructor(
 
     private val defaultFilters = CardFilters()
 
-    private fun CardFilters.buildFiltersQuery(): String {
+    private fun CardFilters.buildFiltersQuery(alias: String): String {
         if (this == defaultFilters) return ""
 
         val filtersListBuilder = buildList {
@@ -758,16 +714,16 @@ class CardsRepositoryImpl @Inject constructor(
                     return@buildList
                 }
                 val cardCodesString = codes.joinToString(",") { "'$it'" }
-                add("c.code IN ($cardCodesString)")
+                add("${alias}.code IN ($cardCodesString)")
             }
 
             if (factions.isNotEmpty()) {
                 val factionsString = factions.joinToString(",") { "'${it.name.lowercase()}'" }
                 add("""
                     (
-                        c.faction_code IN ($factionsString) 
-                        OR c.faction2_code IN ($factionsString) 
-                        OR c.faction3_code IN ($factionsString)
+                        ${alias}.faction_code IN ($factionsString) 
+                        OR ${alias}.faction2_code IN ($factionsString) 
+                        OR ${alias}.faction3_code IN ($factionsString)
                     )
                 """.trimIndent())
             }
@@ -779,16 +735,16 @@ class CardsRepositoryImpl @Inject constructor(
                 val (min, max) = result
                 add(
                     when {
-                        max == null -> "(c.xp IS NULL)"
-                        min == null -> "(c.xp IS NULL OR c.xp <= $max)"
-                        else -> "(c.xp BETWEEN $min AND $max)"
+                        max == null -> "(${alias}.xp IS NULL)"
+                        min == null -> "(${alias}.xp IS NULL OR ${alias}.xp <= $max)"
+                        else -> "(${alias}.xp BETWEEN $min AND $max)"
                     }
                 )
             }
 
             if (types.isNotEmpty()) {
                 val typesString = types.joinToString(",") { "'${it.code}'" }
-                add("c.type_code IN ($typesString)")
+                add("${alias}.type_code IN ($typesString)")
             }
 
             if (subTypes.isNotEmpty()) {
@@ -797,10 +753,10 @@ class CardsRepositoryImpl @Inject constructor(
                 val nonNullableString = nonNullable.joinToString(",") { "'${it.name.lowercase()}'" }
                 add("""
                     (
-                        ${if (haveNull) "c.subtype_code IS NULL" else ""}
+                        ${if (haveNull) "${alias}.subtype_code IS NULL" else ""}
                         ${if (nonNullable.isNotEmpty()) {
                             (if (haveNull) " OR " else "") +
-                            "c.subtype_code IN ($nonNullableString)"
+                            "${alias}.subtype_code IN ($nonNullableString)"
                         } else ""}
                     )
                 """.trimIndent())
@@ -809,7 +765,7 @@ class CardsRepositoryImpl @Inject constructor(
 
             if (encounterSets.isNotEmpty()) {
                 val encounterSetsString = encounterSets.joinToString(",") { "'$it'" }
-                add("c.encounter_code IN ($encounterSetsString)")
+                add("${alias}.encounter_code IN ($encounterSetsString)")
             }
 
             packs.run {
@@ -819,14 +775,14 @@ class CardsRepositoryImpl @Inject constructor(
                 val reprintsString = reprintPacks.joinToString(",") { "'$it'" }
                 add("""
                     (
-                        c.pack_code IN ($packsString) 
-                        OR c.reprint_pack_code IN ($reprintsString)
+                        ${alias}.pack_code IN ($packsString) 
+                        OR ${alias}.reprint_pack_code IN ($reprintsString)
                     )
                 """.trimIndent())
             }
 
             tabooSetId?.let {
-                add("(c.taboo_set_id = $it AND c.taboo_placeholder = 0)")
+                add("(${alias}.taboo_set_id = $it AND ${alias}.taboo_placeholder = 0)")
             }
 
             /*
@@ -839,17 +795,17 @@ class CardsRepositoryImpl @Inject constructor(
                 val (min, max) = range
                 add("""
                     (
-                        ${if (xCost) "c.cost = -2 OR " else ""}
+                        ${if (xCost) "${alias}.cost = -2 OR " else ""}
                         (
                             (${
                                 when {
-                                    max == null -> "c.cost IS NULL"
-                                    min == null -> "c.cost IS NULL OR c.cost <= $max"
-                                    else -> "c.cost BETWEEN $min AND $max"
+                                    max == null -> "${alias}.cost IS NULL"
+                                    min == null -> "${alias}.cost IS NULL OR ${alias}.cost <= $max"
+                                    else -> "${alias}.cost BETWEEN $min AND $max"
                                 }
                             }) 
                             ${if (evenCost || oddCost) """
-                                AND c.cost % 2 = ${if (evenCost) "0" else "1"}
+                                AND ${alias}.cost % 2 = ${if (evenCost) "0" else "1"}
                             """.trimIndent() else ""}
                         )
                     )
@@ -859,19 +815,19 @@ class CardsRepositoryImpl @Inject constructor(
             skillsFilter.run {
                 if (this == defaultFilters.skillsFilter) return@run
 
-                willpower?.let { add("c.skill_willpower >= $it") }
-                intellect?.let { add("c.skill_intellect >= $it") }
-                combat?.let { add("c.skill_combat >= $it") }
-                agility?.let { add("c.skill_agility >= $it") }
-                wild?.let { add("c.skill_wild >= $it") }
+                willpower?.let { add("${alias}.skill_willpower >= $it") }
+                intellect?.let { add("${alias}.skill_intellect >= $it") }
+                combat?.let { add("${alias}.skill_combat >= $it") }
+                agility?.let { add("${alias}.skill_agility >= $it") }
+                wild?.let { add("${alias}.skill_wild >= $it") }
                 any?.let {
                     add("""
                         (
-                            c.skill_willpower >= $it
-                            OR c.skill_intellect >= $it
-                            OR c.skill_combat >= $it
-                            OR c.skill_agility >= $it
-                            OR c.skill_wild >= $it
+                            ${alias}.skill_willpower >= $it
+                            OR ${alias}.skill_intellect >= $it
+                            OR ${alias}.skill_combat >= $it
+                            OR ${alias}.skill_agility >= $it
+                            OR ${alias}.skill_wild >= $it
                         )
                     """.trimIndent())
                 }
@@ -883,13 +839,13 @@ class CardsRepositoryImpl @Inject constructor(
                 health.run {
                     add("""
                         (
-                            ${if (includeXHealthOrSanity) "c.health = -2 OR " else ""}
+                            ${if (includeXHealthOrSanity) "${alias}.health = -2 OR " else ""}
                             (${
                                 when {
-                                    max == null -> "c.health IS NULL"
-                                    min == null -> "c.health IS NULL OR c.health <= $max"
-                                    else -> "c.health BETWEEN $min AND $max"
-                                } + if (healthPerInvestigator) " AND c.health_per_investigator = 1" else ""
+                                    max == null -> "${alias}.health IS NULL"
+                                    min == null -> "${alias}.health IS NULL OR ${alias}.health <= $max"
+                                    else -> "${alias}.health BETWEEN $min AND $max"
+                                } + if (healthPerInvestigator) " AND ${alias}.health_per_investigator = 1" else ""
                             })
                         )
                     """.trimIndent())
@@ -898,12 +854,12 @@ class CardsRepositoryImpl @Inject constructor(
                 sanity.run {
                     add("""
                         (
-                            ${if (includeXHealthOrSanity) "c.sanity = -2 OR " else ""}
+                            ${if (includeXHealthOrSanity) "${alias}.sanity = -2 OR " else ""}
                             (${
                                 when {
-                                    max == null -> "c.sanity IS NULL"
-                                    min == null -> "c.sanity IS NULL OR c.sanity <= $max"
-                                    else -> "c.sanity BETWEEN $min AND $max"
+                                    max == null -> "${alias}.sanity IS NULL"
+                                    min == null -> "${alias}.sanity IS NULL OR ${alias}.sanity <= $max"
+                                    else -> "${alias}.sanity BETWEEN $min AND $max"
                                 }
                             })
                         )
@@ -914,15 +870,15 @@ class CardsRepositoryImpl @Inject constructor(
             propertiesFilter.run {
                 if (this == defaultFilters.propertiesFilter) return@run
 
-                if (customizable) add("c.customization_text IS NOT NULL")
-                if (exile) add("c.exile = 1")
-                if (exceptional) add("c.exceptional = 1")
-                if (multiclass) add("c.faction2_code IS NOT NULL")
-                if (myriad) add("c.myriad = 1")
-                if (permanent) add("c.permanent = 1")
-                if (specialist) add("c.restrictions LIKE '{\"trait\":%'")
-                if (unique) add("c.is_unique = 1")
-                if (victory) add("c.victory IS NOT NULL")
+                if (customizable) add("${alias}.customization_text IS NOT NULL")
+                if (exile) add("${alias}.exile = 1")
+                if (exceptional) add("${alias}.exceptional = 1")
+                if (multiclass) add("${alias}.faction2_code IS NOT NULL")
+                if (myriad) add("${alias}.myriad = 1")
+                if (permanent) add("${alias}.permanent = 1")
+                if (specialist) add("${alias}.restrictions LIKE '{\"trait\":%'")
+                if (unique) add("${alias}.is_unique = 1")
+                if (victory) add("${alias}.victory IS NOT NULL")
             }
 
             enemyFilter.run {
@@ -932,9 +888,9 @@ class CardsRepositoryImpl @Inject constructor(
                     add("""
                         (${
                             when {
-                                max == null -> "c.enemy_fight IS NULL"
-                                min == null -> "c.enemy_fight IS NULL OR c.enemy_fight <= $max"
-                                else -> "c.enemy_fight BETWEEN $min AND $max"
+                                max == null -> "${alias}.enemy_fight IS NULL"
+                                min == null -> "${alias}.enemy_fight IS NULL OR ${alias}.enemy_fight <= $max"
+                                else -> "${alias}.enemy_fight BETWEEN $min AND $max"
                             }
                         })
                     """.trimIndent())
@@ -944,9 +900,9 @@ class CardsRepositoryImpl @Inject constructor(
                     add("""
                         (${
                             when {
-                                max == null -> "c.enemy_evade IS NULL"
-                                min == null -> "c.enemy_evade IS NULL OR c.enemy_evade <= $max"
-                                else -> "c.enemy_evade BETWEEN $min AND $max"
+                                max == null -> "${alias}.enemy_evade IS NULL"
+                                min == null -> "${alias}.enemy_evade IS NULL OR ${alias}.enemy_evade <= $max"
+                                else -> "${alias}.enemy_evade BETWEEN $min AND $max"
                             }
                         })
                     """.trimIndent())
@@ -956,9 +912,9 @@ class CardsRepositoryImpl @Inject constructor(
                     add("""
                         (${
                             when {
-                                max == null -> "c.enemy_damage IS NULL"
-                                min == null -> "c.enemy_damage IS NULL OR c.enemy_damage <= $max"
-                                else -> "c.enemy_damage BETWEEN $min AND $max"
+                                max == null -> "${alias}.enemy_damage IS NULL"
+                                min == null -> "${alias}.enemy_damage IS NULL OR ${alias}.enemy_damage <= $max"
+                                else -> "${alias}.enemy_damage BETWEEN $min AND $max"
                             }
                         })
                     """.trimIndent())
@@ -968,15 +924,15 @@ class CardsRepositoryImpl @Inject constructor(
                     add("""
                         (${
                             when {
-                                max == null -> "c.enemy_horror IS NULL"
-                                min == null -> "c.enemy_horror IS NULL OR c.enemy_horror <= $max"
-                                else -> "c.enemy_horror BETWEEN $min AND $max"
+                                max == null -> "${alias}.enemy_horror IS NULL"
+                                min == null -> "${alias}.enemy_horror IS NULL OR ${alias}.enemy_horror <= $max"
+                                else -> "${alias}.enemy_horror BETWEEN $min AND $max"
                             }
                         })
                     """.trimIndent())
                 }
 
-                if (vengeance) add("c.vengeance IS NOT NULL")
+                if (vengeance) add("${alias}.vengeance IS NOT NULL")
             }
 
             locationFilter.run {
@@ -985,12 +941,12 @@ class CardsRepositoryImpl @Inject constructor(
                 shroud.run {
                     add("""
                         (
-                            ${if (xShroud) "c.shroud = -2 OR " else ""}
+                            ${if (xShroud) "${alias}.shroud = -2 OR " else ""}
                             (${
                                 when {
-                                    max == null -> "c.shroud IS NULL"
-                                    min == null -> "c.shroud IS NULL OR c.shroud <= $max"
-                                    else -> "c.shroud BETWEEN $min AND $max"
+                                    max == null -> "${alias}.shroud IS NULL"
+                                    min == null -> "${alias}.shroud IS NULL OR ${alias}.shroud <= $max"
+                                    else -> "${alias}.shroud BETWEEN $min AND $max"
                                 }
                             })
                         )
@@ -1001,23 +957,26 @@ class CardsRepositoryImpl @Inject constructor(
                     add("""
                         (${
                             when {
-                                max == null -> "c.clues IS NULL"
-                                min == null -> "c.clues IS NULL OR c.clues <= $max"
-                                else -> "c.clues BETWEEN $min AND $max"
-                            } + if (perInvestigatorClues) " AND c.clues_fixed = 0" else ""
+                                max == null -> "${alias}.clues IS NULL"
+                                min == null -> "${alias}.clues IS NULL OR ${alias}.clues <= $max"
+                                else -> "${alias}.clues BETWEEN $min AND $max"
+                            } + if (perInvestigatorClues) " AND ${alias}.clues_fixed = 0" else ""
                         })
                     """.trimIndent())
                 }
             }
 
             officialFilter?.let { official ->
-                if (official) add("c.official = 1")
-                else add("c.official = 0")
+                if (official) add("${alias}.official = 1")
+                else add("${alias}.official = 0")
             }
 
             if (illustrators.isNotEmpty()) {
                 val illustratorsString = illustrators.joinToString(",") { "'$it'" }
-                add("(c.illustrator IN ($illustratorsString) OR c.back_illustrator IN ($illustratorsString))")
+                add(
+                    "(${alias}.illustrator IN ($illustratorsString) OR " +
+                        "${alias}.back_illustrator IN ($illustratorsString))"
+                )
             }
         }
 
@@ -1028,6 +987,5 @@ class CardsRepositoryImpl @Inject constructor(
 private data class SqlSearchOptions(
     val sqlQuery: String = "",
     val searchFieldsQuery: String = "",
-    val backLinkCardFieldsQuery: String = "",
     val searchFieldsAmount: Int = 0
 )

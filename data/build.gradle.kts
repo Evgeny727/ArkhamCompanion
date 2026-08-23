@@ -36,6 +36,7 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.sqlite.bundled)
     ksp(libs.androidx.room.compiler)
 
     // Paging runtime

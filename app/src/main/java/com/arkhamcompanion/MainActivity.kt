@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                 val allowed = info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
                 val stalenessDays = info.clientVersionStalenessDays() ?: -1
 
-                val shouldForceUpdate = available && allowed && stalenessDays >= 14
+                val shouldForceUpdate = available && allowed //&& stalenessDays >= 14 TODO: uncomment at release
                 if (shouldForceUpdate) {
                     manager.startUpdateFlow(
                         info,
