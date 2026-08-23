@@ -504,7 +504,7 @@ class CardsRepositoryImpl @Inject constructor(
                     ${if (filterClause.isNotBlank())
                         """ AND EXISTS (
                             SELECT 1
-                            FROM card candidate
+                            FROM card candidate INDEXED BY index_card_code
                             WHERE (candidate.code = c.code OR candidate.code = c.back_link_id) 
                             AND $filterClause
                         )""".trimIndent() else ""

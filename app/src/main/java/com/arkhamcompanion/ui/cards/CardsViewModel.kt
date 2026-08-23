@@ -9,6 +9,7 @@ import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
+import com.arkhamcompanion.domain.model.cards.LevelFilter
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
@@ -128,6 +129,10 @@ class CardsViewModel @Inject constructor(
             it.copy(factions = it.factions.toggle(value))
         }
 
+    private fun <T> ImmutableSet<T>.toggle(value: T): ImmutableSet<T> =
+        (if (value in this) minus(value) else plus(value))
+            .toImmutableSet()
+
     fun updateLevelRange(range: NullableIntRange) {
         updateCardFilters {
             it.copy(
@@ -155,8 +160,10 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    private fun <T> ImmutableSet<T>.toggle(value: T): ImmutableSet<T> =
-        (if (value in this) minus(value) else plus(value))
-            .toImmutableSet()
+    fun clearLevelFilter() {
+        updateCardFilters {
+            it.copy(levelFilter = LevelFilter())
+        }
+    }
 
 }

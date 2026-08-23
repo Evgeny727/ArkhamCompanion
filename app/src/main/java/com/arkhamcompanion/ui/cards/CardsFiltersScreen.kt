@@ -1,5 +1,6 @@
 package com.arkhamcompanion.ui.cards
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,8 +25,10 @@ import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.cards.components.ArkhamSingleToggleButtonGroup
 import com.arkhamcompanion.ui.cards.components.ArkhamToggleButtonGroup
 import com.arkhamcompanion.ui.cards.components.CollapsableFiltersSection
+import com.arkhamcompanion.ui.cards.components.MinMaxFilterButtons
 import com.arkhamcompanion.ui.components.factionColor
 import com.arkhamcompanion.ui.theme.CustomTheme
+import com.arkhamcompanion.ui.theme.LocalLanguage
 import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableMap
@@ -52,7 +55,7 @@ fun CardsFiltersScreen(
         modifier = modifier
             .applyScaffoldPaddings(innerPadding)
             .fillMaxSize(),
-        contentPadding = PaddingValues(8.dp)
+        contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         item("factions_filter", "segmented_button") {
             ArkhamToggleButtonGroup(
@@ -73,25 +76,46 @@ fun CardsFiltersScreen(
                         )
                     )
                 },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                modifier = Modifier.fillMaxWidth().padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = 8.dp
+                )
             )
         }
 
         item("level_section", "section") {
-            val isDefaultValues = filters.levelFilter.range == defaultFilters.levelFilter.range
             val label = stringResource(R.string.level)
+            val isCollapsed = filtersUiState.collapsedSections[FilterSection.Level] ?: true
+            val range = filters.levelFilter.forcedRange ?: filters.levelFilter.range
+            val isDefaultValues = range == defaultFilters.levelFilter.range
+            val nullText = stringResource(R.string.none)
+            val minText = if (range.min == null) nullText else range.min.toString()
+            val maxText = if (range.max == null) nullText else range.max.toString()
 
             CollapsableFiltersSection(
                 label = if (isDefaultValues) stringResource(R.string.label_all, label)
-                    else label,
-                isCollapsed = filtersUiState.collapsedSections[FilterSection.Level] == true,
-                modifier = Modifier.fillMaxWidth()
+                    else label + LocalLanguage.current.colon
+                        + if (minText != maxText) " $minText - $maxText" else " $minText",
+                isNotCollapsed = !isCollapsed,
+                onCollapseChange = {
+                    cardsFiltersViewModel.toggleSection(FilterSection.Level)
+                },
+                onSectionClear = cardsViewModel::clearLevelFilter,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp).animateContentSize()
             ) {
-
+                MinMaxFilterButtons(
+                    range = range,
+                    maxRange = defaultFilters.levelFilter.range,
+                    onUpdateRange = cardsViewModel::updateLevelRange,
+                    nullText = nullText
+                )
             }
+
+            if (!isCollapsed) HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
-        if (filtersUiState.collapsedSections[FilterSection.Level] == true) {
+        if (filtersUiState.collapsedSections[FilterSection.Level] ?: true) {
             item("level_short_filter", "segmented_button") {
                 ArkhamSingleToggleButtonGroup(
                     values = persistentListOf(
@@ -108,7 +132,11 @@ fun CardsFiltersScreen(
                             style = CustomTheme.typography.small
                         )
                     },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(
+                        start = 8.dp,
+                        end = 8.dp,
+                        bottom = 8.dp
+                    ).animateItem()
                 )
 
                 HorizontalDivider(color = CustomTheme.colors.divider)
