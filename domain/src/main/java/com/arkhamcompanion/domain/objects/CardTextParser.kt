@@ -233,11 +233,11 @@ object CardTextParser {
                 // Unknown tag → literal text.
                 paragraphs.appendText(
                     start = index,
-                    end = end + 1,
+                    end = index + 1,
                     styleFlags = styleFlags,
                 )
 
-                end + 1
+                index + 1
             }
         }
     }
@@ -345,14 +345,16 @@ object CardTextParser {
                 end = end + 1,
                 glyph = glyph,
             )
+
+            return end + 1
         } else {
             paragraphs.appendText(
                 start = index,
-                end = end + 1,
+                end = index + 1,
                 styleFlags = styleFlags,
             )
-        }
 
-        return end + 1
+            return index + 1
+        }
     }
 }

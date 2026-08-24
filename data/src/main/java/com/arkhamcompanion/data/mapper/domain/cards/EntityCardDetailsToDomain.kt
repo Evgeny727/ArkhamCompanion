@@ -2,7 +2,6 @@ package com.arkhamcompanion.data.mapper.domain.cards
 
 import com.arkhamcompanion.data.local.cards.CardDetailsEntity
 import com.arkhamcompanion.data.objects.CardCache
-import com.arkhamcompanion.domain.objects.CardTextParser
 import com.arkhamcompanion.domain.enums.CardBackType
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
@@ -11,6 +10,7 @@ import com.arkhamcompanion.domain.model.cards.CardBackInfo
 import com.arkhamcompanion.domain.model.cards.CardDetails
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithPackInfo
 import com.arkhamcompanion.domain.model.cards.CardPackInfo
+import com.arkhamcompanion.domain.objects.CardTextParser
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
