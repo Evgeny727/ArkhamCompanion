@@ -49,6 +49,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -351,7 +352,13 @@ class CardsRepositoryImpl @Inject constructor(
             projection = "code, taboo_set_id"
         )
 
-        return cardsDao.getSearchedCardCodesRaw(rawQuery).map { it.toDomain() }
+        return cardsDao.getSearchedCardCodesRaw(rawQuery)
+            .catch {
+                analyticsRepository.logMessage(searchConfig.options.searchQuery)
+                analyticsRepository.logMessage(searchConfig.filters.toString())
+                analyticsRepository.logError(it)
+            }
+            .map { it.toDomain() }
     }
 
     override fun getCardWithRelationsByCodeFlow(
