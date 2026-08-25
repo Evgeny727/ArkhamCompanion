@@ -1965,4 +1965,14 @@
     <string name="app_translations_text">&lt;b&gt;Перевод:&lt;/b&gt;\n• Испанский: %s\n• Французский: %s\n• Немецкий: %s\n• Корейский: %s\n• Китайский (Упрощённый): %s</string>
     <string name="app_contributions_text">&lt;b&gt;Помощь в создании:&lt;/b&gt;\n• Визуальный дизайн: %s</string>
     <string name="app_icons_attribution_text">&lt;b&gt;Пиктографика:&lt;/b&gt;\n• Оригинальный дизайн: %s</string>
+    <string name="include_x_health_or_sanity">Здоровье / рассудок «X»</string>
+    <string name="fanmade_content">Фанатский контент</string>
+    <string name="official_only">Только официальное</string>
+    <string name="fanmade_only">Только фанатское</string>
+    <string name="even">Чёт</string>
+    <string name="odd">Нечёт</string>
+    <string name="properties">Свойства</string>
+    <string name="heals_damage">Лечит раны</string>
+    <string name="heals_horror">Лечит ужас</string>
+    <string name="succeed_by">Превышение на</string>
 </resources>

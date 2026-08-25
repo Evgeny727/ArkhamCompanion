@@ -4,6 +4,8 @@ import androidx.room3.Dao
 import androidx.room3.Query
 import androidx.room3.RewriteQueriesToDropUnusedColumns
 import androidx.room3.Upsert
+import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
+import com.arkhamcompanion.data.local.cards.CardTypeEntity
 import com.arkhamcompanion.data.local.meta.CycleEntity
 import com.arkhamcompanion.data.local.meta.EncounterSetEntity
 import com.arkhamcompanion.data.local.meta.FactionEntity
@@ -65,4 +67,28 @@ interface MetaDao {
 
     @Query("SELECT * FROM faction")
     fun getAllFactions(): Flow<List<FactionEntity>>
+
+    @Query("SELECT * FROM card_type")
+    fun getAllTypes(): Flow<List<CardTypeEntity>>
+
+    @Query("SELECT * FROM card_subtype")
+    fun getAllSubTypes(): Flow<List<CardSubtypeEntity>>
+
+    @Query("SELECT * FROM encounter_set")
+    fun getAllEncounterSets(): Flow<List<EncounterSetEntity>>
+
+    @Query("""
+        SELECT illustrator
+        FROM card
+        WHERE illustrator IS NOT NULL
+    
+        UNION
+    
+        SELECT back_illustrator
+        FROM card
+        WHERE back_illustrator IS NOT NULL
+        
+        ORDER BY illustrator COLLATE NOCASE
+    """)
+    fun getAllIllustrators(): Flow<List<String>>
 }

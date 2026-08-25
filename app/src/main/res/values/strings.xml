@@ -1963,4 +1963,14 @@
     <string name="app_translations_text">&lt;b&gt;Translation:&lt;/b&gt;\n• Spanish: %s\n• French: %s\n• German: %s\n• Korean: %s\n• Chinese (Simplified): %s</string>
     <string name="app_contributions_text">&lt;b&gt;Additional Contributions:&lt;/b&gt;\n• Visual Design: %s</string>
     <string name="app_icons_attribution_text">&lt;b&gt;Icon Attribution:&lt;/b&gt;\n• Original icon designs: %s</string>
+    <string name="include_x_health_or_sanity">Include health / sanity \'X\'</string>
+    <string name="fanmade_content">Fan-made content</string>
+    <string name="official_only">Official only</string>
+    <string name="fanmade_only">Fan-made only</string>
+    <string name="even">Even</string>
+    <string name="odd">Odd</string>
+    <string name="properties">Properties</string>
+    <string name="heals_damage">Heals damage</string>
+    <string name="heals_horror">Heals horror</string>
+    <string name="succeed_by">Succeed by</string>
 </resources>

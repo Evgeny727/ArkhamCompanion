@@ -4,6 +4,8 @@ import com.arkhamcompanion.data.local.cards.CardCacheData
 import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonArray
@@ -27,6 +29,22 @@ private val CHAOS_REGEX =
     Regex("""\[(auto_fail|bless|skull|cultist|curse|tablet|frost|blood|elder_sign|elder_thing)""")
 
 object CardCache {
+
+    //Flows for filters
+    private val _actions = MutableStateFlow<Array<String>>(emptyArray())
+    val actionsFlow = _actions.asStateFlow()
+
+    private val _traits = MutableStateFlow<Array<String>>(emptyArray())
+    val traitsFlow = _traits.asStateFlow()
+
+    private val _skillBoosts = MutableStateFlow<Array<String>>(emptyArray())
+    val skillBoostsFlow = _skillBoosts.asStateFlow()
+
+    private val _uses = MutableStateFlow<Array<String>>(emptyArray())
+    val usesFlow = _uses.asStateFlow()
+
+    private val _slots = MutableStateFlow<Array<String>>(emptyArray())
+    val slotsFlow = _slots.asStateFlow()
 
     var traits: MutableMap<String, MutableSet<String>> = mutableMapOf()
         private set
@@ -375,6 +393,12 @@ object CardCache {
                 }
             }
         }
+
+        _actions.value = actions.keys.toTypedArray()
+        _traits.value = traits.keys.toTypedArray()
+        _skillBoosts.value = skillBoosts.keys.toTypedArray()
+        _uses.value = uses.keys.toTypedArray()
+        _slots.value = slots.keys.toTypedArray()
     }
 
     private fun addIndices(card: CardEntity) {
@@ -471,7 +495,12 @@ object CardCache {
     }
 
     private fun indexBySlots(card: CardEntity) {
-        if (card.realSlot == null) return
+        if (card.realSlot == null && card.typeCode != "asset") return
+        else if (card.realSlot == null) {
+            slots.addToSet("other", card.id)
+            return
+        }
+
         for (slot in card.realSlot.split(".")) {
             slots.addToSet(slot.trim().lowercase(), card.id)
         }
@@ -530,5 +559,11 @@ object CardCache {
         otherVersions = data.otherVersions.mapValues { it.value.toMutableSet() }.toMutableMap()
         basePrints = data.basePrints.mapValues { it.value.toMutableSet() }.toMutableMap()
         relationsCache = mutableMapOf()
+
+        _actions.value = data.actions.keys.toTypedArray()
+        _traits.value = data.traits.keys.toTypedArray()
+        _skillBoosts.value = data.skillBoosts.keys.toTypedArray()
+        _uses.value = data.uses.keys.toTypedArray()
+        _slots.value = data.slots.keys.toTypedArray()
     }
 }

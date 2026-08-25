@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.arkhamcompanion.R
+import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.ui.components.ArkhamButton
 import com.arkhamcompanion.ui.components.ArkhamButtonSearchIcon
 import com.arkhamcompanion.ui.components.ArkhamSearchBox
@@ -40,6 +42,8 @@ fun CardsScreen(
     val searchOptions by viewModel.searchOptions.collectAsState()
     val searchResults = viewModel.searchResults.collectAsLazyPagingItems()
     val searchResultCodes by viewModel.searchResultCodes.collectAsState()
+    val searchFilters by viewModel.cardFilters.collectAsState()
+    val defaultFilters = remember { CardFilters() }
     val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
 
     val density = LocalDensity.current
@@ -96,6 +100,8 @@ fun CardsScreen(
             listState = listState,
             rowHeight = rowHeight,
             onCardClick = onCardClick,
+            showClearFilters = searchFilters != defaultFilters,
+            onClearFilters = viewModel::clearCardFilters,
         ) {
             item("clear_search_button", contentType = "button") {
                 ArkhamButton(

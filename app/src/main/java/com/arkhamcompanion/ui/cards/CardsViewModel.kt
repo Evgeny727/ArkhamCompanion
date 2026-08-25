@@ -4,13 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.arkhamcompanion.UiErrorState
+import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
+import com.arkhamcompanion.domain.model.cards.CostFilter
+import com.arkhamcompanion.domain.model.cards.HealthSanityFilter
 import com.arkhamcompanion.domain.model.cards.LevelFilter
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
+import com.arkhamcompanion.domain.model.cards.PropertiesFilter
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -163,6 +167,134 @@ class CardsViewModel @Inject constructor(
     fun clearLevelFilter() {
         updateCardFilters {
             it.copy(levelFilter = LevelFilter())
+        }
+    }
+
+    fun updateTypes(value: CardType) {
+        updateCardFilters {
+            it.copy(types = it.types.toggle(value))
+        }
+    }
+
+    fun clearHealthSanityFilter() {
+        updateCardFilters {
+            it.copy(healthSanityFilter = HealthSanityFilter())
+        }
+    }
+
+    fun updateHealthRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    health = range,
+                )
+            )
+        }
+    }
+
+    fun updateSanityRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    sanity = range,
+                )
+            )
+        }
+    }
+
+    fun toggleHealthPerInvestigator(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    healthPerInvestigator = value
+                )
+            )
+        }
+    }
+
+    fun toggleIncludeXHealthOrSanity(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    includeXHealthOrSanity = value
+                )
+            )
+        }
+    }
+
+    fun toggleOfficialFilter(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                officialFilter = if (it.officialFilter == value) null else value
+            )
+        }
+    }
+
+    fun clearOfficialFilter() {
+        updateCardFilters {
+            it.copy(
+                officialFilter = null
+            )
+        }
+    }
+
+    fun clearCostFilter() {
+        updateCardFilters {
+            it.copy(costFilter = CostFilter())
+        }
+    }
+
+    fun updateCostRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                costFilter = it.costFilter.copy(
+                    range = range,
+                )
+            )
+        }
+    }
+
+    fun toggleEvenCost(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                costFilter = it.costFilter.copy(
+                    evenCost = value
+                )
+            )
+        }
+    }
+
+    fun toggleOddCost(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                costFilter = it.costFilter.copy(
+                    oddCost = value
+                )
+            )
+        }
+    }
+
+    fun clearPropertiesFilter() {
+        updateCardFilters {
+            it.copy(
+                propertiesFilter = PropertiesFilter()
+            )
+        }
+    }
+
+    fun updatePropertiesFilter(value: PropertiesFilter) {
+        updateCardFilters {
+            it.copy(
+                propertiesFilter = value
+            )
+        }
+    }
+
+    fun updateTabooSet(value: Int) {
+        updateCardFilters {
+            it.copy(
+                tabooSetId = if (value == 0) null else value
+            )
         }
     }
 
