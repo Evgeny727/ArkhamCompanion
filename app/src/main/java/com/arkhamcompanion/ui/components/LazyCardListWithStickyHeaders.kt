@@ -44,6 +44,7 @@ import com.arkhamcompanion.ui.cards.components.CardListItem
 import com.arkhamcompanion.ui.cards.components.CardSectionHeader
 import com.arkhamcompanion.ui.cards.components.PlaceholderCardListItem
 import com.arkhamcompanion.ui.cards.components.buildHeaderTitle
+import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import kotlinx.collections.immutable.ImmutableList
 
@@ -55,6 +56,8 @@ fun LazyCardListWithStickyHeaders(
     listState: LazyListState,
     rowHeight: Dp,
     onCardClick: (String) -> Unit,
+    showClearFilters: Boolean,
+    onClearFilters: () -> Unit,
     modifier: Modifier = Modifier,
     bottomButtons: LazyListScope.() -> Unit,
 ) {
@@ -168,7 +171,7 @@ fun LazyCardListWithStickyHeaders(
                             },
                             style = CustomTheme.typography.text,
                         )
-                        if (searchQuery.isBlank()) {
+                        if (searchQuery.isBlank() && !showClearFilters) {
                             Text(
                                 text = stringResource(R.string.edit_collection_in_settings),
                                 style = CustomTheme.typography.text,
@@ -256,6 +259,23 @@ fun LazyCardListWithStickyHeaders(
                 }
             }
 
+            if (showClearFilters) {
+                item("clear_filters_button", contentType = "button") {
+                    ArkhamButton(
+                        title = stringResource(R.string.clear_search_filters),
+                        onClick = onClearFilters,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .animateItem(),
+                    ) { color ->
+                        ArkhamIconText(
+                            iconGlyph = AppIcon.FilterClear,
+                            color = color,
+                            size = 24.dp
+                        )
+                    }
+                }
+            }
             if (searchQuery.isNotBlank()) bottomButtons()
         }
 

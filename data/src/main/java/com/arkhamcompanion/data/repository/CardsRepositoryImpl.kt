@@ -789,7 +789,7 @@ class CardsRepositoryImpl @Inject constructor(
             }
 
             tabooSetId?.let {
-                add("(${alias}.taboo_set_id = $it AND ${alias}.taboo_placeholder = 0)")
+                add("(c.taboo_set_id = $it AND c.taboo_placeholder = 0)")
             }
 
             /*
@@ -879,7 +879,7 @@ class CardsRepositoryImpl @Inject constructor(
 
                 if (customizable) add("${alias}.customization_text IS NOT NULL")
                 if (exile) add("${alias}.exile = 1")
-                if (exceptional) add("${alias}.exceptional = 1")
+                if (exceptional) add("c.exceptional = 1")
                 if (multiclass) add("${alias}.faction2_code IS NOT NULL")
                 if (myriad) add("${alias}.myriad = 1")
                 if (permanent) add("${alias}.permanent = 1")

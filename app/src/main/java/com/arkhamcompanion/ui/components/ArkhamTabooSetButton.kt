@@ -34,16 +34,14 @@ fun ArkhamTabooSetButton(
     loading: Boolean = false,
     onTabooSetChange: (Int) -> Unit,
 ) {
-    val none = stringResource(R.string.none)
-    val current = stringResource(R.string.latest_taboo_set)
     val tabooSetName = when (tabooSetId) {
         100 -> {
-            if (includeCurrent) current
+            if (includeCurrent) stringResource(R.string.latest_taboo_set)
             else tabooSetsList.firstOrNull()?.let {
                 "${it.name} (${it.date.toLocalizedDate()})"
             } ?: stringResource(R.string.unknown)
         }
-        0 -> none
+        0 -> stringResource(R.string.none)
         else -> tabooSetsList.find { it.id == tabooSetId }?.let {
             "${it.name} (${it.date.toLocalizedDate()})"
         } ?: stringResource(R.string.unknown)
@@ -59,9 +57,28 @@ fun ArkhamTabooSetButton(
         onClick = { showTabooPicker = true }
     )
 
-    if (showTabooPicker) ArkhamDialog(
+    if (showTabooPicker) {
+        ArkhamTabooDialog(
+            onDismiss = { showTabooPicker = false },
+            tabooSetId = tabooSetId,
+            tabooSetsList = tabooSetsList,
+            includeCurrent = includeCurrent,
+            onTabooSetChange = onTabooSetChange
+        )
+    }
+}
+
+@Composable
+fun ArkhamTabooDialog(
+    onDismiss: () -> Unit,
+    tabooSetId: Int,
+    tabooSetsList: ImmutableList<TabooSet>,
+    includeCurrent: Boolean = false,
+    onTabooSetChange: (Int) -> Unit,
+) {
+    ArkhamDialog(
         title = stringResource(R.string.taboo_set),
-        onDismiss = { showTabooPicker = false },
+        onDismiss = onDismiss,
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxHeight(0.6f),
@@ -70,29 +87,32 @@ fun ArkhamTabooSetButton(
         ) {
             item(0) {
                 ArkhamCheckboxButton(
-                    title = none,
+                    title = stringResource(R.string.none),
                     isSelected = tabooSetId == 0,
                     enabled = tabooSetId != 0,
                     isRadio = true
                 ) {
-                    showTabooPicker = false
+                    onDismiss()
                     onTabooSetChange(0)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 HorizontalDivider(color = CustomTheme.colors.divider)
             }
-            if (includeCurrent) item(100) {
-                ArkhamCheckboxButton(
-                    title = current,
-                    isSelected = tabooSetId == 100,
-                    enabled = tabooSetId != 100,
-                    isRadio = true
-                ) {
-                    showTabooPicker = false
-                    onTabooSetChange(100)
+
+            if (includeCurrent) {
+                item(100) {
+                    ArkhamCheckboxButton(
+                        title = stringResource(R.string.latest_taboo_set),
+                        isSelected = tabooSetId == 100,
+                        enabled = tabooSetId != 100,
+                        isRadio = true
+                    ) {
+                        onDismiss()
+                        onTabooSetChange(100)
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    HorizontalDivider(color = CustomTheme.colors.divider)
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalDivider(color = CustomTheme.colors.divider)
             }
 
             tabooSetsList.forEach { tabooSet ->
@@ -103,7 +123,7 @@ fun ArkhamTabooSetButton(
                         enabled = tabooSetId != tabooSet.id,
                         isRadio = true
                     ) {
-                        showTabooPicker = false
+                        onDismiss()
                         onTabooSetChange(tabooSet.id)
                     }
                 }
