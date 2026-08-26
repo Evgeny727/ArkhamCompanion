@@ -4,20 +4,20 @@ import com.arkhamcompanion.R
 
 fun getLocalizedAction(code: String) =
     when (code) {
-        "fight" -> R.string.fight
-        "Engage" -> 0
-        "Investigate" -> 0
-        "Draw" -> 0
-        "Move" -> 0
-        "Evade" -> 0
-        "Parley" -> 0
-        "Resign" -> 0
+        "Fight" -> R.string.fight
+        "Engage" -> R.string.engage
+        "Investigate" -> R.string.investigate
+        "Draw" -> R.string.draw_action
+        "Resource" -> R.string.resource_action
+        "Move" -> R.string.move
+        "Evade" -> R.string.evade
+        "Parley" -> R.string.parley
+        "Resign" -> R.string.resign
         else -> R.string.unknown
     }
 
 fun getLocalizedTrait(code: String) =
     when (code) {
-        "fast" -> R.string.fast
         else -> R.string.unknown
     }
 
@@ -38,8 +38,44 @@ fun getLocalizedSlot(code: String) =
 
 fun getLocalizedUse(code: String) =
     when (code) {
-        "aether" -> R.string.aether
-        "charges" -> R.string.charges
+        "aether" -> R.string.uses_aether
+        "arrow" -> R.string.uses_arrow
+        "ammo" -> R.string.uses_ammo
+        "blame" -> R.string.uses_blame
+        "bounties" -> R.string.uses_bounties
+        "brilliance" -> R.string.uses_brilliance
+        "chances" -> R.string.uses_chances
+        "charges" -> R.string.uses_charges
+        "doses" -> R.string.uses_doses
+        "discoveries" -> R.string.uses_discoveries
+        "durability" -> R.string.uses_durability
+        "evidence" -> R.string.uses_evidence
+        "inspiration" -> R.string.uses_inspiration
+        "keys" -> R.string.uses_keys
+        "leylines" -> R.string.uses_leylines
+        "locks" -> R.string.uses_locks
+        "obsessions" -> R.string.uses_obsessions
+        "obligations" -> R.string.uses_obligations
+        "offerings" -> R.string.uses_offerings
+        "poems" -> R.string.uses_poems
+        "portents" -> R.string.uses_portents
+        "portions" -> R.string.uses_portions
+        "resources" -> R.string.uses_resources
+        "renown" -> R.string.uses_renown
+        "rumors" -> R.string.uses_rumors
+        "samples" -> R.string.uses_samples
+        "secrets" -> R.string.uses_secrets
+        "signs" -> R.string.uses_signs
+        "supplies" -> R.string.uses_supplies
+        "shards" -> R.string.uses_shards
+        "shell" -> R.string.uses_shell
+        "tickets" -> R.string.uses_tickets
+        "time" -> R.string.uses_time
+        "treats" -> R.string.uses_treats
+        "tries" -> R.string.uses_tries
+        "truths" -> R.string.uses_truths
+        "wishes" -> R.string.uses_wishes
+        "whistles" -> R.string.uses_whistles
         else -> R.string.unknown
     }
 

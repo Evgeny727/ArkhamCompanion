@@ -72,8 +72,6 @@ class MetaRepositoryImpl @Inject constructor(
 
     override fun getAllUses(): Flow<Array<String>> = CardCache.usesFlow
 
-    override fun getAllSkillBoosts(): Flow<Array<String>> = CardCache.skillBoostsFlow
-
     override fun getAllEncounterSets(): Flow<ImmutableMap<String, String>> = metaDao.getAllEncounterSets()
         .map { encounterSets ->
             encounterSets.map { it.toDomain() }

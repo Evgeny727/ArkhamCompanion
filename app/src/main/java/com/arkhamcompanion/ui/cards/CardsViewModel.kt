@@ -4,23 +4,29 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.arkhamcompanion.UiErrorState
+import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
+import com.arkhamcompanion.domain.model.cards.AssetFilter
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
 import com.arkhamcompanion.domain.model.cards.CostFilter
+import com.arkhamcompanion.domain.model.cards.EnemyFilter
 import com.arkhamcompanion.domain.model.cards.HealthSanityFilter
 import com.arkhamcompanion.domain.model.cards.LevelFilter
+import com.arkhamcompanion.domain.model.cards.LocationFilter
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.model.cards.PropertiesFilter
 import com.arkhamcompanion.domain.model.cards.SkillsFilter
+import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -177,65 +183,21 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    fun clearHealthSanityFilter() {
+    fun clearTypesFilter() {
         updateCardFilters {
-            it.copy(healthSanityFilter = HealthSanityFilter())
+            it.copy(types = persistentSetOf())
         }
     }
 
-    fun updateHealthRange(range: NullableIntRange) {
+    fun updateSubTypes(value: CardSubType?) {
         updateCardFilters {
-            it.copy(
-                healthSanityFilter = it.healthSanityFilter.copy(
-                    health = range,
-                )
-            )
+            it.copy(subTypes = it.subTypes.toggle(value))
         }
     }
 
-    fun updateSanityRange(range: NullableIntRange) {
+    fun clearSubTypesFilter() {
         updateCardFilters {
-            it.copy(
-                healthSanityFilter = it.healthSanityFilter.copy(
-                    sanity = range,
-                )
-            )
-        }
-    }
-
-    fun toggleHealthPerInvestigator(value: Boolean) {
-        updateCardFilters {
-            it.copy(
-                healthSanityFilter = it.healthSanityFilter.copy(
-                    healthPerInvestigator = value
-                )
-            )
-        }
-    }
-
-    fun toggleIncludeXHealthOrSanity(value: Boolean) {
-        updateCardFilters {
-            it.copy(
-                healthSanityFilter = it.healthSanityFilter.copy(
-                    includeXHealthOrSanity = value
-                )
-            )
-        }
-    }
-
-    fun toggleOfficialFilter(value: Boolean) {
-        updateCardFilters {
-            it.copy(
-                officialFilter = if (it.officialFilter == value) null else value
-            )
-        }
-    }
-
-    fun clearOfficialFilter() {
-        updateCardFilters {
-            it.copy(
-                officialFilter = null
-            )
+            it.copy(subTypes = persistentSetOf())
         }
     }
 
@@ -291,6 +253,174 @@ class CardsViewModel @Inject constructor(
         }
     }
 
+    fun updateActions(value: String) {
+        updateCardFilters {
+            it.copy(actions = it.actions.toggle(value))
+        }
+    }
+
+    fun clearActionsFilter() {
+        updateCardFilters {
+            it.copy(actions = persistentSetOf())
+        }
+    }
+
+    fun updateTraits(value: String) {
+        updateCardFilters {
+            it.copy(traits = it.traits.toggle(value))
+        }
+    }
+
+    fun clearTraitsFilter() {
+        updateCardFilters {
+            it.copy(traits = persistentSetOf())
+        }
+    }
+
+    fun updateSkillBoostsFilter(value: String) {
+        updateCardFilters {
+            it.copy(assetFilter = it.assetFilter.copy(
+                skillBoosts = it.assetFilter.skillBoosts.toggle(value)
+            ))
+        }
+    }
+
+    fun clearAssetsFilter() {
+        updateCardFilters {
+            it.copy(assetFilter = AssetFilter())
+        }
+    }
+
+    fun updateSlots(value: String) {
+        updateCardFilters {
+            it.copy(assetFilter = it.assetFilter.copy(
+                slots = it.assetFilter.slots.toggle(value)
+            ))
+        }
+    }
+
+    fun clearSlotsFilter() {
+        updateCardFilters {
+            it.copy(assetFilter = it.assetFilter.copy(
+                slots = persistentSetOf()
+            ))
+        }
+    }
+
+    fun updateUses(value: String) {
+        updateCardFilters {
+            it.copy(assetFilter = it.assetFilter.copy(
+                uses = it.assetFilter.uses.toggle(value)
+            ))
+        }
+    }
+
+    fun clearUsesFilter() {
+        updateCardFilters {
+            it.copy(assetFilter = it.assetFilter.copy(
+                uses = persistentSetOf()
+            ))
+        }
+    }
+
+    fun clearHealthSanityFilter() {
+        updateCardFilters {
+            it.copy(healthSanityFilter = HealthSanityFilter())
+        }
+    }
+
+    fun updateHealthRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    health = range,
+                )
+            )
+        }
+    }
+
+    fun updateSanityRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    sanity = range,
+                )
+            )
+        }
+    }
+
+    fun toggleHealthPerInvestigator(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    healthPerInvestigator = value
+                )
+            )
+        }
+    }
+
+    fun toggleIncludeXHealthOrSanity(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                healthSanityFilter = it.healthSanityFilter.copy(
+                    includeXHealthOrSanity = value
+                )
+            )
+        }
+    }
+
+    fun updateEnemiesFilter(value: EnemyFilter) {
+        updateCardFilters {
+            it.copy(enemyFilter = value)
+        }
+    }
+
+    fun clearEnemiesFilter() {
+        updateCardFilters {
+            it.copy(enemyFilter = EnemyFilter())
+        }
+    }
+
+    fun updateLocationsFilter(value: LocationFilter) {
+        updateCardFilters {
+            it.copy(locationFilter = value)
+        }
+    }
+
+    fun clearLocationsFilter() {
+        updateCardFilters {
+            it.copy(locationFilter = LocationFilter())
+        }
+    }
+
+    fun updateEncounterSetsFilter(value: String) {
+        updateCardFilters {
+            it.copy(encounterSets = it.encounterSets.toggle(value))
+        }
+    }
+
+    fun clearEncounterSetsFilter() {
+        updateCardFilters {
+            it.copy(encounterSets = persistentSetOf())
+        }
+    }
+
+    fun toggleOfficialFilter(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                officialFilter = if (it.officialFilter == value) null else value
+            )
+        }
+    }
+
+    fun clearOfficialFilter() {
+        updateCardFilters {
+            it.copy(
+                officialFilter = null
+            )
+        }
+    }
+
     fun clearPropertiesFilter() {
         updateCardFilters {
             it.copy(
@@ -307,11 +437,35 @@ class CardsViewModel @Inject constructor(
         }
     }
 
+    fun updatePacksFilter(value: Collection) {
+        updateCardFilters {
+            it.copy(packs = value)
+        }
+    }
+
+    fun clearPacksFilter() {
+        updateCardFilters {
+            it.copy(packs = Collection(persistentSetOf(), persistentSetOf()))
+        }
+    }
+
     fun updateTabooSet(value: Int) {
         updateCardFilters {
             it.copy(
                 tabooSetId = if (value == 0) null else value
             )
+        }
+    }
+
+    fun updateIllustratorsFilter(value: String) {
+        updateCardFilters {
+            it.copy(illustrators = it.illustrators.toggle(value))
+        }
+    }
+
+    fun clearIllustratorsFilter() {
+        updateCardFilters {
+            it.copy(illustrators = persistentSetOf())
         }
     }
 

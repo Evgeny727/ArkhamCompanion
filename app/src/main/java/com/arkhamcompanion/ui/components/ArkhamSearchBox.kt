@@ -72,7 +72,8 @@ fun ArkhamSearchBox(
                 ArkhamIconText(
                     iconGlyph = AppIcon.Search,
                     size = 28.dp,
-                    color = CustomTheme.colors.m
+                    color = CustomTheme.colors.m,
+                    modifier = Modifier.padding(vertical = 2.dp)
                 )
 
                 Box(modifier = Modifier.weight(1f)) {
@@ -99,7 +100,8 @@ fun ArkhamSearchBox(
                 AnimatedVisibility(searchQuery.isNotEmpty()) {
                     Box(
                         modifier = Modifier.clip(CustomTheme.shapes.circle)
-                            .clickable(onClick = onClearQuery),
+                            .clickable(onClick = onClearQuery)
+                            .padding(end = if (searchOptions == null) 8.dp else 0.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         ArkhamIconText(
@@ -120,6 +122,7 @@ fun ArkhamSearchBox(
                 ) { newValue -> showOptions = newValue }
             }
         }
+
         DropdownMenu(
             expanded = showOptions,
             onDismissRequest = {},

@@ -30,8 +30,6 @@ interface MetaRepository {
 
     fun getAllUses(): Flow<Array<String>>
 
-    fun getAllSkillBoosts(): Flow<Array<String>>
-
     fun getAllEncounterSets(): Flow<ImmutableMap<String, String>>
 
     fun getAllIllustrators(): Flow<ImmutableSet<String>>

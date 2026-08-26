@@ -680,23 +680,29 @@ class CardsRepositoryImpl @Inject constructor(
             assetFilter.run {
                 if (this == defaultFilters.assetFilter) return@run
 
-                applyCodes(
-                    skillBoosts.flatMap {
-                        CardCache.skillBoosts[it].orEmpty()
-                    }.toSet()
-                )
+                if (skillBoosts.isNotEmpty()) {
+                    applyCodes(
+                        skillBoosts.flatMap {
+                            CardCache.skillBoosts[it].orEmpty()
+                        }.toSet()
+                    )
+                }
 
-                applyCodes(
-                    uses.flatMap {
-                        CardCache.uses[it].orEmpty()
-                    }.toSet()
-                )
+                if (uses.isNotEmpty()) {
+                    applyCodes(
+                        uses.flatMap {
+                            CardCache.uses[it].orEmpty()
+                        }.toSet()
+                    )
+                }
 
-                applyCodes(
-                    slots.flatMap {
-                        CardCache.slots[it].orEmpty()
-                    }.toSet()
-                )
+                if (slots.isNotEmpty()) {
+                    applyCodes(
+                        slots.flatMap {
+                            CardCache.slots[it].orEmpty()
+                        }.toSet()
+                    )
+                }
             }
 
             if (actions.isNotEmpty()) {

@@ -74,12 +74,37 @@ import com.arkhamcompanion.ui.campaigns.CampaignsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsViewModel
 import com.arkhamcompanion.ui.cards.Cards
+import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersEncountersScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersEnemiesScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersIllustratorsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersLocationsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersPacksScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersSlotsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersSubTypesScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersTraitsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersTypesScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersUsesScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
 import com.arkhamcompanion.ui.cards.CardsScreen
 import com.arkhamcompanion.ui.cards.CardsSortScreen
 import com.arkhamcompanion.ui.cards.CardsSortViewModel
 import com.arkhamcompanion.ui.cards.CardsViewModel
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersActionsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersAssetsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersEncounterSetsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersEnemiesScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersIllustratorsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersLocationsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersPacksScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersSlotsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersSubTypesScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersTraitsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersTypesScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersUsesScreen
 import com.arkhamcompanion.ui.components.ArkhamAlertButton
 import com.arkhamcompanion.ui.components.ArkhamAlertButtonStyle
 import com.arkhamcompanion.ui.components.ArkhamAlertDialog
@@ -432,6 +457,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                         CardsFiltersScreen(
                             cardsViewModel = cardsViewModel,
                             cardsFiltersViewModel = cardsFiltersViewModel,
+                            navigateTo = { navController.navigateSingleTop(it) },
                             innerPadding = innerPadding
                         )
 
@@ -447,6 +473,483 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                             ArkhamAppBarAction(
                                 contentColor = CustomTheme.colors.m,
                                 onClick = cardsViewModel::clearCardFilters,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersTypesScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersTypesScreen(
+                            selectedTypes = filters.types,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onTypeChange = cardsViewModel::updateTypes,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.types)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearTypesFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersSubTypesScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersSubTypesScreen(
+                            selectedSubTypes = filters.subTypes,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onSubTypeChange = cardsViewModel::updateSubTypes,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.subtypes)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearSubTypesFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersActionsScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersActionsScreen(
+                            selectedActions = filters.actions,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onActionChange = cardsViewModel::updateActions,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.actions)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearActionsFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersTraitsScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersTraitsScreen(
+                            selectedTraits = filters.traits,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onTraitChange = cardsViewModel::updateTraits,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.traits)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearTraitsFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersAssetsScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+
+                        CardsFiltersAssetsScreen(
+                            assetFilter = filters.assetFilter,
+                            onSkillBoostChange = cardsViewModel::updateSkillBoostsFilter,
+                            navigateTo = { navController.navigateSingleTop(it) },
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.asset_filters)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearAssetsFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersSlotsScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersSlotsScreen(
+                            selectedSlots = filters.assetFilter.slots,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onSlotChange = cardsViewModel::updateSlots,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.slots)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearSlotsFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersUsesScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersUsesScreen(
+                            selectedUses = filters.assetFilter.uses,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onUseChange = cardsViewModel::updateUses,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.uses)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearUsesFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersEnemiesScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersEnemiesScreen(
+                            enemyFilter = filters.enemyFilter,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onEnemyFilterChange = cardsViewModel::updateEnemiesFilter,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.enemy_filters)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearEnemiesFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersLocationsScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersLocationsScreen(
+                            locationFilter = filters.locationFilter,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onLocationFilterChange = cardsViewModel::updateLocationsFilter,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.location_filters)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearLocationsFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersEncountersScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersEncounterSetsScreen(
+                            selectedEncounterSets = filters.encounterSets,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onEncounterSetChange = cardsViewModel::updateEncounterSetsFilter,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.encounter_sets)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearEncounterSetsFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersPacksScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+                        val allPacks by cardsFiltersViewModel.packs.collectAsState()
+
+                        CardsFiltersPacksScreen(
+                            selectedPacks = filters.packs,
+                            allPacks = allPacks,
+                            onPacksChange = cardsViewModel::updatePacksFilter,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.pack_filters)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearPacksFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersIllustratorsScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersIllustratorsScreen(
+                            selectedIllustrators = filters.illustrators,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onIllustratorChange = cardsViewModel::updateIllustratorsFilter,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.illustrators)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearIllustratorsFilter,
                                 iconGlyph = AppIcon.FilterClear,
                             )
                         }

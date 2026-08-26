@@ -17,7 +17,8 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 enum class FilterSection {
-    Level, Cost, Skills, HealthSanity, Properties, Official
+    Level, Cost, Skills, HealthSanity, Properties, Official,
+    Fight, Evade, Damage, Horror, Shroud, Clues
 }
 
 data class FiltersUiState(
@@ -85,19 +86,21 @@ class CardsFiltersViewModel @Inject constructor(
         initialValue = emptyArray()
     )
 
-    val skillBoostCodes = metaRepository.getAllSkillBoosts().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000L),
-        initialValue = emptyArray()
-    )
-
     val encounterSets = metaRepository.getAllEncounterSets().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),
         initialValue = persistentMapOf()
     )
 
-    val packs = metaRepository.getAllPacks().map {
+    private val _packsFlow = metaRepository.getAllPacks()
+
+    val packs = _packsFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = persistentListOf()
+    )
+
+    val packsMap = _packsFlow.map {
         it.associateBy { pack -> pack.code }.toImmutableMap()
     }.stateIn(
         scope = viewModelScope,

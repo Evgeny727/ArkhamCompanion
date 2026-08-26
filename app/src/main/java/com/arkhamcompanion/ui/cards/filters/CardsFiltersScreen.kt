@@ -1,4 +1,4 @@
-package com.arkhamcompanion.ui.cards
+package com.arkhamcompanion.ui.cards.filters
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +24,19 @@ import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
+import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersEncountersScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersEnemiesScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersIllustratorsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersLocationsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersPacksScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersSubTypesScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersTraitsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersTypesScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
+import com.arkhamcompanion.ui.cards.CardsViewModel
+import com.arkhamcompanion.ui.cards.FilterSection
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamFiltersCheckboxOption
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamRangeSlider
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamSingleToggleButtonGroup
@@ -47,16 +60,17 @@ import com.arkhamcompanion.ui.utils.getLocalizedUse
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableMap
+import kotlin.collections.get
 
 @Composable
 fun CardsFiltersScreen(
     cardsViewModel: CardsViewModel,
     cardsFiltersViewModel: CardsFiltersViewModel,
+    navigateTo: (Any) -> Unit,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     val resources = LocalResources.current
-
     val defaultFilters = remember { CardFilters() }
     val filters by cardsViewModel.cardFilters.collectAsState()
     val spoilerState by cardsViewModel.spoilerState.collectAsState()
@@ -70,7 +84,7 @@ fun CardsFiltersScreen(
     val types by cardsFiltersViewModel.types.collectAsState()
     val subtypes by cardsFiltersViewModel.subtypes.collectAsState()
     val encounterSets by cardsFiltersViewModel.encounterSets.collectAsState()
-    val packs by cardsFiltersViewModel.packs.collectAsState()
+    val packsMap by cardsFiltersViewModel.packsMap.collectAsState()
     val taboos by cardsFiltersViewModel.taboos.collectAsState()
     var showTabooDialog by remember { mutableStateOf(false) }
 
@@ -173,7 +187,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedTypes),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersTypesScreen)
             }
         }
 
@@ -205,7 +219,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedSubTypes),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersSubTypesScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -277,7 +291,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedActions),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersActionsScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -293,7 +307,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedTraits),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersTraitsScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -373,11 +387,11 @@ fun CardsFiltersScreen(
             val slotsText = stringResource(R.string.slots)
             val usesText = stringResource(R.string.uses)
             val boostsText = stringResource(R.string.boost)
-            val parts = remember(filters.assetFilter) {
+            val parts = remember(filters.assetFilter, resources) {
                 buildList {
                     if (filters.assetFilter.slots.isNotEmpty()) {
                         add(
-                            "$slotsText(" + filters.assetFilter.slots
+                            "$slotsText (" + filters.assetFilter.slots
                                 .joinToString(", ") {
                                     resources.getString(getLocalizedSlot(it))
                                 } + ")"
@@ -385,7 +399,7 @@ fun CardsFiltersScreen(
                     }
                     if (filters.assetFilter.uses.isNotEmpty()) {
                         add(
-                            "$usesText(" + filters.assetFilter.uses
+                            "$usesText (" + filters.assetFilter.uses
                                 .take(10)
                                 .joinToString(", ") {
                                     resources.getString(getLocalizedUse(it))
@@ -394,13 +408,13 @@ fun CardsFiltersScreen(
                     }
                     if (filters.assetFilter.skillBoosts.isNotEmpty()) {
                         add(
-                            "$boostsText(" + filters.assetFilter.skillBoosts
+                            "$boostsText (" + filters.assetFilter.skillBoosts
                                 .joinToString(", ") {
                                     resources.getString(getLocalizedSkill(it))
                                 } + ")"
                         )
                     }
-                }
+                }.joinToString(", ")
             }
             val label = stringResource(R.string.assets_parts, parts)
             val textAll = stringResource(R.string.assets_all)
@@ -410,7 +424,7 @@ fun CardsFiltersScreen(
                 label = text,
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersAssetsScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -450,18 +464,18 @@ fun CardsFiltersScreen(
             val parts = remember(filters.enemyFilter) {
                 buildList {
                     if (filters.enemyFilter.fight != defaultFilters.enemyFilter.fight) {
-                        add("$fightText(${filters.enemyFilter.fight.format(noValue)})")
+                        add("$fightText (${filters.enemyFilter.fight.format(noValue)})")
                     }
                     if (filters.enemyFilter.evade != defaultFilters.enemyFilter.evade) {
-                        add("$evadeText(${filters.enemyFilter.evade.format(noValue)})")
+                        add("$evadeText (${filters.enemyFilter.evade.format(noValue)})")
                     }
                     if (filters.enemyFilter.damage != defaultFilters.enemyFilter.damage) {
-                        add("$damageText(${filters.enemyFilter.damage.format(noValue)})")
+                        add("$damageText (${filters.enemyFilter.damage.format(noValue)})")
                     }
                     if (filters.enemyFilter.horror != defaultFilters.enemyFilter.horror) {
-                        add("$horrorText(${filters.enemyFilter.horror.format(noValue)})")
+                        add("$horrorText (${filters.enemyFilter.horror.format(noValue)})")
                     }
-                }
+                }.joinToString(", ")
             }
             val label = stringResource(R.string.enemies_parts, parts)
             val textAll = stringResource(R.string.enemies_all)
@@ -471,7 +485,7 @@ fun CardsFiltersScreen(
                 label = text,
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersEnemiesScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -484,12 +498,12 @@ fun CardsFiltersScreen(
             val parts = remember(filters.locationFilter) {
                 buildList {
                     if (filters.locationFilter.shroud != defaultFilters.locationFilter.shroud) {
-                        add("$shroudText(${filters.locationFilter.shroud.format(noValue)})")
+                        add("$shroudText (${filters.locationFilter.shroud.format(noValue)})")
                     }
                     if (filters.locationFilter.clues != defaultFilters.locationFilter.clues) {
-                        add("$cluesText(${filters.locationFilter.clues.format(noValue)})")
+                        add("$cluesText (${filters.locationFilter.clues.format(noValue)})")
                     }
-                }
+                }.joinToString(", ")
             }
             val label = stringResource(R.string.locations_parts, parts)
             val textAll = stringResource(R.string.locations_all)
@@ -499,7 +513,7 @@ fun CardsFiltersScreen(
                 label = text,
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersLocationsScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -514,7 +528,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedEncounterSets),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersEncountersScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -560,16 +574,16 @@ fun CardsFiltersScreen(
 
         item("pack_navigation", "navigation") {
             val textAll = stringResource(R.string.packs_all)
-            val selectedPacks = filters.packs.reprintPacks.take(10).mapNotNull { packs[it]?.name } +
-                    filters.packs.packs.take(10).mapNotNull { packs[it]?.name }
-            val label = stringResource(R.string.packs_value, selectedPacks)
+            val selectedPacks = filters.packs.reprintPacks.take(10).mapNotNull { packsMap[it]?.name } +
+                    filters.packs.packs.take(10).mapNotNull { packsMap[it]?.name }
+            val label = stringResource(R.string.packs_value, selectedPacks.joinToString(", "))
             val text = if (selectedPacks.isNotEmpty()) label else textAll
 
             NavigationFilterButton(
                 label = text,
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersPacksScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -599,7 +613,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedIllustrators),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-
+                navigateTo(CardsFiltersIllustratorsScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -616,7 +630,7 @@ fun CardsFiltersScreen(
     }
 }
 
-private fun NullableIntRange.format(noValue: String): String =
+internal fun NullableIntRange.format(noValue: String): String =
     if (min == max) {
         min?.toString() ?: noValue
     } else {
@@ -624,7 +638,7 @@ private fun NullableIntRange.format(noValue: String): String =
     }
 
 @Composable
-private fun selectedFilterLabel(
+internal fun selectedFilterLabel(
     label: String,
     values: List<String>,
 ): String {

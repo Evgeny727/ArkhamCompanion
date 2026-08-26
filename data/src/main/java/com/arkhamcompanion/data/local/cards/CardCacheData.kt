@@ -10,7 +10,6 @@ data class CardCacheData(
     val skillBoosts: Map<String, Set<String>> = emptyMap(),
     val uses: Map<String, Set<String>> = emptyMap(),
     val slots: Map<String, Set<String>> = emptyMap(),
-    val chaosTokens: Map<String, Set<String>> = emptyMap(),
     val tags: Map<String, Set<String>> = emptyMap(),
     val requiredCards: Map<String, Set<String>> = emptyMap(),
     val sideDeckRequiredCards: Map<String, Set<String>> = emptyMap(),

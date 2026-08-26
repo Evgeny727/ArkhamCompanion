@@ -1,5 +1,6 @@
 package com.arkhamcompanion.data.objects
 
+import android.util.Log
 import com.arkhamcompanion.data.local.cards.CardCacheData
 import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
@@ -24,9 +25,7 @@ private val TAG_REGEX_FALLBACKS: Map<String, Regex> = mapOf(
     "se" to Regex("""[Ss]eal(?! of the)"""),
 )
 private val ACTION_REGEX =
-    Regex("<b>(Fight|Engage|Investigate|Draw|Move|Evade|Parley|Resign)")
-private val CHAOS_REGEX =
-    Regex("""\[(auto_fail|bless|skull|cultist|curse|tablet|frost|blood|elder_sign|elder_thing)""")
+    Regex("<b>(Fight|Engage|Investigate|Draw|Resource|Move|Evade|Parley|Resign)")
 
 object CardCache {
 
@@ -36,9 +35,6 @@ object CardCache {
 
     private val _traits = MutableStateFlow<Array<String>>(emptyArray())
     val traitsFlow = _traits.asStateFlow()
-
-    private val _skillBoosts = MutableStateFlow<Array<String>>(emptyArray())
-    val skillBoostsFlow = _skillBoosts.asStateFlow()
 
     private val _uses = MutableStateFlow<Array<String>>(emptyArray())
     val usesFlow = _uses.asStateFlow()
@@ -58,8 +54,6 @@ object CardCache {
     var uses: MutableMap<String, MutableSet<String>> = mutableMapOf()
         private set
     var slots: MutableMap<String, MutableSet<String>> = mutableMapOf()
-        private set
-    var chaosTokens: MutableMap<String, MutableSet<String>> = mutableMapOf()
         private set
     var tags: MutableMap<String, MutableSet<String>> = mutableMapOf()
         private set
@@ -125,7 +119,6 @@ object CardCache {
         skillBoosts = mutableMapOf()
         uses = mutableMapOf()
         slots = mutableMapOf()
-        chaosTokens = mutableMapOf()
         tags = mutableMapOf()
         requiredCards = mutableMapOf()
         sideDeckRequiredCards = mutableMapOf()
@@ -396,7 +389,6 @@ object CardCache {
 
         _actions.value = actions.keys.toTypedArray()
         _traits.value = traits.keys.toTypedArray()
-        _skillBoosts.value = skillBoosts.keys.toTypedArray()
         _uses.value = uses.keys.toTypedArray()
         _slots.value = slots.keys.toTypedArray()
     }
@@ -409,7 +401,6 @@ object CardCache {
         indexByTraits(card)
         indexByActions(card, combinedText)
         indexByFast(card, text)
-        indexByChaosTokens(card,combinedText)
         indexByTags(card, text)
 
         // handle additional index based on whether we are dealing with a player card or not.
@@ -443,41 +434,41 @@ object CardCache {
         if (cardTraits.isBlank()) return
         for (trait in cardTraits.split(".")) {
             if (trait.isBlank()) continue
-            traits.addToSet(trait.trim(), card.id)
+            traits.addToSet(trait.trim(), card.code)
         }
     }
 
     private fun indexByActions(card: CardEntity, cardText: String) {
         if (cardText.isBlank()) return
         ACTION_REGEX.findAll(cardText).forEach { match ->
-            actions.addToSet(match.groupValues[1], card.id)
+            actions.addToSet(match.groupValues[1], card.code)
         }
     }
 
     private fun indexByFast(card: CardEntity, cardText: String) {
         if (cardText.contains("Fast.") || cardText.contains("gains fast.")) {
-            properties.addToSet("fast", card.id)
+            properties.addToSet("fast", card.code)
         }
     }
 
     private fun indexBySucceedsBy(card: CardEntity, cardText: String) {
         if (REGEX_SUCCEED_BY.containsMatchIn(cardText)) {
-            properties.addToSet("succeeds_by", card.id)
+            properties.addToSet("succeeds_by", card.code)
         }
     }
 
     private fun indexBySkillBoosts(card: CardEntity, cardText: String) {
         if (card.customizationOptions?.toString()?.contains("choose_skill") == true) {
-            skillBoosts.addToSet("willpower", card.id)
-            skillBoosts.addToSet("intellect", card.id)
-            skillBoosts.addToSet("combat", card.id)
-            skillBoosts.addToSet("agility", card.id)
+            skillBoosts.addToSet("willpower", card.code)
+            skillBoosts.addToSet("intellect", card.code)
+            skillBoosts.addToSet("combat", card.code)
+            skillBoosts.addToSet("agility", card.code)
         }
 
         REGEX_SKILL_BOOST.findAll(cardText).forEach { match ->
             val value = match.groupValues.getOrNull(1)
             if (!value.isNullOrEmpty()) {
-                skillBoosts.addToSet(match.groupValues[1], card.id)
+                skillBoosts.addToSet(value, card.code)
             }
         }
     }
@@ -490,26 +481,19 @@ object CardCache {
 
         if (usesMatch != null) {
             val value = if (usesMatch == "charge") "charges" else usesMatch
-            uses.addToSet(value, card.id)
+            uses.addToSet(value, card.code)
         }
     }
 
     private fun indexBySlots(card: CardEntity) {
         if (card.realSlot == null && card.typeCode != "asset") return
         else if (card.realSlot == null) {
-            slots.addToSet("other", card.id)
+            slots.addToSet("other", card.code)
             return
         }
 
         for (slot in card.realSlot.split(".")) {
-            slots.addToSet(slot.trim().lowercase(), card.id)
-        }
-    }
-
-    private fun indexByChaosTokens(card: CardEntity, cardText: String) {
-        if (cardText.isBlank()) return
-        CHAOS_REGEX.findAll(cardText).forEach { match ->
-            chaosTokens.addToSet(match.groupValues[1], card.id)
+            slots.addToSet(slot.trim().lowercase(), card.code)
         }
     }
 
@@ -517,12 +501,12 @@ object CardCache {
         if (card.tags is JsonArray) {
             val parsedTags = card.tags.jsonArray.map { it.jsonPrimitive.content }
             for (tag in parsedTags) {
-                tags.addToSet(tag, card.id)
+                tags.addToSet(tag, card.code)
             }
         } else if (!card.official) {
             for ((tag, regex) in TAG_REGEX_FALLBACKS) {
                 if (regex.containsMatchIn(cardText)) {
-                    tags.addToSet(tag, card.id)
+                    tags.addToSet(tag, card.code)
                 }
             }
         }
@@ -539,7 +523,6 @@ object CardCache {
         skillBoosts = data.skillBoosts.mapValues { it.value.toMutableSet() }.toMutableMap()
         uses = data.uses.mapValues { it.value.toMutableSet() }.toMutableMap()
         slots = data.slots.mapValues { it.value.toMutableSet() }.toMutableMap()
-        chaosTokens = data.chaosTokens.mapValues { it.value.toMutableSet() }.toMutableMap()
         tags = data.tags.mapValues { it.value.toMutableSet() }.toMutableMap()
         requiredCards = data.requiredCards.mapValues { it.value.toMutableSet() }.toMutableMap()
         sideDeckRequiredCards = data.sideDeckRequiredCards.mapValues { it.value.toMutableSet() }.toMutableMap()
@@ -562,8 +545,9 @@ object CardCache {
 
         _actions.value = data.actions.keys.toTypedArray()
         _traits.value = data.traits.keys.toTypedArray()
-        _skillBoosts.value = data.skillBoosts.keys.toTypedArray()
         _uses.value = data.uses.keys.toTypedArray()
+        Log.e("slots", data.slots.keys.toString())
         _slots.value = data.slots.keys.toTypedArray()
+        Log.e("slotsFlow", _slots.value.contentToString())
     }
 }
