@@ -822,21 +822,24 @@ class CardsRepositoryImpl @Inject constructor(
             skillsFilter.run {
                 if (this == defaultFilters.skillsFilter) return@run
 
+                add("(${alias}.type_code != 'investigator')")
                 willpower?.let { add("${alias}.skill_willpower >= $it") }
                 intellect?.let { add("${alias}.skill_intellect >= $it") }
                 combat?.let { add("${alias}.skill_combat >= $it") }
                 agility?.let { add("${alias}.skill_agility >= $it") }
                 wild?.let { add("${alias}.skill_wild >= $it") }
                 any?.let {
-                    add("""
-                        (
-                            ${alias}.skill_willpower >= $it
-                            OR ${alias}.skill_intellect >= $it
-                            OR ${alias}.skill_combat >= $it
-                            OR ${alias}.skill_agility >= $it
-                            OR ${alias}.skill_wild >= $it
-                        )
-                    """.trimIndent())
+                    val anyList = buildList {
+                        if (willpower == null) add("${alias}.skill_willpower >= $it")
+                        if (intellect == null) add("${alias}.skill_intellect >= $it")
+                        if (combat == null) add("${alias}.skill_combat >= $it")
+                        if (agility == null) add("${alias}.skill_agility >= $it")
+                        if (wild == null) add("${alias}.skill_wild >= $it")
+                    }
+
+                    if (anyList.isNotEmpty()) {
+                        add("(${anyList.joinToString(" OR ")})")
+                    }
                 }
             }
 
