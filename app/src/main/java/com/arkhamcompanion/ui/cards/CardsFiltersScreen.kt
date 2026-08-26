@@ -24,14 +24,15 @@ import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
-import com.arkhamcompanion.ui.cards.components.ArkhamFiltersCheckboxOption
-import com.arkhamcompanion.ui.cards.components.ArkhamRangeSlider
-import com.arkhamcompanion.ui.cards.components.ArkhamSingleToggleButtonGroup
-import com.arkhamcompanion.ui.cards.components.ArkhamToggleButtonGroup
-import com.arkhamcompanion.ui.cards.components.CollapsableFiltersSection
-import com.arkhamcompanion.ui.cards.components.FiltersPropertiesSectionContent
-import com.arkhamcompanion.ui.cards.components.NavigationFilterButton
+import com.arkhamcompanion.ui.cards.components.filters.ArkhamFiltersCheckboxOption
+import com.arkhamcompanion.ui.cards.components.filters.ArkhamRangeSlider
+import com.arkhamcompanion.ui.cards.components.filters.ArkhamSingleToggleButtonGroup
+import com.arkhamcompanion.ui.cards.components.filters.ArkhamToggleButtonGroup
+import com.arkhamcompanion.ui.cards.components.filters.CollapsableFiltersSection
+import com.arkhamcompanion.ui.cards.components.filters.FiltersPropertiesSectionContent
+import com.arkhamcompanion.ui.cards.components.filters.NavigationFilterButton
 import com.arkhamcompanion.ui.cards.components.factionIcon
+import com.arkhamcompanion.ui.cards.components.filters.FilersSkillIconsSection
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamTabooDialog
 import com.arkhamcompanion.ui.components.factionColor
@@ -84,20 +85,6 @@ fun CardsFiltersScreen(
                 values = factions.keys,
                 selectedValues = filters.factions,
                 onValueToggle = cardsViewModel::updateFactions,
-                content = { faction, selected ->
-                    ArkhamIconText(
-                        iconGlyph = factionIcon(faction),
-                        size = when (faction) {
-                            Faction.Mythos, Faction.Neutral -> 28.dp
-                            else -> 32.dp
-                        },
-                        color = if (selected) factionColor(faction).text else CustomTheme.colors.m,
-                        modifier = Modifier.align(
-                            alignment = if (faction == Faction.Neutral || faction == Faction.Mythos) Alignment.BottomCenter
-                                else Alignment.Center
-                        )
-                    )
-                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -105,7 +92,20 @@ fun CardsFiltersScreen(
                         end = 8.dp,
                         bottom = 16.dp
                     )
-            )
+            ) { faction, selected ->
+                ArkhamIconText(
+                    iconGlyph = factionIcon(faction),
+                    size = when (faction) {
+                        Faction.Mythos, Faction.Neutral -> 28.dp
+                        else -> 32.dp
+                    },
+                    color = if (selected) factionColor(faction).text else CustomTheme.colors.m,
+                    modifier = Modifier.align(
+                        alignment = if (faction == Faction.Neutral || faction == Faction.Mythos) Alignment.BottomCenter
+                        else Alignment.Center
+                    )
+                )
+            }
         }
 
         item("level_section", "section") {
@@ -148,19 +148,18 @@ fun CardsFiltersScreen(
                     ),
                     selectedValue = filters.levelFilter.forcedRange,
                     onValueToggle = cardsViewModel::toggleForcedLevelRange,
-                    content = { range ->
-                        val text = if (range.min == 0)
-                            stringResource(R.string.level_start, range.min!!)
-                        else stringResource(R.string.level_start_end, range.min!!, range.max!!)
-                        Text(
-                            text = text,
-                            style = CustomTheme.typography.small
-                        )
-                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                )
+                ) { range ->
+                    val text = if (range.min == 0)
+                        stringResource(R.string.level_start, range.min!!)
+                    else stringResource(R.string.level_start_end, range.min!!, range.max!!)
+                    Text(
+                        text = text,
+                        style = CustomTheme.typography.small
+                    )
+                }
 
                 HorizontalDivider(color = CustomTheme.colors.divider)
             }
@@ -185,16 +184,15 @@ fun CardsFiltersScreen(
                 ),
                 selectedValues = filters.types,
                 onValueToggle = cardsViewModel::updateTypes,
-                content = { type, _ ->
-                    Text(
-                        text = types[type].toString(),
-                        style = CustomTheme.typography.small
-                    )
-                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-            )
+            ) { type, _ ->
+                Text(
+                    text = types[type].toString(),
+                    style = CustomTheme.typography.small
+                )
+            }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
         }
@@ -254,6 +252,19 @@ fun CardsFiltersScreen(
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
+        }
+
+        item("skills_section", "section") {
+            FilersSkillIconsSection(
+                skillsFilter = filters.skillsFilter,
+                defaultFilter = defaultFilters.skillsFilter,
+                isCollapsed = filtersUiState.collapsedSections[FilterSection.Skills] ?: true,
+                onCollapseChange = {
+                    cardsFiltersViewModel.toggleSection(FilterSection.Skills)
+                },
+                onSectionClear = cardsViewModel::clearSkillsFilter,
+                onValueToggle = cardsViewModel::updateSkillsFilter
+            )
         }
 
         item("action_navigation", "navigation") {
@@ -535,14 +546,13 @@ fun CardsFiltersScreen(
                     values = persistentListOf(false, true),
                     selectedValue = filters.officialFilter,
                     onValueToggle = cardsViewModel::toggleOfficialFilter,
-                    content = { official ->
-                        Text(
-                            text = if (official) officialOnlyText else fanmadeOnlyText,
-                            style = CustomTheme.typography.small
-                        )
-                    },
                     modifier = Modifier.fillMaxWidth()
-                )
+                ) { official ->
+                    Text(
+                        text = if (official) officialOnlyText else fanmadeOnlyText,
+                        style = CustomTheme.typography.small
+                    )
+                }
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)

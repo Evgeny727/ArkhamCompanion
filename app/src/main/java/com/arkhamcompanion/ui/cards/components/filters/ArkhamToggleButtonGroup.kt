@@ -1,4 +1,4 @@
-package com.arkhamcompanion.ui.cards.components
+package com.arkhamcompanion.ui.cards.components.filters
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.ui.theme.CustomTheme
 import kotlinx.collections.immutable.ImmutableList
@@ -27,8 +28,8 @@ fun <T> ArkhamToggleButtonGroup(
     values: ImmutableSet<T>,
     selectedValues: ImmutableSet<T>,
     onValueToggle: (T) -> Unit,
-    content: @Composable BoxScope.(T, Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    content: @Composable BoxScope.(T, Boolean) -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -66,8 +67,9 @@ fun <T> ArkhamSingleToggleButtonGroup(
     values: ImmutableList<T>,
     selectedValue: T?,
     onValueToggle: (T) -> Unit,
-    content: @Composable (T) -> Unit,
     modifier: Modifier = Modifier,
+    minHeight: Dp? = 48.dp,
+    content: @Composable (T) -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -84,6 +86,7 @@ fun <T> ArkhamSingleToggleButtonGroup(
                 selected = value == selectedValue,
                 onClick = { onValueToggle(value) },
                 modifier = Modifier.weight(1f),
+                minHeight = minHeight
             ) {
                 content(value)
             }
@@ -103,11 +106,12 @@ private fun Segment(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    minHeight: Dp? = 48.dp,
     content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         modifier = modifier
-            .heightIn(min = 48.dp)
+            .heightIn(min = minHeight ?: Dp.Unspecified)
             .background(color = if (selected) CustomTheme.colors.l15 else Color.Unspecified)
             .clickable(onClick = onClick)
             .padding(8.dp),

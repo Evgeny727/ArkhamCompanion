@@ -1,4 +1,4 @@
-package com.arkhamcompanion.ui.cards.components
+package com.arkhamcompanion.ui.cards.components.filters
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize

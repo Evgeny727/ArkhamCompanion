@@ -1975,4 +1975,5 @@
     <string name="heals_damage">Лечит раны</string>
     <string name="heals_horror">Лечит ужас</string>
     <string name="succeed_by">Превышение на</string>
+    <string name="skills_any">Любые</string>
 </resources>

@@ -15,6 +15,7 @@ import com.arkhamcompanion.domain.model.cards.HealthSanityFilter
 import com.arkhamcompanion.domain.model.cards.LevelFilter
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.model.cards.PropertiesFilter
+import com.arkhamcompanion.domain.model.cards.SkillsFilter
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -270,6 +271,22 @@ class CardsViewModel @Inject constructor(
                 costFilter = it.costFilter.copy(
                     oddCost = value
                 )
+            )
+        }
+    }
+
+    fun updateSkillsFilter(value: SkillsFilter) {
+        updateCardFilters {
+            it.copy(
+                skillsFilter = value
+            )
+        }
+    }
+
+    fun clearSkillsFilter() {
+        updateCardFilters {
+            it.copy(
+                skillsFilter = SkillsFilter()
             )
         }
     }
