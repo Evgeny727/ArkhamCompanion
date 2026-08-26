@@ -22,9 +22,11 @@ import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.ui.components.ArkhamButton
 import com.arkhamcompanion.ui.components.ArkhamButtonSearchIcon
+import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamSearchBox
 import com.arkhamcompanion.ui.components.CardsSearchOptions
 import com.arkhamcompanion.ui.components.LazyCardListWithStickyHeaders
+import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.coroutines.flow.collectLatest
@@ -111,7 +113,11 @@ fun CardsScreen(
                         .padding(8.dp)
                         .animateItem(),
                 ) { color ->
-                    ArkhamButtonSearchIcon(color)
+                    ArkhamIconText(
+                        iconGlyph = AppIcon.Dismiss,
+                        color = color,
+                        size = 24.dp
+                    )
                 }
             }
 
