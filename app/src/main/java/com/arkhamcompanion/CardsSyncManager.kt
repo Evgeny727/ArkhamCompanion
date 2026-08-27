@@ -46,14 +46,17 @@ class CardsSyncManager @Inject constructor(
 
     suspend fun ensureCardsReady(language: String) {
         if (_state.value is CardsSyncState.Loading) return
+
         if (!cardsRepository.isCardsTableExists()) download(language)
         else checkForUpdate(language)
     }
 
     suspend fun checkForUpdate(language: String) {
-        fetchCardsUpdate(language, loadCacheOnError = true) { updateAvailable ->
+        loadCache()
+
+        fetchCardsUpdate(language) { updateAvailable ->
             if (updateAvailable) _state.value = CardsSyncState.UpdateAvailable
-            else loadCache()
+            else _state.value = CardsSyncState.Ready
         }
     }
 
@@ -86,7 +89,6 @@ class CardsSyncManager @Inject constructor(
     private suspend inline fun fetchCardsUpdate(
         language: String,
         forced: Boolean = false,
-        loadCacheOnError: Boolean = false,
         block: suspend (Boolean) -> Unit
     ) {
         cardsRepository.isCardsUpdateAvailable(
@@ -98,7 +100,6 @@ class CardsSyncManager @Inject constructor(
             .onFailure {
                 _errors.tryEmit(it)
                 _state.value = CardsSyncState.Ready
-                if (loadCacheOnError) loadCache()
             }
     }
 
@@ -124,9 +125,8 @@ class CardsSyncManager @Inject constructor(
         val cacheReady = cardsRepository.loadCache()
 
         if (!cacheReady) _errors.tryEmit(UnableToLoadCardsCacheException())
-        _cacheState.value = CardsCacheState.Ready
 
-        _state.value = CardsSyncState.Ready
+        _cacheState.value = CardsCacheState.Ready
     }
 
     suspend fun recreateCache() {
