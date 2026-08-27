@@ -551,9 +551,10 @@ class CardsRepositoryImpl @Inject constructor(
                     }
                      AND c.hidden = 0 ${ if (searchConfig.preferences.showFanMade) "" 
                          else { " AND (" +
-                            if (searchConfig.filters.officialFilter == null) "c.official = 1 AND " else ""} +
+                            (if (searchConfig.filters.officialFilter == null) "c.official = 1 AND " else "") +
                             "c.preview = 0)" 
                          }
+                     }
                     ${if (isQueryNotBlank)
                         """ AND EXISTS (
                             SELECT 1
@@ -858,8 +859,9 @@ class CardsRepositoryImpl @Inject constructor(
                             ${if (includeXHealthOrSanity) "${alias}.health = -2 OR " else ""}
                             (${
                                 when {
-                                    max == null -> "${alias}.health IS NULL"
-                                    min == null -> "${alias}.health IS NULL OR ${alias}.health <= $max"
+                                    max == null -> "${alias}.health IS NULL OR ${alias}.health = 0"
+                                    min == null -> "${alias}.health IS NULL OR ${alias}.health = 0 " +
+                                            "OR ${alias}.health <= $max"
                                     else -> "${alias}.health BETWEEN $min AND $max"
                                 } + if (healthPerInvestigator) " AND ${alias}.health_per_investigator = 1" else ""
                             })
@@ -873,8 +875,9 @@ class CardsRepositoryImpl @Inject constructor(
                             ${if (includeXHealthOrSanity) "${alias}.sanity = -2 OR " else ""}
                             (${
                                 when {
-                                    max == null -> "${alias}.sanity IS NULL"
-                                    min == null -> "${alias}.sanity IS NULL OR ${alias}.sanity <= $max"
+                                    max == null -> "${alias}.sanity IS NULL OR ${alias}.sanity = 0"
+                                    min == null -> "${alias}.sanity IS NULL OR ${alias}.sanity = 0 " +
+                                            "OR ${alias}.sanity <= $max"
                                     else -> "${alias}.sanity BETWEEN $min AND $max"
                                 }
                             })
@@ -899,6 +902,8 @@ class CardsRepositoryImpl @Inject constructor(
 
             enemyFilter.run {
                 if (this == defaultFilters.enemyFilter) return@run
+
+                add("(${alias}.type_code = 'enemy' OR ${alias}.type_code = 'enemy_location')")
 
                 fight.run {
                     add("""
@@ -928,8 +933,9 @@ class CardsRepositoryImpl @Inject constructor(
                     add("""
                         (${
                             when {
-                                max == null -> "${alias}.enemy_damage IS NULL"
-                                min == null -> "${alias}.enemy_damage IS NULL OR ${alias}.enemy_damage <= $max"
+                                max == null -> "${alias}.enemy_damage IS NULL OR ${alias}.enemy_damage = 0"
+                                min == null -> "${alias}.enemy_damage IS NULL OR ${alias}.enemy_damage = 0 " +
+                                        "OR ${alias}.enemy_damage <= $max"
                                 else -> "${alias}.enemy_damage BETWEEN $min AND $max"
                             }
                         })
@@ -940,8 +946,9 @@ class CardsRepositoryImpl @Inject constructor(
                     add("""
                         (${
                             when {
-                                max == null -> "${alias}.enemy_horror IS NULL"
-                                min == null -> "${alias}.enemy_horror IS NULL OR ${alias}.enemy_horror <= $max"
+                                max == null -> "${alias}.enemy_horror IS NULL OR ${alias}.enemy_horror = 0"
+                                min == null -> "${alias}.enemy_horror IS NULL OR ${alias}.enemy_horror = 0 " +
+                                        "OR ${alias}.enemy_horror <= $max"
                                 else -> "${alias}.enemy_horror BETWEEN $min AND $max"
                             }
                         })
@@ -953,6 +960,8 @@ class CardsRepositoryImpl @Inject constructor(
 
             locationFilter.run {
                 if (this == defaultFilters.locationFilter) return@run
+
+                add("(${alias}.type_code = 'location' OR ${alias}.type_code = 'enemy_location')")
 
                 shroud.run {
                     add("""

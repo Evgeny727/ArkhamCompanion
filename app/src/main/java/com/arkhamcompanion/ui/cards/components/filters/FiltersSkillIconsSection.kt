@@ -16,13 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.SkillsFilter
 import com.arkhamcompanion.ui.components.ArkhamScalableIconText
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
+import com.arkhamcompanion.ui.utils.appSp
 import kotlinx.collections.immutable.persistentListOf
 
 @Composable
@@ -174,7 +174,7 @@ private fun SkillIconRow(
         icon?.let {
             ArkhamScalableIconText(
                 iconGlyph = it,
-                size = 18.sp,
+                size = 18.appSp(CustomTheme.typography.scaleFactor),
                 color = CustomTheme.colors.darkText,
             )
         } ?: Text(
@@ -186,7 +186,7 @@ private fun SkillIconRow(
             values = persistentListOf(1, 2),
             selectedValue = selectedValue,
             onValueToggle = onValueToggle,
-            modifier = Modifier.sizeIn(maxWidth = 100.dp),
+            modifier = Modifier.sizeIn(maxWidth = 120.dp),
             minHeight = null
         ) { value ->
             Text(

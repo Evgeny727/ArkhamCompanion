@@ -350,7 +350,8 @@ fun CardsFiltersScreen(
                     range = filters.healthSanityFilter.health,
                     maxRange = defaultFilters.healthSanityFilter.health,
                     onUpdateRange = cardsViewModel::updateHealthRange,
-                    nullText = nullText
+                    nullText = nullText,
+                    nullAsZero = true
                 )
 
                 ArkhamFiltersCheckboxOption(
@@ -370,7 +371,8 @@ fun CardsFiltersScreen(
                     range = filters.healthSanityFilter.sanity,
                     maxRange = defaultFilters.healthSanityFilter.sanity,
                     onUpdateRange = cardsViewModel::updateSanityRange,
-                    nullText = nullText
+                    nullText = nullText,
+                    nullAsZero = true
                 )
 
                 ArkhamFiltersCheckboxOption(
@@ -461,13 +463,14 @@ fun CardsFiltersScreen(
             val damageText = stringResource(R.string.damage)
             val horrorText = stringResource(R.string.horror)
             val noValue = stringResource(R.string.none)
+            val fightEvadeNoValue = "—"
             val parts = remember(filters.enemyFilter) {
                 buildList {
                     if (filters.enemyFilter.fight != defaultFilters.enemyFilter.fight) {
-                        add("$fightText (${filters.enemyFilter.fight.format(noValue)})")
+                        add("$fightText (${filters.enemyFilter.fight.format(fightEvadeNoValue)})")
                     }
                     if (filters.enemyFilter.evade != defaultFilters.enemyFilter.evade) {
-                        add("$evadeText (${filters.enemyFilter.evade.format(noValue)})")
+                        add("$evadeText (${filters.enemyFilter.evade.format(fightEvadeNoValue)})")
                     }
                     if (filters.enemyFilter.damage != defaultFilters.enemyFilter.damage) {
                         add("$damageText (${filters.enemyFilter.damage.format(noValue)})")
@@ -494,7 +497,7 @@ fun CardsFiltersScreen(
         item("location_navigation", "navigation") {
             val shroudText = stringResource(R.string.shroud)
             val cluesText = stringResource(R.string.clues)
-            val noValue = stringResource(R.string.none)
+            val noValue = "—"
             val parts = remember(filters.locationFilter) {
                 buildList {
                     if (filters.locationFilter.shroud != defaultFilters.locationFilter.shroud) {
@@ -634,7 +637,7 @@ internal fun NullableIntRange.format(noValue: String): String =
     if (min == max) {
         min?.toString() ?: noValue
     } else {
-        "${min ?: noValue} - ${max ?: noValue}"
+        "${min ?: noValue} – ${max ?: noValue}"
     }
 
 @Composable

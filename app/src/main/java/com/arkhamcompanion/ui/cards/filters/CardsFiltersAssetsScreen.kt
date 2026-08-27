@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -66,6 +67,12 @@ fun CardsFiltersAssetsScreen(
         }
 
         HorizontalDivider(color = CustomTheme.colors.divider)
+
+        Text(
+            text = stringResource(R.string.skill_boosts),
+            style = CustomTheme.typography.text,
+            modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+        )
 
         ArkhamToggleButtonGroup(
             values = persistentSetOf(

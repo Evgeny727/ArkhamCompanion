@@ -44,8 +44,9 @@ fun CardsFiltersTypesScreen(
     val filteredTypes = remember(types, searchQuery) {
         val query = searchQuery.trim()
 
-        if (query.isNotBlank()) types
-        else types.filter { it.value.contains(query, ignoreCase = true) }
+        types.filter { (_, name) ->
+            query.isEmpty() || name.contains(query, ignoreCase = true)
+        }
     }
 
     Column(

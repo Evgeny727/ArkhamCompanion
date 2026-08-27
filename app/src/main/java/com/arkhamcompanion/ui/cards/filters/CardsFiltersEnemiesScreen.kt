@@ -37,6 +37,7 @@ fun CardsFiltersEnemiesScreen(
     val filtersUiState by cardsFiltersViewModel.uiState.collectAsState()
     val colon = LocalLanguage.current.colon
     val nullText = stringResource(R.string.none)
+    val fightEvadeNullText = "—"
 
     val labelFight = stringResource(R.string.fight)
     val isFightCollapsed = filtersUiState.collapsedSections[FilterSection.Fight] ?: true
@@ -61,7 +62,7 @@ fun CardsFiltersEnemiesScreen(
     ) {
         CollapsableFiltersSection(
             label = if (isFightDefault) stringResource(R.string.label_all, labelFight)
-            else "$labelFight$colon${enemyFilter.fight.format(nullText)}",
+            else "$labelFight$colon${enemyFilter.fight.format(fightEvadeNullText)}",
             isNotCollapsed = !isFightCollapsed,
             onCollapseChange = {
                 cardsFiltersViewModel.toggleSection(FilterSection.Fight)
@@ -80,7 +81,8 @@ fun CardsFiltersEnemiesScreen(
                 onUpdateRange = { onEnemyFilterChange(enemyFilter.copy(
                     fight = it
                 )) },
-                nullText = nullText
+                nullText = fightEvadeNullText,
+                nullAsZero = true
             )
         }
 
@@ -88,7 +90,7 @@ fun CardsFiltersEnemiesScreen(
 
         CollapsableFiltersSection(
             label = if (isEvadeDefault) stringResource(R.string.label_all, labelEvade)
-            else "$labelEvade$colon${enemyFilter.evade.format(nullText)}",
+            else "$labelEvade$colon${enemyFilter.evade.format(fightEvadeNullText)}",
             isNotCollapsed = !isEvadeCollapsed,
             onCollapseChange = {
                 cardsFiltersViewModel.toggleSection(FilterSection.Evade)
@@ -107,7 +109,8 @@ fun CardsFiltersEnemiesScreen(
                 onUpdateRange = { onEnemyFilterChange(enemyFilter.copy(
                     evade = it
                 )) },
-                nullText = nullText
+                nullText = fightEvadeNullText,
+                nullAsZero = true
             )
         }
 
@@ -134,7 +137,8 @@ fun CardsFiltersEnemiesScreen(
                 onUpdateRange = { onEnemyFilterChange(enemyFilter.copy(
                     damage = it
                 )) },
-                nullText = nullText
+                nullText = nullText,
+                nullAsZero = true
             )
         }
 
@@ -161,7 +165,8 @@ fun CardsFiltersEnemiesScreen(
                 onUpdateRange = { onEnemyFilterChange(enemyFilter.copy(
                     horror = it
                 )) },
-                nullText = nullText
+                nullText = nullText,
+                nullAsZero = true
             )
         }
 
@@ -170,7 +175,7 @@ fun CardsFiltersEnemiesScreen(
         ArkhamFiltersCheckboxOption(
             title = stringResource(R.string.vengeance),
             isSelected = enemyFilter.vengeance,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             onEnemyFilterChange(enemyFilter.copy(vengeance = it))
         }

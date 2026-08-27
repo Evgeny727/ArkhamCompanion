@@ -153,9 +153,10 @@ fun ArkhamRangeSlider(
     onUpdateRange: (NullableIntRange) -> Unit,
     modifier: Modifier = Modifier,
     nullText: String = stringResource(R.string.none),
+    nullAsZero: Boolean = false
 ) {
     var sliderRange by remember(range) {
-        mutableStateOf(range.min.toSliderValue()..range.max.toSliderValue())
+        mutableStateOf(range.min.toSliderValue(nullAsZero)..range.max.toSliderValue(nullAsZero))
     }
 
     Column(
@@ -165,11 +166,11 @@ fun ArkhamRangeSlider(
         RangeSlider(
             value = sliderRange,
             onValueChange = { sliderRange = it },
-            valueRange = maxRange.min.toSliderValue()..maxRange.max.toSliderValue(),
+            valueRange = maxRange.min.toSliderValue(nullAsZero)..maxRange.max.toSliderValue(nullAsZero),
             onValueChangeFinished = {
                 onUpdateRange(NullableIntRange(
-                    sliderRange.start.toIntValue(),
-                    sliderRange.endInclusive.toIntValue()
+                    sliderRange.start.toIntValue(nullAsZero),
+                    sliderRange.endInclusive.toIntValue(nullAsZero)
                 ))
             },
             modifier = Modifier.fillMaxWidth().height(32.dp),
@@ -212,11 +213,15 @@ fun ArkhamRangeSlider(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
         ) {
             val startText =
-                if (sliderRange.start == NO_VALUE) nullText else sliderRange.start.roundToInt()
-                    .toString()
+                if (sliderRange.start == NO_VALUE
+                    || (nullAsZero && sliderRange.start == NO_VALUE_ZERO)) {
+                    nullText
+                } else sliderRange.start.roundToInt().toString()
             val endText =
-                if (sliderRange.endInclusive == NO_VALUE) nullText else sliderRange.endInclusive.roundToInt()
-                    .toString()
+                if (sliderRange.endInclusive == NO_VALUE
+                    || (nullAsZero && sliderRange.endInclusive == NO_VALUE_ZERO)){
+                    nullText
+                } else sliderRange.endInclusive.roundToInt().toString()
 
             Text(
                 text = startText,
@@ -232,12 +237,13 @@ fun ArkhamRangeSlider(
 }
 
 private const val NO_VALUE = -1f
+private const val NO_VALUE_ZERO = 0f
 
-private fun Int?.toSliderValue(): Float =
-    this?.toFloat() ?: NO_VALUE
+private fun Int?.toSliderValue(nullAsZero: Boolean): Float =
+    this?.toFloat() ?: (if (nullAsZero) NO_VALUE_ZERO else NO_VALUE)
 
-private fun Float.toIntValue(): Int? =
-    if (this == NO_VALUE) null else roundToInt()
+private fun Float.toIntValue(nullAsZero: Boolean): Int? =
+    if (this == NO_VALUE || (nullAsZero && this == NO_VALUE_ZERO)) null else roundToInt()
 
 @Composable
 fun ArkhamFiltersCheckboxOption(

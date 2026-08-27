@@ -36,7 +36,7 @@ fun CardsFiltersLocationsScreen(
     val defaultFilters = remember { LocationFilter() }
     val filtersUiState by cardsFiltersViewModel.uiState.collectAsState()
     val colon = LocalLanguage.current.colon
-    val nullText = stringResource(R.string.none)
+    val nullText = "—"
 
     val labelShroud = stringResource(R.string.shroud)
     val isShroudCollapsed = filtersUiState.collapsedSections[FilterSection.Shroud] ?: true

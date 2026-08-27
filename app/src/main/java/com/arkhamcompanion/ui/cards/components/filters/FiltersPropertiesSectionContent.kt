@@ -33,7 +33,7 @@ fun FiltersPropertiesSectionContent(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Column(
-            modifier = Modifier.width(IntrinsicSize.Max),
+            modifier = Modifier.width(IntrinsicSize.Max).weight(1f, fill = false),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ArkhamFiltersCheckboxOption(
@@ -122,7 +122,7 @@ fun FiltersPropertiesSectionContent(
         Spacer(modifier = Modifier.width(8.dp))
 
         Column(
-            modifier = Modifier.width(IntrinsicSize.Max),
+            modifier = Modifier.width(IntrinsicSize.Max).weight(1f, fill = false),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ArkhamFiltersCheckboxOption(

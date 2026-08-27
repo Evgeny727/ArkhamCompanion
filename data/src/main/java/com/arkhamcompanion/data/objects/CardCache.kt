@@ -1,6 +1,5 @@
 package com.arkhamcompanion.data.objects
 
-import android.util.Log
 import com.arkhamcompanion.data.local.cards.CardCacheData
 import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
@@ -546,8 +545,6 @@ object CardCache {
         _actions.value = data.actions.keys.toTypedArray()
         _traits.value = data.traits.keys.toTypedArray()
         _uses.value = data.uses.keys.toTypedArray()
-        Log.e("slots", data.slots.keys.toString())
         _slots.value = data.slots.keys.toTypedArray()
-        Log.e("slotsFlow", _slots.value.contentToString())
     }
 }
