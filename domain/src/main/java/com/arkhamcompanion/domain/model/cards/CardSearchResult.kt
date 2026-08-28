@@ -1,6 +1,7 @@
 package com.arkhamcompanion.domain.model.cards
 
-data class CodeWithTaboo(
+data class CardSearchResult(
+    val id: String,
     val code: String,
     val tabooSetId: Int?
 )

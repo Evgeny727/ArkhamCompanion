@@ -4,7 +4,7 @@ import androidx.paging.PagingData
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
-import com.arkhamcompanion.domain.model.cards.CodeWithTaboo
+import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
@@ -23,12 +23,13 @@ interface CardsRepository {
     suspend fun clearCardsDatabase(): Result<Unit>
 
     fun searchPaginatedCardsFlow(
+        ids: List<String>,
         searchConfig: CardSearchConfig
     ): Flow<PagingData<CardListItemUiModel>>
 
     fun searchCardCodesFlow(
         searchConfig: CardSearchConfig
-    ): Flow<ImmutableList<CodeWithTaboo>>
+    ): Flow<ImmutableList<CardSearchResult>>
 
     fun getCardWithRelationsByCodeFlow(
         code: String,

@@ -10,6 +10,7 @@ import com.arkhamcompanion.data.local.ArkhamDatabase
 import com.arkhamcompanion.data.local.LoggingPagingSource
 import com.arkhamcompanion.data.local.cards.CardCacheData
 import com.arkhamcompanion.data.local.cards.CardEntity
+import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
 import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
 import com.arkhamcompanion.data.local.cards.CardTypeEntity
 import com.arkhamcompanion.data.local.cards.patches.CardPatchRegistry
@@ -28,15 +29,15 @@ import com.arkhamcompanion.data.objects.CardCache.createCache
 import com.arkhamcompanion.data.objects.CardRelationResolver.buildCardWithRelations
 import com.arkhamcompanion.data.objects.CardRelationResolver.resolveCardCodesWithRelations
 import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
-import com.arkhamcompanion.data.objects.createSQLSearchQuery
 import com.arkhamcompanion.data.objects.normalizeForSearch
+import com.arkhamcompanion.data.objects.splitQueryToWords
 import com.arkhamcompanion.data.remote.CardsRemoteDataSource
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
-import com.arkhamcompanion.domain.model.cards.CodeWithTaboo
+import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
@@ -64,6 +65,8 @@ private val json = Json {
     encodeDefaults = true
     ignoreUnknownKeys = true
 }
+
+private const val MAX_CHARACTER_DISTANCE = 30
 
 class CardsRepositoryImpl @Inject constructor(
     private val cardsRemoteDataSource: CardsRemoteDataSource,
@@ -319,9 +322,90 @@ class CardsRepositoryImpl @Inject constructor(
     }
 
     override fun searchPaginatedCardsFlow(
+        ids: List<String>,
         searchConfig: CardSearchConfig
     ): Flow<PagingData<CardListItemUiModel>> {
-        val rawQuery = buildSearchCardsQuery(searchConfig)
+
+        val values = ids.mapIndexed { index, id ->
+            "('$id', $index)"
+        }.joinToString(",\n")
+
+        val requested = if (ids.isEmpty()) {
+            "SELECT NULL AS id, NULL AS position WHERE 0"
+        } else {
+            "VALUES $values"
+        }
+
+        val query = """
+            WITH requested(id, position) AS (
+                $requested
+            )
+            SELECT 
+                c.id,
+                c.code,
+                c.duplicate_of_code,
+                c.thumbnailurl,
+            
+                c.cost,
+                c.xp,
+                c.permanent,
+            
+                c.taboo_xp,
+                c.taboo_set_id,
+                c.taboo_placeholder,
+            
+                c.type_code,
+                t.name AS typeName,
+            
+                c.subtype_code,
+                st.name AS subTypeName,
+            
+                c.faction_code,
+                f.name AS factionName,
+                c.faction2_code,
+                c.faction3_code,
+            
+                c.pack_code,
+                p.name AS packName,
+                c.pack_position,
+            
+                c.encounter_code,
+                e.name AS encounterName,
+                c.encounter_position,
+            
+                c.cycle_code,
+                cy.name AS cycleName,
+                cy.position as cyclePosition,
+                
+                c.reprint_pack_code,
+            
+                c.name,
+                c.subname,
+            
+                c.skill_willpower,
+                c.skill_intellect,
+                c.skill_combat,
+                c.skill_agility,
+                c.skill_wild,
+            
+                c.parallel,
+                c.is_unique,
+                c.slot,
+                c.stage,
+                
+                c.sort_by_type,
+                c.sort_by_faction,
+                c.sort_by_slot
+            FROM requested r
+            JOIN card c ON c.id = r.id
+            JOIN card_type t ON c.type_code = t.code
+            LEFT JOIN card_subtype st ON c.subtype_code = st.code
+            JOIN faction f ON c.faction_code = f.code
+            JOIN pack p ON c.pack_code = p.code
+            JOIN cycle cy ON c.cycle_code = cy.code
+            LEFT JOIN encounter_set e ON c.encounter_code = e.code
+            ORDER BY r.position
+        """.trimIndent()
 
         return Pager(
             config = PagingConfig(
@@ -332,7 +416,7 @@ class CardsRepositoryImpl @Inject constructor(
             ),
             pagingSourceFactory = {
                 LoggingPagingSource(
-                    delegate = cardsDao.searchCardsRaw(rawQuery),
+                    delegate = cardsDao.getPagedCardsByIds(RoomRawQuery(query)),
                     analyticsRepository = analyticsRepository
                 )
             }
@@ -346,10 +430,12 @@ class CardsRepositoryImpl @Inject constructor(
 
     override fun searchCardCodesFlow(
         searchConfig: CardSearchConfig
-    ): Flow<ImmutableList<CodeWithTaboo>> {
-        val rawQuery = buildSearchCardsQuery(
-            searchConfig,
-            projection = "code, taboo_set_id"
+    ): Flow<ImmutableList<CardSearchResult>> {
+        val rawQuery = buildSearchCardsQuery(searchConfig)
+
+        val (words, includeEnglish) = prepareWordsForFuzzySearch(
+            searchConfig.options,
+            searchConfig.preferences.includeEnglish
         )
 
         return cardsDao.getSearchedCardCodesRaw(rawQuery)
@@ -358,7 +444,13 @@ class CardsRepositoryImpl @Inject constructor(
                 analyticsRepository.logMessage(searchConfig.filters.toString())
                 analyticsRepository.logError(it)
             }
-            .map { it.toDomain() }
+            .map { list ->
+                list
+                    .filter { entity ->
+                        entity.fuzzySearch(searchConfig.options, words, includeEnglish)
+                    }
+                    .toDomain()
+            }
     }
 
     override fun getCardWithRelationsByCodeFlow(
@@ -377,7 +469,6 @@ class CardsRepositoryImpl @Inject constructor(
 
     private fun buildSearchCardsQuery(
         searchConfig: CardSearchConfig,
-        projection: String? = null
     ): RoomRawQuery {
         val sortClause = buildSortClause(
             with(searchConfig) {
@@ -387,13 +478,6 @@ class CardsRepositoryImpl @Inject constructor(
         )
 
         val filterClause = searchConfig.filters.buildFiltersQuery("candidate")
-
-        val searchQuery = buildSearchQuery(
-            searchConfig.options,
-            searchConfig.preferences.includeEnglish
-        )
-
-        val isQueryNotBlank = searchQuery.sqlQuery.isNotBlank()
 
         val (packsQuery, reprintsQuery) = if (searchConfig.preferences.ignoreCollection) "" to ""
         else {
@@ -416,10 +500,10 @@ class CardsRepositoryImpl @Inject constructor(
         """.trimIndent()
 
         val spoilerQueryPart = if (searchConfig.spoiler) {
-            "SELECT ${projection ?: "*"}, MIN(pack_position) OVER (" +
+            "SELECT *, MIN(pack_position) OVER (" +
                 "PARTITION BY encounter_code" +
                 ") AS encounter_group FROM ranked_cards "
-        } else "SELECT ${projection ?: "*"} FROM ranked_cards "
+        } else "SELECT * FROM ranked_cards "
 
         val finalQueryPart = spoilerQueryPart + "WHERE duplicate_rank = 1" +
                 if (sortClause.isNotEmpty()) " ORDER BY $sortClause" else ""
@@ -439,73 +523,52 @@ class CardsRepositoryImpl @Inject constructor(
                         c.id,
                         c.code,
                         c.duplicate_of_code,
-                        c.thumbnailurl,
-                    
                         c.cost,
                         c.xp,
-                        c.permanent,
-                    
-                        c.taboo_xp,
                         c.taboo_set_id,
-                        c.taboo_placeholder,
-                    
-                        c.type_code,
-                        t.name AS typeName,
-                    
-                        c.subtype_code,
-                        st.name AS subTypeName,
-                    
-                        c.faction_code,
-                        f.name AS factionName,
-                        c.faction2_code,
-                        c.faction3_code,
-                    
-                        c.pack_code,
-                        p.name AS packName,
                         c.pack_position,
-                    
                         c.encounter_code,
-                        e.name AS encounterName,
                         c.encounter_position,
-                    
-                        c.cycle_code,
-                        cy.name AS cycleName,
-                        cy.position as cyclePosition,
-                        
-                        c.reprint_pack_code,
-                    
                         c.name,
-                        c.subname,
-                    
-                        c.skill_willpower,
-                        c.skill_intellect,
-                        c.skill_combat,
-                        c.skill_agility,
-                        c.skill_wild,
-                    
-                        c.parallel,
-                        c.is_unique,
-                        c.slot,
-                        c.stage,
                         
                         c.sort_by_type,
                         c.sort_by_faction,
                         c.sort_by_pack,
                         c.sort_by_cycle,
-                        c.sort_by_slot
+                        c.sort_by_slot,
+                        
+                        c.search_name,
+                        c.search_name_back,
+                        c.search_game,
+                        c.search_game_back,
+                        c.search_flavor,
+                        c.search_flavor_back,
+                        c.search_real_name,
+                        c.search_real_name_back,
+                        c.search_real_game,
+                        c.search_real_game_back,
+                        c.search_real_flavor,
+                        c.search_real_flavor_back,
+                    
+                        b.search_name AS back_search_name,
+                        b.search_name_back AS back_search_name_back,
+                        b.search_game AS back_search_game,
+                        b.search_game_back AS back_search_game_back,
+                        b.search_flavor AS back_search_flavor,
+                        b.search_flavor_back AS back_search_flavor_back,
+                        b.search_real_name AS back_search_real_name,
+                        b.search_real_name_back AS back_search_real_name_back,
+                        b.search_real_game AS back_search_real_game,
+                        b.search_real_game_back AS back_search_real_game_back,
+                        b.search_real_flavor AS back_search_real_flavor,
+                        b.search_real_flavor_back AS back_search_real_flavor_back
                     FROM card c
-                    JOIN card_type t
-                        ON c.type_code = t.code
-                    LEFT JOIN card_subtype st
-                        ON c.subtype_code = st.code
-                    JOIN faction f
-                        ON c.faction_code = f.code
                     JOIN pack p
                         ON c.pack_code = p.code
-                    JOIN cycle cy
-                        ON c.cycle_code = cy.code
                     LEFT JOIN encounter_set e
                         ON c.encounter_code = e.code
+                    LEFT JOIN card b
+                        ON b.code = c.back_link_id
                     CROSS JOIN selected_taboo taboo
                     WHERE c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL" else "NULL"} 
                     ${if (filterClause.isNotBlank())
@@ -555,17 +618,6 @@ class CardsRepositoryImpl @Inject constructor(
                             "c.preview = 0)" 
                          }
                      }
-                    ${if (isQueryNotBlank)
-                        """ AND EXISTS (
-                            SELECT 1
-                            FROM card search
-                            WHERE (search.code = c.code ${
-                                if (searchConfig.options.searchBack) 
-                                    "OR search.code = c.back_link_id"
-                                else ""
-                            })
-                            AND (${searchQuery.searchFieldsQuery})
-                        )""".trimIndent() else ""}
                 ),
                 
                 ranked_cards AS ($rankedQueryPart)
@@ -579,63 +631,197 @@ class CardsRepositoryImpl @Inject constructor(
                         statement.bindInt(index++, tabooSetId)
                     }
                 }
-                if (isQueryNotBlank) {
-                    repeat(searchQuery.searchFieldsAmount) {
-                        statement.bindText(index++, searchQuery.sqlQuery)
-                    }
-                }
             }
         )
     }
 
-    private fun buildSearchQuery(
+    private fun prepareWordsForFuzzySearch(
         searchOptions: CardSearchOptions,
         includeEnglish: Boolean
-    ): SqlSearchOptions {
-        val language = Locale.getDefault().toLanguageTag().substringBefore("-")
-        val shouldIncludeRealFields = language != "en" && includeEnglish
-
-        val sqlQuery = searchOptions.searchQuery
+    ): PreparedFuzzySearch {
+        val words = searchOptions.searchQuery
             .normalizeForSearch()
-            .createSQLSearchQuery()
+            .splitQueryToWords()
 
-        if (sqlQuery.isBlank()) return SqlSearchOptions()
+        val language = Locale.getDefault().toLanguageTag().substringBefore("-")
+        val realFields = language != "en" && includeEnglish
 
-        val searchFields = searchOptions.buildSearchFields(shouldIncludeRealFields)
-
-        val searchFieldsQuery = searchFields.joinToString(" OR ") { "search.$it LIKE ?" }
-
-        return SqlSearchOptions(
-            sqlQuery,
-            searchFieldsQuery,
-            searchFields.size
+        return PreparedFuzzySearch(
+            words = words,
+            includeEnglish = realFields
         )
     }
 
-    private fun CardSearchOptions.buildSearchFields(
-        shouldIncludeRealFields: Boolean
-    ): List<String> {
-        val fields = buildList {
-            add("name")
-            if (searchBack) add("name_back")
+    private fun CardSearchResultEntity.fuzzySearch(
+        searchOptions: CardSearchOptions,
+        words: List<String>,
+        includeEnglish: Boolean
+    ): Boolean {
+        if (words.isEmpty()) return true
 
-            if (searchGame) {
-                add("game")
-                if (searchBack) add("game_back")
+        fun matches(
+            local: String?,
+            english: String?,
+            backLocal: String?,
+            backLinked: String?,
+            backEnglish: String?,
+            backEnglishLinked: String?,
+        ): Boolean {
+            if (matchesFuzzy(local, words)) return true
+
+            if (includeEnglish && matchesFuzzy(english, words)) return true
+
+            if (searchOptions.searchBack) {
+                if (matchesFuzzy(backLocal, words)) return true
+                if (matchesFuzzy(backLinked, words)) return true
+
+                if (includeEnglish) {
+                    if (matchesFuzzy(backEnglish, words)) return true
+
+                    if (matchesFuzzy(backEnglishLinked, words)) return true
+                }
             }
 
-            if (searchFlavor) {
-                add("flavor")
-                if (searchBack) add("flavor_back")
-            }
+            return false
         }
 
-        return buildList {
-            fields.forEach {
-                add("search_$it")
-                if (shouldIncludeRealFields) add("search_real_$it")
+        //Name search
+        if (matches(
+            searchFields.searchName,
+            searchFields.searchRealName,
+            searchFields.searchNameBack,
+            searchFieldsBack?.searchName,
+            searchFields.searchRealNameBack,
+            searchFieldsBack?.searchRealName
+        )) return true
+
+        //Game search
+        if (searchOptions.searchGame && matches(
+            searchFields.searchGame,
+            searchFields.searchRealGame,
+            searchFields.searchGameBack,
+            searchFieldsBack?.searchGame,
+            searchFields.searchRealGameBack,
+            searchFieldsBack?.searchRealGame
+        )) return true
+
+        //Flavor search
+        if (searchOptions.searchFlavor && matches(
+            searchFields.searchFlavor,
+            searchFields.searchRealFlavor,
+            searchFields.searchFlavorBack,
+            searchFieldsBack?.searchFlavor,
+            searchFields.searchRealFlavorBack,
+            searchFieldsBack?.searchRealFlavor
+        )) return true
+
+        return false
+    }
+
+    fun matchesFuzzy(
+        text: String?,
+        queryWords: List<String>,
+    ): Boolean {
+        if (text == null) return false
+        if (queryWords.isEmpty()) return true
+        if (queryWords.size == 1) return text.contains(queryWords[0])
+
+        var queryIndex = 0
+        var previousMatchEnd = -1
+
+        var wordStart = 0
+        var i = 0
+
+        while (i <= text.length) {
+            val isEnd = i == text.length
+            val isSeparator = !isEnd && (text[i] == ' ' || text[i] == '\n')
+
+            if (isEnd || isSeparator) {
+                if (wordStart < i) {
+                    val wordEnd = i
+                    val queryWord = queryWords[queryIndex]
+
+                    if (matchesWord(text, wordStart, wordEnd, queryWord)) {
+                        if (previousMatchEnd >= 0) {
+                            val distance = wordStart - previousMatchEnd
+
+                            if (distance > MAX_CHARACTER_DISTANCE) {
+                                // Too far apart. Start looking for the first
+                                // query word again from this word.
+                                queryIndex = 0
+                                previousMatchEnd = -1
+
+                                if (matchesWord(
+                                        text,
+                                        wordStart,
+                                        wordEnd,
+                                        queryWords[0]
+                                    )
+                                ) {
+                                    queryIndex = 1
+                                    previousMatchEnd = wordEnd
+                                }
+                            } else {
+                                queryIndex++
+
+                                if (queryIndex == queryWords.size) {
+                                    return true
+                                }
+
+                                previousMatchEnd = wordEnd
+                            }
+                        } else {
+                            queryIndex = 1
+                            previousMatchEnd = wordEnd
+
+                            if (queryIndex == queryWords.size) {
+                                return true
+                            }
+                        }
+                    }
+                }
+
+                // Paragraph boundary.
+                if (!isEnd && text[i] == '\n') {
+                    queryIndex = 0
+                    previousMatchEnd = -1
+                }
+
+                wordStart = i + 1
             }
+
+            i++
         }
+
+        return false
+    }
+
+    private fun matchesWord(
+        text: String,
+        start: Int,
+        end: Int,
+        queryWord: String,
+    ): Boolean {
+        val wordLength = end - start
+
+        // Equivalent to your current LIKE '%word%'
+        // if you want substring matching inside a word.
+        if (wordLength < queryWord.length) return false
+
+        for (offset in 0..wordLength - queryWord.length) {
+            var matched = true
+
+            for (j in queryWord.indices) {
+                if (text[start + offset + j] != queryWord[j]) {
+                    matched = false
+                    break
+                }
+            }
+
+            if (matched) return true
+        }
+
+        return false
     }
 
     private val defaultFilters = CardFilters()
@@ -1009,8 +1195,7 @@ class CardsRepositoryImpl @Inject constructor(
     }
 }
 
-private data class SqlSearchOptions(
-    val sqlQuery: String = "",
-    val searchFieldsQuery: String = "",
-    val searchFieldsAmount: Int = 0
+private data class PreparedFuzzySearch(
+    val words: List<String>,
+    val includeEnglish: Boolean
 )

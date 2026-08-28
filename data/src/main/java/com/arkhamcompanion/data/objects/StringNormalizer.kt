@@ -14,8 +14,7 @@ fun String.normalizeForSearch(): String {
         .lowercase()
 }
 
-fun String.createSQLSearchQuery(): String {
+fun String.splitQueryToWords(): List<String> {
     return this.split(WHITESPACE)
         .filter(String::isNotBlank)
-        .joinToString(" ") { "%$it%" }
 }

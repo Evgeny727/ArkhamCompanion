@@ -39,7 +39,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
-import com.arkhamcompanion.domain.model.cards.CodeWithTaboo
+import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.ui.cards.components.CardListItem
 import com.arkhamcompanion.ui.cards.components.CardSectionHeader
 import com.arkhamcompanion.ui.cards.components.PlaceholderCardListItem
@@ -52,7 +52,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun LazyCardListWithStickyHeaders(
     searchQuery: String,
     searchResults: LazyPagingItems<CardListItemUiModel>,
-    searchResultCodes: ImmutableList<CodeWithTaboo>,
+    searchResultCodes: ImmutableList<CardSearchResult>,
     listState: LazyListState,
     rowHeight: Dp,
     onCardClick: (String) -> Unit,

@@ -10,9 +10,9 @@ import androidx.room3.Upsert
 import com.arkhamcompanion.data.local.cards.CardDetailsEntity
 import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.data.local.cards.CardListItemEntity
+import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
 import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
 import com.arkhamcompanion.data.local.cards.CardTypeEntity
-import com.arkhamcompanion.data.local.cards.CodeWithTabooEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -33,10 +33,10 @@ interface CardsDao {
     suspend fun deleteAllCards()
 
     @RawQuery(observedEntities = [CardEntity::class])
-    fun searchCardsRaw(query: RoomRawQuery): PagingSource<Int, CardListItemEntity>
+    fun getPagedCardsByIds(query: RoomRawQuery): PagingSource<Int, CardListItemEntity>
 
     @RawQuery(observedEntities = [CardEntity::class])
-    fun getSearchedCardCodesRaw(query: RoomRawQuery): Flow<List<CodeWithTabooEntity>>
+    fun getSearchedCardCodesRaw(query: RoomRawQuery): Flow<List<CardSearchResultEntity>>
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""

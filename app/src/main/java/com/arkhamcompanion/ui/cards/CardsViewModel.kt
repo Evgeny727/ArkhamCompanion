@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -112,20 +113,24 @@ class CardsViewModel @Inject constructor(
     }.debounce(200.milliseconds)
         .distinctUntilChanged()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _searchCodesWithConfig = _searchConfig.flatMapLatest { config ->
+        cardsRepository.searchCardCodesFlow(config)
+            .map { codes -> config to codes }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val searchResults = _searchConfig.flatMapLatest { searchConfig ->
-        cardsRepository.searchPaginatedCardsFlow(searchConfig)
+    val searchResults = _searchCodesWithConfig.flatMapLatest { (config, codes) ->
+        cardsRepository.searchPaginatedCardsFlow(codes.map { it.id }, config)
     }.cachedIn(viewModelScope)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val searchResultCodes = _searchConfig.flatMapLatest { searchConfig ->
-        cardsRepository.searchCardCodesFlow(searchConfig)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000L),
-        initialValue = persistentListOf()
-    )
+    val searchResultCodes = _searchCodesWithConfig
+        .map { (_, codes) -> codes }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000L),
+            initialValue = persistentListOf()
+        )
 
     private fun updateCardFilters(update: (CardFilters) -> CardFilters) {
         _cardFilters.update { update(it) }
