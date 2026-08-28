@@ -270,7 +270,7 @@ fun ArkhamFiltersCheckboxOption(
         ) {
             Text(
                 text = title,
-                style = CustomTheme.typography.text,
+                style = CustomTheme.typography.small,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false)
@@ -309,7 +309,7 @@ fun ArkhamFiltersCheckboxOption(
         ) {
             Text(
                 text = title,
-                style = CustomTheme.typography.text,
+                style = CustomTheme.typography.small,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f, fill = false)

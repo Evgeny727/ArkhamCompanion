@@ -179,7 +179,7 @@ private fun SkillIconRow(
             )
         } ?: Text(
             text = stringResource(R.string.skills_any),
-            style = CustomTheme.typography.text
+            style = CustomTheme.typography.small
         )
 
         ArkhamSingleToggleButtonGroup(

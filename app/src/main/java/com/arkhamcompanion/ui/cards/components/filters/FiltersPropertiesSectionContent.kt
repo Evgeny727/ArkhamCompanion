@@ -66,9 +66,9 @@ fun FiltersPropertiesSectionContent(
                     append(" (")
                     withStyle(
                         style = SpanStyle(
-                            fontSize = 24.appSp(CustomTheme.typography.scaleFactor),
+                            fontSize = 20.appSp(CustomTheme.typography.scaleFactor),
                             fontFamily = AppIconsFont,
-                            baselineShift = BaselineShift(-0.25f)
+                            baselineShift = BaselineShift(-0.2f)
                         )
                     ) {
                         append(AppIcon.Multiclass.glyph)
