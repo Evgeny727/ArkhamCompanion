@@ -570,7 +570,7 @@ class CardsRepositoryImpl @Inject constructor(
                     LEFT JOIN card b
                         ON b.code = c.back_link_id
                     CROSS JOIN selected_taboo taboo
-                    WHERE c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL" else "NULL"} 
+                    WHERE c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL" else "NULL OR c.xp IS NOT NULL"} 
                     ${if (filterClause.isNotBlank())
                         """ AND EXISTS (
                             SELECT 1
