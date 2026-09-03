@@ -29,8 +29,6 @@ import com.arkhamcompanion.data.objects.CardCache.createCache
 import com.arkhamcompanion.data.objects.CardRelationResolver.buildCardWithRelations
 import com.arkhamcompanion.data.objects.CardRelationResolver.resolveCardCodesWithRelations
 import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
-import com.arkhamcompanion.data.objects.normalizeForSearch
-import com.arkhamcompanion.data.objects.splitQueryToWords
 import com.arkhamcompanion.data.remote.CardsRemoteDataSource
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardFilters
@@ -40,9 +38,12 @@ import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
+import com.arkhamcompanion.domain.objects.FuzzyMatcher.matchesFuzzy
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.getCurrentDateTime
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.isAtLeastTwoWeeksApart
+import com.arkhamcompanion.domain.objects.normalizeForSearch
+import com.arkhamcompanion.domain.objects.splitQueryToWords
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.PerformanceRepository
@@ -65,8 +66,6 @@ private val json = Json {
     encodeDefaults = true
     ignoreUnknownKeys = true
 }
-
-private const val MAX_CHARACTER_DISTANCE = 30
 
 class CardsRepositoryImpl @Inject constructor(
     private val cardsRemoteDataSource: CardsRemoteDataSource,
@@ -714,112 +713,6 @@ class CardsRepositoryImpl @Inject constructor(
             searchFields.searchRealFlavorBack,
             searchFieldsBack?.searchRealFlavor
         )) return true
-
-        return false
-    }
-
-    fun matchesFuzzy(
-        text: String?,
-        queryWords: List<String>,
-    ): Boolean {
-        if (text == null) return false
-        if (queryWords.isEmpty()) return true
-        if (queryWords.size == 1) return text.contains(queryWords[0])
-
-        var queryIndex = 0
-        var previousMatchEnd = -1
-
-        var wordStart = 0
-        var i = 0
-
-        while (i <= text.length) {
-            val isEnd = i == text.length
-            val isSeparator = !isEnd && (text[i] == ' ' || text[i] == '\n')
-
-            if (isEnd || isSeparator) {
-                if (wordStart < i) {
-                    val wordEnd = i
-                    val queryWord = queryWords[queryIndex]
-
-                    if (matchesWord(text, wordStart, wordEnd, queryWord)) {
-                        if (previousMatchEnd >= 0) {
-                            val distance = wordStart - previousMatchEnd
-
-                            if (distance > MAX_CHARACTER_DISTANCE) {
-                                // Too far apart. Start looking for the first
-                                // query word again from this word.
-                                queryIndex = 0
-                                previousMatchEnd = -1
-
-                                if (matchesWord(
-                                        text,
-                                        wordStart,
-                                        wordEnd,
-                                        queryWords[0]
-                                    )
-                                ) {
-                                    queryIndex = 1
-                                    previousMatchEnd = wordEnd
-                                }
-                            } else {
-                                queryIndex++
-
-                                if (queryIndex == queryWords.size) {
-                                    return true
-                                }
-
-                                previousMatchEnd = wordEnd
-                            }
-                        } else {
-                            queryIndex = 1
-                            previousMatchEnd = wordEnd
-
-                            if (queryIndex == queryWords.size) {
-                                return true
-                            }
-                        }
-                    }
-                }
-
-                // Paragraph boundary.
-                if (!isEnd && text[i] == '\n') {
-                    queryIndex = 0
-                    previousMatchEnd = -1
-                }
-
-                wordStart = i + 1
-            }
-
-            i++
-        }
-
-        return false
-    }
-
-    private fun matchesWord(
-        text: String,
-        start: Int,
-        end: Int,
-        queryWord: String,
-    ): Boolean {
-        val wordLength = end - start
-
-        // Equivalent to your current LIKE '%word%'
-        // if you want substring matching inside a word.
-        if (wordLength < queryWord.length) return false
-
-        for (offset in 0..wordLength - queryWord.length) {
-            var matched = true
-
-            for (j in queryWord.indices) {
-                if (text[start + offset + j] != queryWord[j]) {
-                    matched = false
-                    break
-                }
-            }
-
-            if (matched) return true
-        }
 
         return false
     }

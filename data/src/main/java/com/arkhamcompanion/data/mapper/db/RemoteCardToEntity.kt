@@ -13,7 +13,7 @@ import com.arkhamcompanion.data.local.meta.PackEntity
 import com.arkhamcompanion.data.objects.CardSortOrder.sortByFactionOrder
 import com.arkhamcompanion.data.objects.CardSortOrder.sortBySlotOrder
 import com.arkhamcompanion.data.objects.CardSortOrder.sortByTypeOrder
-import com.arkhamcompanion.data.objects.normalizeForSearch
+import com.arkhamcompanion.domain.objects.normalizeForSearch
 import com.arkhamcompanion.domain.model.cards.ARKHAM_BUILD_BASE_IMAGE_URL
 import com.arkhamcompanion.fragment.CoreCardText
 import com.arkhamcompanion.fragment.SingleCard
