@@ -194,17 +194,18 @@ fun CardDetailsScreen(
                             )
                         }
 
-                        if (cardDetailsWithRelations?.card?.details?.cardDetails?.encounterCode == null) {
-                            cardDetailsDeckbuildingSection(
-                                onShowBaseInvestigatorCards = { /*TODO:Show base cardpool*/ },
-                                onShowParallelInvestigatorCards = if (isParallel || isBase) { {
-                                    /*TODO:Show parallel cardpool*/
-                                } } else null,
-                                isBase = !isBase
-                            ) {
-                                /*TODO:Create new deck*/
-                            }
-                        }
+                        //TODO:implement deckbuilding section
+//                        if (cardDetailsWithRelations?.card?.details?.cardDetails?.encounterCode == null) {
+//                            cardDetailsDeckbuildingSection(
+//                                onShowBaseInvestigatorCards = { /*TODO:Show base cardpool*/ },
+//                                onShowParallelInvestigatorCards = if (isParallel || isBase) { {
+//                                    /*TODO:Show parallel cardpool*/
+//                                } } else null,
+//                                isBase = !isBase
+//                            ) {
+//                                /*TODO:Create new deck*/
+//                            }
+//                        }
                     }
 
                     cardDetailsWithRelations?.cardRelations?.restrictedTo.run {

@@ -65,16 +65,17 @@ fun SupportCard(
                 size = iconSize(AppIcon.Logo)
             )
         }
-        ArkhamSquareButton(
-            title = stringResource(R.string.backup_data),
-            onClick = navigateToBackUp,
-        ) { color ->
-            ArkhamIconText(
-                iconGlyph = AppIcon.Book,
-                color = color,
-                size = iconSize(AppIcon.Book)
-            )
-        }
+        //TODO: add button after implementing backup
+//        ArkhamSquareButton(
+//            title = stringResource(R.string.backup_data),
+//            onClick = navigateToBackUp,
+//        ) { color ->
+//            ArkhamIconText(
+//                iconGlyph = AppIcon.Book,
+//                color = color,
+//                size = iconSize(AppIcon.Book)
+//            )
+//        }
         ArkhamSquareButton(
             title = stringResource(R.string.diagnostics),
             onClick = navigateToDiagnostics,

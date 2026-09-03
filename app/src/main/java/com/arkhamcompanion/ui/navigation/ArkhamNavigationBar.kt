@@ -28,7 +28,8 @@ import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.theme.Alegreya
 import com.arkhamcompanion.ui.theme.CustomTheme
 
-val bottomBarItems = listOf(BottomBarItem.Cards, BottomBarItem.Decks, BottomBarItem.Campaigns, BottomBarItem.Settings)
+//TODO: return `BottomBarItem.Decks, BottomBarItem.Campaigns,` after implementation
+val bottomBarItems = listOf(BottomBarItem.Cards, BottomBarItem.Settings)
 
 @Composable
 fun ArkhamNavigationBar(
