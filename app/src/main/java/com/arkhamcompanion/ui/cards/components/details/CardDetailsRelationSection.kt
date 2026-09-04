@@ -97,5 +97,5 @@ private fun RelatedCard.shouldShow(
 ): Boolean {
     if (!showFanmade && !details.cardDetails.official) return false
 
-    return if (ignoreCollection) true else details.firstPackIn(collection) != null
+    return if (ignoreCollection) true else details.firstPackInWithoutReprints(collection) != null
 }

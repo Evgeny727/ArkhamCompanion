@@ -38,18 +38,28 @@ data class CardDetailsWithPackInfo(
     val cardDetails: CardDetails,
     val duplicates: ImmutableList<CardPackInfo>,
     val reprints: ImmutableList<CardPackInfo>,
+    val reprintDuplicates: ImmutableList<CardPackInfo>,
 ) {
     val allPacks: ImmutableList<CardPack> by lazy(LazyThreadSafetyMode.NONE) {
         buildList {
-            addCard(cardDetails)
-
-            duplicates.forEach(::addPackInfo)
+            addAll(packsWithoutReprints)
+            reprintDuplicates.forEach(::addPackInfo)
             reprints.forEach(::addPackInfo)
+        }.toImmutableList()
+    }
+
+    private val packsWithoutReprints: ImmutableList<CardPack> by lazy(LazyThreadSafetyMode.NONE) {
+        buildList {
+            addCard(cardDetails)
+            duplicates.forEach(::addPackInfo)
         }.toImmutableList()
     }
 
     fun firstPackIn(collection: Collection): CardPack? =
         allPacks.firstOrNull { it.code in collection.packs || it.code in collection.reprintPacks }
+
+    fun firstPackInWithoutReprints(collection: Collection): CardPack? =
+        packsWithoutReprints.firstOrNull { it.code in collection.packs || it.code in collection.reprintPacks }
 }
 
 data class CardPack(

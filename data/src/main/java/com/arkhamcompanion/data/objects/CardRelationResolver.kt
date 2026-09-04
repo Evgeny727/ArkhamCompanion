@@ -250,25 +250,6 @@ object CardRelationResolver {
         relation: RelationType,
     ): RelatedCard? =
         buildRelationList(rootCode, relation).firstOrNull()
-
-//    private fun Map<String, CardDetailsWithPackInfo>.buildRelationList(
-//        rootCode: String,
-//        relation: RelationType,
-//    ): ImmutableList<CardDetailsWithPackInfo> {
-//        return buildList {
-//            getRelations(rootCode, relation).forEach { code ->
-//                this@buildRelationList[code]
-//                    ?.takeIf { it.cardDetails.duplicateOfCode == null }
-//                    ?.let(::add)
-//            }
-//        }.sortedWith(relationComparator).toImmutableList()
-//    }
-//
-//    private fun Map<String, CardDetailsWithPackInfo>.buildSingleRelation(
-//        rootCode: String,
-//        relation: RelationType,
-//    ): CardDetailsWithPackInfo? =
-//        buildRelationList(rootCode, relation).firstOrNull()
 }
 
 enum class RelationType {

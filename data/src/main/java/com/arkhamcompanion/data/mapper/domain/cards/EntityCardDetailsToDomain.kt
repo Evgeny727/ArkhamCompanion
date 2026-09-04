@@ -127,6 +127,9 @@ internal fun List<CardDetailsEntity>.toDetailsWithPackInfo(): Map<String, CardDe
                 CardCache.duplicates[code],
                 map,
             ))
+        }.toImmutableList()
+
+        val reprintDuplicates = buildSet {
             CardCache.reprints[code]?.forEach { code ->
                 addAll(buildPackInfoList(
                     CardCache.duplicates[code],
@@ -150,6 +153,7 @@ internal fun List<CardDetailsEntity>.toDetailsWithPackInfo(): Map<String, CardDe
                 ),
                 duplicates = duplicates,
                 reprints = reprints,
+                reprintDuplicates = reprintDuplicates
             )
     }
 
