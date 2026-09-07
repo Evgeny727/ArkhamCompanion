@@ -30,7 +30,7 @@ interface MetaRepository {
 
     fun getAllUses(): Flow<Array<String>>
 
-    fun getAllEncounterSets(): Flow<ImmutableMap<String, String>>
+    fun getAllEncounterSets(): Flow<ImmutableMap<String, Pair<String, String>>>
 
     fun getAllIllustrators(): Flow<ImmutableSet<String>>
 }

@@ -51,8 +51,9 @@ fun CardsFiltersSlotsScreen(
             .map { code ->
                 code to resources.getString(getLocalizedSlot(code))
             }
-            .filter { (_, name) ->
+            .filter { (code, name) ->
                 query.isEmpty() || name.contains(query, ignoreCase = true)
+                        || code.contains(query, ignoreCase = true)
             }
             .sortedBy { (_, name) -> name }
     }

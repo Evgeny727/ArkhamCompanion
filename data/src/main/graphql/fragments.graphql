@@ -83,7 +83,6 @@ fragment SingleCard on all_card {
   real_back_traits
   real_customization_change
   real_customization_text
-  real_encounter_set_name
   real_flavor
   real_name
   real_pack_name

@@ -32,6 +32,7 @@ object DataModule {
     fun provideDatabase(@ApplicationContext context: Context): ArkhamDatabase {
         return Room.databaseBuilder<ArkhamDatabase>(context, name = "arkham_database")
             .setDriver(BundledSQLiteDriver())
+            .fallbackToDestructiveMigration()
             .build()
     }
 

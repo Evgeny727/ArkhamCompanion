@@ -525,7 +525,7 @@ fun CardsFiltersScreen(
         item("encounter_navigation", "navigation") {
             val label = stringResource(R.string.encounter_sets)
             val selectedEncounterSets = filters.encounterSets.take(10)
-                .mapNotNull { encounterSets[it] }
+                .mapNotNull { encounterSets[it]?.first }
 
             NavigationFilterButton(
                 label = selectedFilterLabel(label, selectedEncounterSets),

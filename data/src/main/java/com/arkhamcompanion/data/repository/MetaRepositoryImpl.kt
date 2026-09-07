@@ -72,10 +72,10 @@ class MetaRepositoryImpl @Inject constructor(
 
     override fun getAllUses(): Flow<Array<String>> = CardCache.usesFlow
 
-    override fun getAllEncounterSets(): Flow<ImmutableMap<String, String>> = metaDao.getAllEncounterSets()
+    override fun getAllEncounterSets(): Flow<ImmutableMap<String, Pair<String, String>>> = metaDao.getAllEncounterSets()
         .map { encounterSets ->
             encounterSets.map { it.toDomain() }
-                .sortedBy { it.second }
+                .sortedBy { it.second.first }
                 .toMap()
                 .toImmutableMap()
         }

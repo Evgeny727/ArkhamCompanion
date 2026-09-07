@@ -132,7 +132,6 @@ data class Translation(
         Index("code"),
         Index("taboo_set_id"),
         Index(value = ["taboo_set_id", "code"], unique = true),
-        Index("xp"),
     ]
 )
 data class CardEntity(
@@ -239,8 +238,6 @@ data class CardEntity(
     val realCustomizationChange: String?,
     @ColumnInfo("real_customization_text")
     val realCustomizationText: String?,
-    @ColumnInfo("real_encounter_set_name")
-    val realEncounterSetName: String?,
     @ColumnInfo("real_flavor")
     val realFlavor: String?,
     @ColumnInfo("real_name")

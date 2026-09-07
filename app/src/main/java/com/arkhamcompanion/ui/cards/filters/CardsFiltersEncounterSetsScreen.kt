@@ -44,8 +44,9 @@ fun CardsFiltersEncounterSetsScreen(
         val query = searchQuery.trim()
 
         if (query.isBlank()) encounterSets
-        else encounterSets.filter { (_, name) ->
-            name.contains(query, ignoreCase = true)
+        else encounterSets.filter { (_, value) ->
+            val (name, realName) = value
+            name.contains(query, ignoreCase = true) || realName.contains(query, ignoreCase = true)
         }
     }
 
@@ -78,10 +79,10 @@ fun CardsFiltersEncounterSetsScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(top = 8.dp)
         ) {
-            filteredEncounterSets.forEach { (code, text) ->
+            filteredEncounterSets.forEach { (code, value) ->
                 item(code, "encounter_set") {
                     ArkhamCheckboxButton(
-                        title = text,
+                        title = value.first,
                         isSelected = code in selectedEncounterSets,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     ) { onEncounterSetChange(code) }

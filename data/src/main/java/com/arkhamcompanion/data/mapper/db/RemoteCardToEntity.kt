@@ -109,7 +109,6 @@ fun SingleCard.toEntity(
         realBackTraits = real_back_traits,
         realCustomizationChange = real_customization_change,
         realCustomizationText = real_customization_text,
-        realEncounterSetName = real_encounter_set_name,
         realFlavor = real_flavor,
         realName = real_name,
         realPackName = real_pack_name,

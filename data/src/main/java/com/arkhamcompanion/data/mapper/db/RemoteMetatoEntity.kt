@@ -48,6 +48,7 @@ fun EncounterSet.toEntity(translation: EncounterSet?): EncounterSetEntity {
     return EncounterSetEntity(
         code = code,
         name = translation?.name ?: name,
+        realName = name,
     )
 }
 

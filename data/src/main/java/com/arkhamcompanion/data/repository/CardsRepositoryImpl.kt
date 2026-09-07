@@ -569,11 +569,11 @@ class CardsRepositoryImpl @Inject constructor(
                     LEFT JOIN card b
                         ON b.code = c.back_link_id
                     CROSS JOIN selected_taboo taboo
-                    WHERE c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL" else "NULL OR c.xp IS NOT NULL"} 
+                    WHERE (c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL)" else "NULL OR c.xp IS NOT NULL)"} 
                     ${if (filterClause.isNotBlank())
                         """ AND EXISTS (
                             SELECT 1
-                            FROM card candidate INDEXED BY index_card_code
+                            FROM card candidate
                             WHERE (candidate.code = c.code OR candidate.code = c.back_link_id) 
                             AND $filterClause
                         )""".trimIndent() else ""
@@ -821,20 +821,6 @@ class CardsRepositoryImpl @Inject constructor(
                 """.trimIndent())
             }
 
-            levelFilter.run {
-                if (this == defaultFilters.levelFilter) return@run
-
-                val result = forcedRange ?: range
-                val (min, max) = result
-                add(
-                    when {
-                        max == null -> "(${alias}.xp IS NULL)"
-                        min == null -> "(${alias}.xp IS NULL OR ${alias}.xp <= $max)"
-                        else -> "(${alias}.xp BETWEEN $min AND $max)"
-                    }
-                )
-            }
-
             if (types.isNotEmpty()) {
                 val typesString = types.joinToString(",") { "'${it.code}'" }
                 add("${alias}.type_code IN ($typesString)")
@@ -881,6 +867,20 @@ class CardsRepositoryImpl @Inject constructor(
             /*
             *  Non-indexed filters
             */
+
+            levelFilter.run {
+                if (this == defaultFilters.levelFilter) return@run
+
+                val result = forcedRange ?: range
+                val (min, max) = result
+                add(
+                    when {
+                        max == null -> "(${alias}.xp IS NULL)"
+                        min == null -> "(${alias}.xp IS NULL OR ${alias}.xp <= $max)"
+                        else -> "(${alias}.xp BETWEEN $min AND $max)"
+                    }
+                )
+            }
 
             costFilter.run {
                 if (this == defaultFilters.costFilter) return@run
