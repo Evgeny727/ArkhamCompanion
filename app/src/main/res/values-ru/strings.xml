@@ -1991,4 +1991,8 @@
     <string name="shroud_x">Неясность «X»</string>
     <string name="search_for_slots">Найти слоты</string>
     <string name="search_for_uses">Найти многоразовые</string>
+    <string name="ownership_all">Все</string>
+    <string name="ownership_collection">Коллекция</string>
+    <string name="ownership_unavailable">Недоступные</string>
+    <string name="ownership_filter">Владение</string>
 </resources>

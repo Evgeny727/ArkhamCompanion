@@ -2010,4 +2010,8 @@
     <string name="uses_brilliance">Brilliance</string>
     <string name="uses_doses">Doses</string>
     <string name="uses_shards">Shards</string>
+    <string name="ownership_all">All</string>
+    <string name="ownership_collection">Collection</string>
+    <string name="ownership_unavailable">Unavailable</string>
+    <string name="ownership_filter">Ownership</string>
 </resources>

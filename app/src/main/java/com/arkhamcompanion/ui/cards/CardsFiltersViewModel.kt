@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 enum class FilterSection {
-    Level, Cost, Skills, HealthSanity, Properties, Official,
+    Level, Cost, Skills, HealthSanity, Properties, Official, Ownership,
     Fight, Evade, Damage, Horror, Shroud, Clues
 }
 

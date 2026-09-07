@@ -22,6 +22,7 @@ data class CardFilters(
     val enemyFilter: EnemyFilter = EnemyFilter(),
     val locationFilter: LocationFilter = LocationFilter(),
     val encounterSets: ImmutableSet<String> = persistentSetOf(),
+    val ownershipFilter: Ownership? = null,
     val officialFilter: Boolean? = null,
     val packs: Collection = Collection(persistentSetOf(), persistentSetOf()),
     val tabooSetId: Int? = null,
@@ -103,4 +104,8 @@ data class NullableIntRange(
         else if (min == null && max == null) return false
         return (min == null || value >= min) && (max == null || value <= max)
     }
+}
+
+enum class Ownership {
+    All, Collection, Unavailable
 }

@@ -18,6 +18,7 @@ import com.arkhamcompanion.domain.model.cards.HealthSanityFilter
 import com.arkhamcompanion.domain.model.cards.LevelFilter
 import com.arkhamcompanion.domain.model.cards.LocationFilter
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
+import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.domain.model.cards.PropertiesFilter
 import com.arkhamcompanion.domain.model.cards.SkillsFilter
 import com.arkhamcompanion.domain.model.settings.Collection
@@ -426,6 +427,22 @@ class CardsViewModel @Inject constructor(
     fun clearEncounterSetsFilter() {
         updateCardFilters {
             it.copy(encounterSets = persistentSetOf())
+        }
+    }
+
+    fun toggleOwnershipFilter(value: Ownership) {
+        updateCardFilters {
+            it.copy(
+                ownershipFilter = if (it.ownershipFilter == value) null else value
+            )
+        }
+    }
+
+    fun clearOwnershipFilter() {
+        updateCardFilters {
+            it.copy(
+                ownershipFilter = null
+            )
         }
     }
 

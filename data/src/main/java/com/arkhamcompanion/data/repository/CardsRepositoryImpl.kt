@@ -43,6 +43,7 @@ import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
+import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
 import com.arkhamcompanion.domain.objects.FuzzyMatcher.matchesFuzzy
@@ -709,6 +710,41 @@ class CardsRepositoryImpl @Inject constructor(
                     
                     CROSS JOIN selected_taboo taboo
                     WHERE (c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL)" else "NULL OR c.xp IS NOT NULL)"} 
+                    ${ 
+                        when (searchConfig.filters.ownershipFilter) {
+                            Ownership.All -> ""
+                            
+                            Ownership.Collection -> {
+                                """ AND (
+                                    c.pack_code IN ($packsQuery) 
+                                    OR c.reprint_pack_code IN ($reprintsQuery)
+                                )""".trimIndent()
+                            }
+                            
+                            Ownership.Unavailable -> {
+                                """ AND (
+                                    c.pack_code NOT IN ($packsQuery) 
+                                    AND (
+                                        c.reprint_pack_code IS NULL
+                                        OR c.reprint_pack_code NOT IN ($reprintsQuery)
+                                    )
+                                )""".trimIndent()
+                            }
+                            
+                            else -> {
+                                if (searchConfig.filters.packs.isNotEmpty() 
+                                    || searchConfig.preferences.ignoreCollection) {
+                                        ""
+                                }
+                                else {
+                                    """ AND (
+                                        c.pack_code IN ($packsQuery) 
+                                        OR c.reprint_pack_code IN ($reprintsQuery)
+                                    )""".trimIndent()
+                                }
+                            }
+                        }
+                    }
                     ${if (filterClause.isNotBlank())
                         """ AND EXISTS (
                             SELECT 1
@@ -716,13 +752,6 @@ class CardsRepositoryImpl @Inject constructor(
                             WHERE (candidate.code = c.code OR candidate.code = c.back_link_id) 
                             AND $filterClause
                         )""".trimIndent() else ""
-                    }
-                    ${ if (searchConfig.preferences.ignoreCollection 
-                        || searchConfig.filters.packs.isNotEmpty()) "" 
-                    else """ AND (
-                        c.pack_code IN ($packsQuery) 
-                        OR c.reprint_pack_code IN ($reprintsQuery)
-                    )""".trimIndent()
                     }
                     ${ if (searchConfig.spoiler || searchConfig.filters.tabooSetId != null) "" 
                     else """ AND

@@ -24,6 +24,7 @@ import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
+import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersEncountersScreen
@@ -37,15 +38,15 @@ import com.arkhamcompanion.ui.cards.CardsFiltersTypesScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
 import com.arkhamcompanion.ui.cards.CardsViewModel
 import com.arkhamcompanion.ui.cards.FilterSection
+import com.arkhamcompanion.ui.cards.components.factionIcon
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamFiltersCheckboxOption
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamRangeSlider
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamSingleToggleButtonGroup
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamToggleButtonGroup
 import com.arkhamcompanion.ui.cards.components.filters.CollapsableFiltersSection
+import com.arkhamcompanion.ui.cards.components.filters.FilersSkillIconsSection
 import com.arkhamcompanion.ui.cards.components.filters.FiltersPropertiesSectionContent
 import com.arkhamcompanion.ui.cards.components.filters.NavigationFilterButton
-import com.arkhamcompanion.ui.cards.components.factionIcon
-import com.arkhamcompanion.ui.cards.components.filters.FilersSkillIconsSection
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamTabooDialog
 import com.arkhamcompanion.ui.components.factionColor
@@ -60,7 +61,7 @@ import com.arkhamcompanion.ui.utils.getLocalizedUse
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableMap
-import kotlin.collections.get
+import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 fun CardsFiltersScreen(
@@ -532,6 +533,54 @@ fun CardsFiltersScreen(
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 navigateTo(CardsFiltersEncountersScreen)
+            }
+
+            HorizontalDivider(color = CustomTheme.colors.divider)
+        }
+
+        item("ownership_section", "section") {
+            val ownershipAllText = stringResource(R.string.ownership_all)
+            val ownershipCollectionText = stringResource(R.string.ownership_collection)
+            val ownershipUnavailableText = stringResource(R.string.ownership_unavailable)
+            val label = stringResource(R.string.ownership_filter)
+            val defaultText = stringResource(R.string.default_text)
+            val colon = LocalLanguage.current.colon
+            val isCollapsed = filtersUiState.collapsedSections[FilterSection.Ownership] ?: true
+            val isDefaultValues = filters.ownershipFilter == defaultFilters.ownershipFilter
+
+            CollapsableFiltersSection(
+                label = "$label$colon" + if (isDefaultValues) defaultText
+                else when (filters.ownershipFilter) {
+                    Ownership.All -> ownershipAllText
+                    Ownership.Collection -> ownershipCollectionText
+                    Ownership.Unavailable -> ownershipUnavailableText
+                    else -> ""
+                },
+                isNotCollapsed = !isCollapsed,
+                onCollapseChange = {
+                    cardsFiltersViewModel.toggleSection(FilterSection.Ownership)
+                },
+                onSectionClear = cardsViewModel::clearOwnershipFilter,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .animateContentSize()
+            ) {
+                ArkhamSingleToggleButtonGroup(
+                    values = Ownership.entries.toPersistentList(),
+                    selectedValue = filters.ownershipFilter,
+                    onValueToggle = cardsViewModel::toggleOwnershipFilter,
+                    modifier = Modifier.fillMaxWidth()
+                ) { ownership ->
+                    Text(
+                        text = when (ownership) {
+                            Ownership.All -> ownershipAllText
+                            Ownership.Collection -> ownershipCollectionText
+                            Ownership.Unavailable -> ownershipUnavailableText
+                        },
+                        style = CustomTheme.typography.small
+                    )
+                }
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
