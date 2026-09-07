@@ -85,7 +85,8 @@ fun CardDetailsEnemyStatBlock(
             skillCode = "combat",
             skillValue = enemyFight,
             perInvestigator = enemyFightPerInvestigator,
-            reversed = true
+            reversed = true,
+            modifier = Modifier.height(rowHeight)
         )
 
         Box(
@@ -95,8 +96,10 @@ fun CardDetailsEnemyStatBlock(
             ),
             contentAlignment = Alignment.Center
         ) {
-            val healthText = specialNumericValue(health, 18.appSp(CustomTheme.typography.scaleFactor))
+            val scaleFactor = CustomTheme.typography.scaleFactor
+            val healthText = specialNumericValue(health, 18.appSp(scaleFactor))
             val isNumericValue = healthText.isDigitsOnly() || healthText.text == "?"
+            val topPadding = if (isNumericValue) 2.dp.scaledByFont(scaleFactor) else 0.dp
 
             Row(
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -107,13 +110,13 @@ fun CardDetailsEnemyStatBlock(
                     text = healthText,
                     style = CustomTheme.typography.mediumGameFont,
                     color = CustomTheme.colors.darkText,
-                    modifier = Modifier.padding(top = if (isNumericValue) 2.dp else 0.dp)
+                    modifier = Modifier.padding(top = topPadding)
                 )
 
                 if (healthPerInvestigator) {
                     ArkhamScalableIconText(
                         iconGlyph = AppIcon.PerInvestigator,
-                        size = 18.appSp(CustomTheme.typography.scaleFactor),
+                        size = 18.appSp(scaleFactor),
                         color = CustomTheme.colors.darkText,
                         modifier = Modifier.align(Alignment.Top).padding(top = 2.dp)
                     )
@@ -124,7 +127,8 @@ fun CardDetailsEnemyStatBlock(
         CardDetailsStatValue(
             skillCode = "agility",
             skillValue = enemyEvade,
-            perInvestigator = enemyEvadePerInvestigator
+            perInvestigator = enemyEvadePerInvestigator,
+            modifier = Modifier.height(rowHeight)
         )
     }
 
@@ -157,8 +161,9 @@ fun CardDetailsEnemyStatBlock(
 fun CardDetailsStatValue(
     skillCode: String,
     skillValue: Int?,
+    modifier: Modifier = Modifier,
     perInvestigator: Boolean = false,
-    reversed: Boolean = false
+    reversed: Boolean = false,
 ) {
     val scaleFactor = CustomTheme.typography.scaleFactor
     val text = specialNumericValue(skillValue, 18.appSp(scaleFactor))
@@ -166,7 +171,7 @@ fun CardDetailsStatValue(
     val topPadding = if (isNumericValue) 2.dp.scaledByFont(scaleFactor) else 0.dp
 
     Box(
-        modifier = Modifier.background(
+        modifier = modifier.background(
             color = CustomTheme.colors.l20,
             shape = CustomTheme.shapes.small
         ),
