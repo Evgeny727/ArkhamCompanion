@@ -285,6 +285,26 @@ class QueryFieldResolverImpl : QueryFieldResolver<CardSearchResultEntity> {
                 EvaluatedValues.Single(card.front.myriad.toQueryValue())
             }
 
+            QueryFields.name -> {
+                val value = card.front.translation.name.toQueryValue()
+                val backValue = (card.front.translation.backName
+                    ?: card.back?.translation?.name).toQueryValue()
+                val realValue = card.front.realName.toQueryValue()
+                val realBackValue = (card.front.realBackName
+                    ?: card.back?.realName).toQueryValue()
+
+                resolveTextField(
+                    value,
+                    backValue,
+                    realValue,
+                    realBackValue,
+                    reference.back,
+                    reference.real,
+                    matchBacks,
+                    matchReal
+                )
+            }
+
             QueryFields.parallel -> {
                 EvaluatedValues.Single(card.front.parallel.toQueryValue())
             }

@@ -472,7 +472,7 @@ class CardsRepositoryImpl @Inject constructor(
 
         return cardsDao.getSearchedCardCodesRaw(rawQuery)
             .catch {
-                analyticsRepository.logMessage(searchConfig.options.searchQuery)
+                analyticsRepository.logMessage("query: " + searchConfig.options.searchQuery)
                 analyticsRepository.logMessage(searchConfig.filters.toString())
                 analyticsRepository.logError(it)
             }
