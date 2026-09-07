@@ -17,7 +17,7 @@ android {
         applicationId = "com.arkhamcompanion"
         minSdk = 24
         targetSdk = 37
-        versionCode = 11
+        versionCode = 12
         versionName = "0.3.0-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -73,7 +73,6 @@ dependencies {
     //Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.analytics)
     implementation(libs.firebase.perf)
 
     //Hilt

@@ -2,7 +2,6 @@ package com.arkhamcompanion
 
 import android.app.Application
 import com.google.firebase.Firebase
-import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.HiltAndroidApp
 
@@ -13,7 +12,6 @@ class ArkhamApplication : Application() {
 
         if (BuildConfig.DEBUG) {
             Firebase.crashlytics.isCrashlyticsCollectionEnabled = false
-            Firebase.analytics.setAnalyticsCollectionEnabled(false)
         }
     }
 }
