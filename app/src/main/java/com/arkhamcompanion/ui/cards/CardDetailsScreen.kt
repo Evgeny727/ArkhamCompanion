@@ -26,8 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.CardType
-import com.arkhamcompanion.domain.model.cards.CardSearchResult
-import com.arkhamcompanion.ui.cards.components.details.cardDetailsDeckbuildingSection
+import com.arkhamcompanion.domain.model.cards.CardSearchResultItem
 import com.arkhamcompanion.ui.cards.components.details.cardDetailsRelationSection
 import com.arkhamcompanion.ui.cards.components.details.cardDetailsRelationSectionSingle
 import com.arkhamcompanion.ui.cards.components.details.cardDetailsWithLinkedBack
@@ -40,7 +39,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 fun CardDetailsScreen(
     cardCode: String,
-    cardCodes: ImmutableList<CardSearchResult>,
+    cardCodes: ImmutableList<CardSearchResultItem>,
     cardDetailsViewModel: CardDetailsViewModel,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues

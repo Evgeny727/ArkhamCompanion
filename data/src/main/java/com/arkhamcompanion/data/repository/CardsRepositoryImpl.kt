@@ -8,6 +8,7 @@ import androidx.room3.RoomRawQuery
 import androidx.room3.withWriteTransaction
 import com.arkhamcompanion.data.local.ArkhamDatabase
 import com.arkhamcompanion.data.local.LoggingPagingSource
+import com.arkhamcompanion.data.local.arkhamql.QueryFieldResolverImpl
 import com.arkhamcompanion.data.local.cards.CardCacheData
 import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
@@ -30,6 +31,12 @@ import com.arkhamcompanion.data.objects.CardRelationResolver.buildCardWithRelati
 import com.arkhamcompanion.data.objects.CardRelationResolver.resolveCardCodesWithRelations
 import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
 import com.arkhamcompanion.data.remote.CardsRemoteDataSource
+import com.arkhamcompanion.domain.arkhamql.QueryParseResult
+import com.arkhamcompanion.domain.arkhamql.evaluator.QueryEvaluator
+import com.arkhamcompanion.domain.arkhamql.fields.QueryFieldRegistry
+import com.arkhamcompanion.domain.arkhamql.fields.QueryFields
+import com.arkhamcompanion.domain.arkhamql.lexer.QueryLexer
+import com.arkhamcompanion.domain.arkhamql.parser.QueryParser
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
@@ -48,7 +55,6 @@ import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.PerformanceRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -427,15 +433,41 @@ class CardsRepositoryImpl @Inject constructor(
         )
     }
 
+    private val queryFieldResolverImpl = QueryFieldResolverImpl()
+    private val queryFieldRegistry = QueryFieldRegistry(QueryFields.all)
+    private var isInQlMode = false
+
     override fun searchCardCodesFlow(
         searchConfig: CardSearchConfig
-    ): Flow<ImmutableList<CardSearchResult>> {
+    ): Flow<CardSearchResult> {
         val rawQuery = buildSearchCardsQuery(searchConfig)
 
         val (words, includeEnglish) = prepareWordsForFuzzySearch(
             searchConfig.options,
             searchConfig.preferences.includeEnglish
         )
+
+        val queryEvaluator = QueryEvaluator(
+            queryFieldResolverImpl,
+            searchConfig.options.searchBack,
+            includeEnglish,
+        )
+
+        if (searchConfig.options.searchQuery.isBlank()) {
+            isInQlMode = false
+        }
+
+        val queryResult = if (searchConfig.options.searchQuery.isNotBlank()) {
+            runCatching {
+                val tokens = QueryLexer(searchConfig.options.searchQuery).tokenize()
+                QueryParser(tokens, queryFieldRegistry).parse()
+            }.fold(
+                onSuccess = { QueryParseResult.Success(it) },
+                onFailure = { error -> error.message?.let { QueryParseResult.Error(it) } },
+            )
+        } else {
+            null
+        }
 
         return cardsDao.getSearchedCardCodesRaw(rawQuery)
             .catch {
@@ -444,11 +476,102 @@ class CardsRepositoryImpl @Inject constructor(
                 analyticsRepository.logError(it)
             }
             .map { list ->
-                list
-                    .filter { entity ->
-                        entity.fuzzySearch(searchConfig.options, words, includeEnglish)
+                when {
+                    // Already in QL mode: parsing/evaluation errors are errors.
+                    isInQlMode -> {
+                        when (queryResult) {
+                            is QueryParseResult.Error -> {
+                                CardSearchResult(
+                                    errorMessage = queryResult.message,
+                                    cards = list.toDomain(),
+                                )
+                            }
+
+                            is QueryParseResult.Success -> {
+                                runCatching {
+                                    list.filter {
+                                        queryEvaluator.evaluate(
+                                            queryResult.expression,
+                                            it,
+                                        )
+                                    }
+                                }.fold(
+                                    onSuccess = { filtered ->
+                                        CardSearchResult(
+                                            errorMessage = null,
+                                            cards = filtered.toDomain(),
+                                        )
+                                    },
+                                    onFailure = { error ->
+                                        CardSearchResult(
+                                            errorMessage = error.message,
+                                            cards = list.toDomain(),
+                                        )
+                                    },
+                                )
+                            }
+
+                            null -> {
+                                CardSearchResult(
+                                    errorMessage = null,
+                                    cards = list.toDomain(),
+                                )
+                            }
+                        }
                     }
-                    .toDomain()
+
+                    // Not in QL mode: try the expression, but don't enter QL
+                    // until evaluation succeeds.
+                    queryResult is QueryParseResult.Success -> {
+                        val evaluationResult = runCatching {
+                            list.filter {
+                                queryEvaluator.evaluate(
+                                    queryResult.expression,
+                                    it,
+                                )
+                            }
+                        }
+
+                        evaluationResult.fold(
+                            onSuccess = { filteredList ->
+                                isInQlMode = true
+
+                                CardSearchResult(
+                                    errorMessage = null,
+                                    cards = filteredList.toDomain(),
+                                )
+                            },
+                            onFailure = {
+                                CardSearchResult(
+                                    errorMessage = null,
+                                    cards = list
+                                        .filter {
+                                            it.fuzzySearch(
+                                                searchConfig.options,
+                                                words,
+                                                includeEnglish,
+                                            )
+                                        }
+                                        .toDomain(),
+                                )
+                            },
+                        )
+                    }
+
+                    // Not QL and couldn't parse → normal fuzzy search.
+                    else -> CardSearchResult(
+                        errorMessage = null,
+                        cards = list
+                            .filter {
+                                it.fuzzySearch(
+                                    searchConfig.options,
+                                    words,
+                                    includeEnglish,
+                                )
+                            }
+                            .toDomain(),
+                    )
+                }
             }
     }
 
@@ -507,6 +630,9 @@ class CardsRepositoryImpl @Inject constructor(
         val finalQueryPart = spoilerQueryPart + "WHERE duplicate_rank = 1" +
                 if (sortClause.isNotEmpty()) " ORDER BY $sortClause" else ""
 
+        val qlFields = getQLFields("c")
+        val backQLFields = getQLFields("b", "back_")
+
         return RoomRawQuery(
             sql = """
                 WITH filtered_cards AS (
@@ -519,16 +645,12 @@ class CardsRepositoryImpl @Inject constructor(
                     )
                     
                     SELECT
-                        c.id,
-                        c.code,
+                        $qlFields
+                        $backQLFields
+                    
                         c.duplicate_of_code,
-                        c.cost,
-                        c.xp,
-                        c.taboo_set_id,
                         c.pack_position,
-                        c.encounter_code,
                         c.encounter_position,
-                        c.name,
                         
                         c.sort_by_type,
                         c.sort_by_faction,
@@ -562,12 +684,29 @@ class CardsRepositoryImpl @Inject constructor(
                         b.search_real_flavor AS back_search_real_flavor,
                         b.search_real_flavor_back AS back_search_real_flavor_back
                     FROM card c
-                    JOIN pack p
-                        ON c.pack_code = p.code
-                    LEFT JOIN encounter_set e
-                        ON c.encounter_code = e.code
-                    LEFT JOIN card b
-                        ON b.code = c.back_link_id
+                    
+                    JOIN card_type ct ON c.type_code = ct.code
+                    LEFT JOIN card_subtype cst ON c.subtype_code = cst.code
+                    JOIN faction cf ON c.faction_code = cf.code
+                    LEFT JOIN faction cf2 ON c.faction2_code = cf2.code
+                    LEFT JOIN faction cf3 ON c.faction3_code = cf3.code
+                    JOIN pack cp ON c.pack_code = cp.code
+                    JOIN cycle ccy ON c.cycle_code = ccy.code
+                    LEFT JOIN encounter_set ce ON c.encounter_code = ce.code
+                    LEFT JOIN taboo_set cts ON c.taboo_set_id = cts.id
+                    
+                    LEFT JOIN card b ON b.code = c.back_link_id
+                    
+                    LEFT JOIN card_type bt ON b.type_code = bt.code
+                    LEFT JOIN card_subtype bst ON b.subtype_code = bst.code
+                    LEFT JOIN faction bf ON b.faction_code = bf.code
+                    LEFT JOIN faction bf2 ON b.faction2_code = bf2.code
+                    LEFT JOIN faction bf3 ON b.faction3_code = bf3.code
+                    LEFT JOIN pack bp ON b.pack_code = bp.code
+                    LEFT JOIN cycle bcy ON b.cycle_code = bcy.code
+                    LEFT JOIN encounter_set be ON b.encounter_code = be.code
+                    LEFT JOIN taboo_set bts ON b.taboo_set_id = bts.id
+                    
                     CROSS JOIN selected_taboo taboo
                     WHERE (c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL)" else "NULL OR c.xp IS NOT NULL)"} 
                     ${if (filterClause.isNotBlank())
@@ -632,6 +771,97 @@ class CardsRepositoryImpl @Inject constructor(
                 }
             }
         )
+    }
+
+    private fun getQLFields(
+        alias: String,
+        prefix: String? = null
+    ): String {
+        val columnPrefix = prefix.orEmpty()
+
+        return """
+            $alias.id AS ${columnPrefix}id,
+            $alias.code AS ${columnPrefix}code,
+            $alias.back_illustrator AS ${columnPrefix}backIllustrator,
+            $alias.back_type AS ${columnPrefix}back_type,
+            ${alias}p.chapter AS ${columnPrefix}chapter,
+            $alias.clues AS ${columnPrefix}clues,
+            $alias.cost AS ${columnPrefix}cost,
+            $alias.cycle_code AS ${columnPrefix}cycle_code,
+            ${alias}cy.name AS ${columnPrefix}cycleName,
+            ${alias}cy.real_name AS ${columnPrefix}cycleRealName,
+            $alias.deck_limit AS ${columnPrefix}deck_limit,
+            $alias.doom AS ${columnPrefix}doom,
+            $alias.encounter_code AS ${columnPrefix}encounter_code,
+            ${alias}e.name AS ${columnPrefix}encounterName,
+            ${alias}e.real_name AS ${columnPrefix}encounterRealName,
+            $alias.enemy_damage AS ${columnPrefix}enemy_damage,
+            $alias.enemy_horror AS ${columnPrefix}enemy_horror,
+            $alias.enemy_fight AS ${columnPrefix}enemy_fight,
+            $alias.enemy_evade AS ${columnPrefix}enemy_evade,
+            $alias.exceptional AS ${columnPrefix}exceptional,
+            $alias.exile AS ${columnPrefix}exile,
+            $alias.faction_code AS ${columnPrefix}faction_code,
+            ${alias}f.name AS ${columnPrefix}factionName,
+            $alias.faction2_code AS ${columnPrefix}faction2_code,
+            ${alias}f2.name AS ${columnPrefix}faction2Name,
+            $alias.faction3_code AS ${columnPrefix}faction3_code,
+            ${alias}f3.name AS ${columnPrefix}faction3Name,
+            $alias.health AS ${columnPrefix}health,
+            $alias.illustrator AS ${columnPrefix}illustrator,
+            $alias.is_unique AS ${columnPrefix}is_unique,
+            $alias.myriad AS ${columnPrefix}myriad,
+            $alias.official AS ${columnPrefix}official,
+            $alias.pack_code AS ${columnPrefix}pack_code,
+            ${alias}p.name AS ${columnPrefix}packName,
+            ${alias}p.real_name AS ${columnPrefix}packRealName,
+            $alias.parallel AS ${columnPrefix}parallel,
+            $alias.permanent AS ${columnPrefix}permanent,
+            $alias.real_back_flavor AS ${columnPrefix}real_back_flavor,
+            $alias.real_back_name AS ${columnPrefix}real_back_name,
+            $alias.real_back_subname AS ${columnPrefix}real_back_subname,
+            $alias.real_back_text AS ${columnPrefix}real_back_text,
+            $alias.real_back_traits AS ${columnPrefix}real_back_traits,
+            $alias.real_customization_text AS ${columnPrefix}real_customization_text,
+            $alias.real_flavor AS ${columnPrefix}real_flavor,
+            $alias.real_name AS ${columnPrefix}real_name,
+            $alias.real_slot AS ${columnPrefix}real_slot,
+            $alias.real_subname AS ${columnPrefix}real_subname,
+            $alias.real_text AS ${columnPrefix}real_text,
+            $alias.real_traits AS ${columnPrefix}real_traits,
+            $alias.restrictions AS ${columnPrefix}restrictions,
+            $alias.sanity AS ${columnPrefix}sanity,
+            $alias.shroud AS ${columnPrefix}shroud,
+            $alias.stage AS ${columnPrefix}stage,
+            $alias.subtype_code AS ${columnPrefix}subtype_code,
+            ${alias}st.name AS ${columnPrefix}subTypeName,
+            $alias.xp AS ${columnPrefix}xp,
+            $alias.vengeance AS ${columnPrefix}vengeance,
+            $alias.victory AS ${columnPrefix}victory,
+            $alias.quantity AS ${columnPrefix}quantity,
+            $alias.type_code AS ${columnPrefix}type_code,
+            ${alias}t.name AS ${columnPrefix}typeName,
+            $alias.taboo_xp AS ${columnPrefix}taboo_xp,
+            $alias.taboo_set_id AS ${columnPrefix}taboo_set_id,
+            ${alias}ts.name AS ${columnPrefix}tabooSetName,
+            $alias.taboo_placeholder AS ${columnPrefix}taboo_placeholder,
+            $alias.skill_willpower AS ${columnPrefix}skill_willpower,
+            $alias.skill_intellect AS ${columnPrefix}skill_intellect,
+            $alias.skill_combat AS ${columnPrefix}skill_combat,
+            $alias.skill_agility AS ${columnPrefix}skill_agility,
+            $alias.skill_wild AS ${columnPrefix}skill_wild,
+            $alias.back_flavor AS ${columnPrefix}translation_back_flavor,
+            $alias.back_name AS ${columnPrefix}translation_back_name,
+            $alias.back_subname AS ${columnPrefix}translation_back_subname,
+            $alias.back_text AS ${columnPrefix}translation_back_text,
+            $alias.back_traits AS ${columnPrefix}translation_back_traits,
+            $alias.flavor AS ${columnPrefix}translation_flavor,
+            $alias.name AS ${columnPrefix}translation_name,
+            $alias.slot AS ${columnPrefix}translation_slot,
+            $alias.subname AS ${columnPrefix}translation_subname,
+            $alias.text AS ${columnPrefix}translation_text,
+            $alias.traits AS ${columnPrefix}translation_traits,
+        """.trimIndent()
     }
 
     private fun prepareWordsForFuzzySearch(

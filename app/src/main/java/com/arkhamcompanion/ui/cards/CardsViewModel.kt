@@ -40,16 +40,27 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
+
+sealed interface CardsUiState {
+    object Loading : CardsUiState
+    object Idle : CardsUiState
+
+    data class Error(val message: String) : CardsUiState
+}
 
 @HiltViewModel
 class CardsViewModel @Inject constructor(
     private val cardsRepository: CardsRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+
+    private val _cardsUiState = MutableStateFlow<CardsUiState>(CardsUiState.Idle)
+    val cardsUiState = _cardsUiState.asStateFlow()
 
     private val _errors = MutableSharedFlow<UiErrorState>(extraBufferCapacity = 1)
     val errors: SharedFlow<UiErrorState> = _errors
@@ -115,8 +126,16 @@ class CardsViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _searchCodesWithConfig = _searchConfig.flatMapLatest { config ->
+        _cardsUiState.value = CardsUiState.Loading
         cardsRepository.searchCardCodesFlow(config)
-            .map { codes -> config to codes }
+            .onEach {
+                if (it.errorMessage != null) {
+                    _cardsUiState.value = CardsUiState.Error(it.errorMessage!!)
+                } else {
+                    _cardsUiState.value = CardsUiState.Idle
+                }
+            }
+            .map { codes -> config to codes.cards }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

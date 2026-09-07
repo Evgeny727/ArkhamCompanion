@@ -1,10 +1,19 @@
 package com.arkhamcompanion.ui.cards
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,9 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -40,6 +52,7 @@ fun CardsScreen(
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    val uiState by viewModel.cardsUiState.collectAsState()
     val spoilerState by viewModel.spoilerState.collectAsState()
     val searchOptions by viewModel.searchOptions.collectAsState()
     val searchResults = viewModel.searchResults.collectAsLazyPagingItems()
@@ -79,20 +92,61 @@ fun CardsScreen(
             .applyScaffoldPaddings(innerPadding)
             .fillMaxSize(),
     ) {
-        ArkhamSearchBox(
-            searchQuery = searchOptions.searchQuery,
-            onQueryChange = viewModel::updateSearchQuery,
-            onClearQuery = viewModel::clearSearchQuery,
-            searchPlaceholder = stringResource(R.string.search_for_a_card)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(CustomTheme.colors.l20)
+                .animateContentSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CardsSearchOptions(
-                searchGame = searchOptions.searchGame,
-                onSearchGameChange = viewModel::onSearchGameTextChange,
-                searchFlavor = searchOptions.searchFlavor,
-                onSearchFlavorChange = viewModel::onSearchFlavorTextChange,
-                searchBack = searchOptions.searchBack,
-                onSearchBackChange = viewModel::onSearchBackTextChange
-            )
+            ArkhamSearchBox(
+                searchQuery = searchOptions.searchQuery,
+                onQueryChange = viewModel::updateSearchQuery,
+                onClearQuery = viewModel::clearSearchQuery,
+                searchPlaceholder = stringResource(R.string.search_for_a_card)
+            ) {
+                CardsSearchOptions(
+                    searchGame = searchOptions.searchGame,
+                    onSearchGameChange = viewModel::onSearchGameTextChange,
+                    searchFlavor = searchOptions.searchFlavor,
+                    onSearchFlavorChange = viewModel::onSearchFlavorTextChange,
+                    searchBack = searchOptions.searchBack,
+                    onSearchBackChange = viewModel::onSearchBackTextChange
+                )
+            }
+
+            AnimatedVisibility(uiState is CardsUiState.Loading) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CustomTheme.shapes.circle)
+                        .background(CustomTheme.colors.darkText),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.fillMaxSize().padding(4.dp),
+                        color = CustomTheme.colors.background
+                    )
+                }
+            }
+
+            AnimatedVisibility(uiState is CardsUiState.Error) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(CustomTheme.colors.l20)
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = (uiState as? CardsUiState.Error)?.message ?: "",
+                        style = CustomTheme.typography.text,
+                        color = CustomTheme.colors.warnText,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
         }
 
         LazyCardListWithStickyHeaders(
@@ -109,6 +163,7 @@ fun CardsScreen(
                 ArkhamButton(
                     title = stringResource(R.string.clear_query_search, searchOptions.searchQuery),
                     onClick = viewModel::clearSearchQuery,
+                    maxLines = 2,
                     modifier = Modifier
                         .padding(8.dp)
                         .animateItem(),

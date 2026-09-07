@@ -5,7 +5,6 @@ import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.Flow
 
 interface CardsRepository {
@@ -29,7 +28,7 @@ interface CardsRepository {
 
     fun searchCardCodesFlow(
         searchConfig: CardSearchConfig
-    ): Flow<ImmutableList<CardSearchResult>>
+    ): Flow<CardSearchResult>
 
     fun getCardWithRelationsByCodeFlow(
         code: String,

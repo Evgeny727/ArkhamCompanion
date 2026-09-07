@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
@@ -26,6 +27,7 @@ fun ArkhamButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isOutlined: Boolean = false,
+    maxLines: Int = Int.MAX_VALUE,
     icon: @Composable (Color) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -58,7 +60,9 @@ fun ArkhamButton(
                 text = title,
                 color = if (isOutlined) CustomTheme.colors.d20 else CustomTheme.colors.l30,
                 style = CustomTheme.typography.button,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                maxLines = maxLines,
+                overflow = TextOverflow.MiddleEllipsis
             )
         }
     }
