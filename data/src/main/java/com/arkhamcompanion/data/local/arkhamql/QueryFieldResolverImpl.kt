@@ -2,6 +2,7 @@ package com.arkhamcompanion.data.local.arkhamql
 
 import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
 import com.arkhamcompanion.data.objects.CardCache
+import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.ast.QueryFieldReference
 import com.arkhamcompanion.domain.arkhamql.ast.QueryValue
 import com.arkhamcompanion.domain.arkhamql.evaluator.EvaluatedValues
@@ -554,7 +555,7 @@ class QueryFieldResolverImpl : QueryFieldResolver<CardSearchResultEntity> {
             }
 
             else -> throw QueryEvaluationException(
-                "Unknown field: ${reference.field.name}",
+                QueryError.UnknownField(reference.field.name)
             )
         }
     }

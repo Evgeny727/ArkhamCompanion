@@ -1,5 +1,7 @@
 package com.arkhamcompanion.domain.arkhamql.lexer
 
+import com.arkhamcompanion.domain.arkhamql.QueryError
+
 class QueryLexerException(
-    override val message: String
-) : IllegalArgumentException(message)
+    val error: QueryError
+) : IllegalArgumentException()

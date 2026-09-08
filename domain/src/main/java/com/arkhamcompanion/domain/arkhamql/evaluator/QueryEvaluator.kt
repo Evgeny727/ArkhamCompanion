@@ -1,5 +1,6 @@
 package com.arkhamcompanion.domain.arkhamql.evaluator
 
+import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.ast.QueryBinaryOperator
 import com.arkhamcompanion.domain.arkhamql.ast.QueryExpression
 import com.arkhamcompanion.domain.arkhamql.ast.QueryFieldType
@@ -34,7 +35,7 @@ class QueryEvaluator<T>(
             is QueryExpression.Literal,
             is QueryExpression.List -> {
                 throw QueryEvaluationException(
-                    "Expression must contain an operator",
+                    QueryError.ExpressionMustContainAnOperator
                 )
             }
         }
@@ -179,7 +180,7 @@ class QueryEvaluator<T>(
             QueryBinaryOperator.DIVIDE,
             QueryBinaryOperator.MODULO -> {
                 throw QueryEvaluationException(
-                    "Arithmetic expression cannot be evaluated as boolean",
+                    QueryError.ArithmeticExpressionCannotBeEvaluatedAsBoolean
                 )
             }
         }
@@ -292,8 +293,7 @@ class QueryEvaluator<T>(
             is QueryExpression.Binary -> {
                 if (!isArithmetic(expression.operator)) {
                     throw QueryEvaluationException(
-                        "Expression does not produce a value: " +
-                                expression.operator,
+                        QueryError.ExpressionDoesNotProduceValue(expression.operator.value)
                     )
                 }
 
@@ -307,7 +307,7 @@ class QueryEvaluator<T>(
 
             is QueryExpression.List -> {
                 throw QueryEvaluationException(
-                    "Cannot evaluate a list as a single value",
+                    QueryError.CannotEvaluateListAsSingleValue
                 )
             }
         }
@@ -331,7 +331,7 @@ class QueryEvaluator<T>(
     ): List<QueryValue> {
         if (expression !is QueryExpression.List) {
             throw QueryEvaluationException(
-                "Expected list expression",
+                QueryError.ExpectedListExpression
             )
         }
 
@@ -359,12 +359,12 @@ class QueryEvaluator<T>(
 
         val leftNumber = toNumber(left)
             ?: throw QueryEvaluationException(
-                "Expected number on left side of ${expression.operator}",
+                QueryError.ExpectedNumberOnLeftSide(expression.operator.value)
             )
 
         val rightNumber = toNumber(right)
             ?: throw QueryEvaluationException(
-                "Expected number on right side of ${expression.operator}",
+                QueryError.ExpectedNumberOnRightSide(expression.operator.value)
             )
 
         val result = when (expression.operator) {
@@ -380,7 +380,7 @@ class QueryEvaluator<T>(
             QueryBinaryOperator.DIVIDE -> {
                 if (rightNumber == 0) {
                     throw QueryEvaluationException(
-                        "Division by zero",
+                        QueryError.DivisionByZero
                     )
                 }
 
@@ -390,7 +390,7 @@ class QueryEvaluator<T>(
             QueryBinaryOperator.MODULO -> {
                 if (rightNumber == 0) {
                     throw QueryEvaluationException(
-                        "Modulo by zero",
+                        QueryError.ModuloByZero
                     )
                 }
 
@@ -399,7 +399,7 @@ class QueryEvaluator<T>(
 
             else -> {
                 throw QueryEvaluationException(
-                    "Not an arithmetic operator: ${expression.operator}",
+                    QueryError.NotArithmeticOperator(expression.operator.value)
                 )
             }
         }
@@ -533,7 +533,7 @@ class QueryEvaluator<T>(
             ).containsMatchIn(text)
         } catch (e: Exception) {
             throw QueryEvaluationException(
-                "Invalid regex: /$pattern/",
+                QueryError.InvalidRegex(pattern)
             )
         }
     }
@@ -557,7 +557,7 @@ class QueryEvaluator<T>(
                             .trim()
                             .toIntOrNull()
                             ?: throw QueryEvaluationException(
-                                "Cannot convert \"${value.value}\" to number",
+                                QueryError.CannotConvertValueToNumber(value.value)
                             )
                     }
                 }
@@ -568,34 +568,13 @@ class QueryEvaluator<T>(
 
             is QueryValue.Boolean ->
                 throw QueryEvaluationException(
-                    "Cannot convert boolean to number",
+                    QueryError.CannotConvertBooleanToNumber
                 )
 
             is QueryValue.Regex ->
                 throw QueryEvaluationException(
-                    "Cannot convert regex to number",
+                    QueryError.CannotConvertRegexToNumber
                 )
-        }
-    }
-
-    private fun isTruthy(
-        value: QueryValue,
-    ): Boolean {
-        return when (value) {
-            QueryValue.Null ->
-                false
-
-            is QueryValue.Boolean ->
-                value.value
-
-            is QueryValue.Number ->
-                value.value != 0
-
-            is QueryValue.String ->
-                value.value.isNotEmpty()
-
-            is QueryValue.Regex ->
-                true
         }
     }
 
@@ -643,8 +622,7 @@ class QueryEvaluator<T>(
             leftType != rightType
         ) {
             throw QueryEvaluationException(
-                "Type mismatch: cannot compare " +
-                        "$leftType field with $rightType field",
+                QueryError.TypeMismatch(leftType, rightType)
             )
         }
     }
@@ -681,7 +659,7 @@ class QueryEvaluator<T>(
 
             is EvaluatedValues.Multiple -> {
                 throw QueryEvaluationException(
-                    "Expected a single value, got multiple values",
+                    QueryError.ExpectedSingleValueGotMultipleValues
                 )
             }
         }

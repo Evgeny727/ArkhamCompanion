@@ -1,5 +1,7 @@
 package com.arkhamcompanion.domain.arkhamql.evaluator
 
+import com.arkhamcompanion.domain.arkhamql.QueryError
+
 data class QueryEvaluationException(
-    override val message: String,
-) : RuntimeException(message)
+    val error: QueryError,
+) : RuntimeException()

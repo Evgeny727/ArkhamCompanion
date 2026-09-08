@@ -41,6 +41,7 @@ import com.arkhamcompanion.ui.components.LazyCardListWithStickyHeaders
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
+import com.arkhamcompanion.ui.utils.localizedMessage
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -139,7 +140,7 @@ fun CardsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = (uiState as? CardsUiState.Error)?.message ?: "",
+                        text = (uiState as? CardsUiState.Error)?.error?.localizedMessage() ?: "",
                         style = CustomTheme.typography.text,
                         color = CustomTheme.colors.warnText,
                         maxLines = 2,

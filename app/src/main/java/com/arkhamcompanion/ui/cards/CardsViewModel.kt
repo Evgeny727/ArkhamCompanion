@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.arkhamcompanion.UiErrorState
+import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
@@ -51,7 +52,7 @@ sealed interface CardsUiState {
     object Loading : CardsUiState
     object Idle : CardsUiState
 
-    data class Error(val message: String) : CardsUiState
+    data class Error(val error: QueryError) : CardsUiState
 }
 
 @HiltViewModel
@@ -130,8 +131,8 @@ class CardsViewModel @Inject constructor(
         _cardsUiState.value = CardsUiState.Loading
         cardsRepository.searchCardCodesFlow(config)
             .onEach {
-                if (it.errorMessage != null) {
-                    _cardsUiState.value = CardsUiState.Error(it.errorMessage!!)
+                if (it.error != null) {
+                    _cardsUiState.value = CardsUiState.Error(it.error!!)
                 } else {
                     _cardsUiState.value = CardsUiState.Idle
                 }

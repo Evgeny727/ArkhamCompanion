@@ -1,5 +1,6 @@
 package com.arkhamcompanion.domain.arkhamql.lexer
 
+import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.ast.QueryArithmeticOperator
 import com.arkhamcompanion.domain.arkhamql.ast.QueryComparisonOperator
 import com.arkhamcompanion.domain.arkhamql.ast.QueryLogicalOperator
@@ -89,7 +90,7 @@ class QueryLexer(
 
         if (isAtEnd()) {
             throw QueryLexerException(
-                message = "Unterminated string literal at position $startOffset",
+                QueryError.UnterminatedStringLiteral(startOffset)
             )
         }
 
@@ -122,7 +123,7 @@ class QueryLexer(
 
         if (isAtEnd()) {
             throw QueryLexerException(
-                message = "Unterminated regex literal at position $startOffset",
+                QueryError.UnterminatedRegexLiteral(startOffset)
             )
         }
 
@@ -229,7 +230,7 @@ class QueryLexer(
 
             else -> {
                 throw QueryLexerException(
-                    message = "Unexpected character '${peek()}' at position $startOffset",
+                    QueryError.UnexpectedCharacter(peek(), startOffset)
                 )
             }
         }

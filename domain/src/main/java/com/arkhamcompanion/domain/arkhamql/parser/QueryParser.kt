@@ -1,5 +1,6 @@
 package com.arkhamcompanion.domain.arkhamql.parser
 
+import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.ast.QueryArithmeticOperator
 import com.arkhamcompanion.domain.arkhamql.ast.QueryBinaryOperator
 import com.arkhamcompanion.domain.arkhamql.ast.QueryComparisonOperator
@@ -81,7 +82,7 @@ class QueryParser(
 
         if (isComparisonOperator(peek())) {
             throw error(
-                "Comparison operators cannot be chained"
+                QueryError.ComparisonOperatorsCannotBeChained
             )
         }
 
@@ -197,7 +198,7 @@ class QueryParser(
 
             else -> {
                 throw error(
-                    "Expected value or field, got ${describe(token)}"
+                    QueryError.ExpectedValueOrField(token, peek().offset)
                 )
             }
         }
@@ -229,7 +230,7 @@ class QueryParser(
         val parts = token.value.split(':')
 
         if (parts.isEmpty()) {
-            throw error("Empty field reference")
+            throw error(QueryError.EmptyFieldReference(token.offset))
         }
 
         var real = false
@@ -241,7 +242,7 @@ class QueryParser(
                     "real" -> {
                         if (real) {
                             throw error(
-                                "Duplicate 'real' qualifier"
+                                QueryError.DuplicateQualifier("real")
                             )
                         }
 
@@ -251,7 +252,7 @@ class QueryParser(
                     "back" -> {
                         if (back) {
                             throw error(
-                                "Duplicate 'back' qualifier"
+                                QueryError.DuplicateQualifier("back")
                             )
                         }
 
@@ -264,11 +265,13 @@ class QueryParser(
         }.joinToString(":")
 
         if (fieldName.isEmpty()) {
-            throw error("Field name is missing")
+            throw error(QueryError.FieldNameIsMissing(
+                token.offset + parts.sumOf { it.length } + parts.size
+            ))
         }
 
         val field = fieldRegistry.resolve(fieldName)
-            ?: throw error("Unknown field '$fieldName'")
+            ?: throw error(QueryError.UnknownField(fieldName))
 
         return QueryExpression.Field(
             QueryFieldReference(
@@ -346,16 +349,20 @@ class QueryParser(
         type: SymbolType,
     ) {
         if (!matchOperator(type)) {
+            val token = peek()
+
             throw error(
-                "Expected '$type', got ${describe(peek())}"
+                QueryError.ExpectedType(type.value, token, token.offset)
             )
         }
     }
 
     private fun expectEnd() {
         if (peek() !is QueryToken.End) {
+            val token = peek()
+
             throw error(
-                "Unexpected token ${describe(peek())}"
+                QueryError.UnexpectedToken(token, token.offset)
             )
         }
     }
@@ -378,35 +385,8 @@ class QueryParser(
         token is QueryToken.Operator &&
                 token.type in COMPARISON_OPERATORS
 
-    private fun describe(token: QueryToken): String =
-        when (token) {
-            is QueryToken.Identifier ->
-                "identifier '${token.value}'"
-
-            is QueryToken.StringLiteral ->
-                "string"
-
-            is QueryToken.RegexLiteral ->
-                "regex"
-
-            is QueryToken.NumberLiteral ->
-                "number"
-
-            is QueryToken.BooleanLiteral ->
-                "boolean"
-
-            is QueryToken.NullLiteral ->
-                "null"
-
-            is QueryToken.Operator ->
-                "operator '${token.type}'"
-
-            is QueryToken.End ->
-                "end of query"
-        }
-
-    private fun error(message: String): QueryParserException =
-        QueryParserException(message = message + " at position ${peek().offset}")
+    private fun error(error: QueryError): QueryParserException =
+        QueryParserException(error)
 
     private companion object {
 

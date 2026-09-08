@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unterminated_string_literal">Незавершённый строковый литерал на позиции %d</string>
+    <string name="unterminated_regex_literal">Незавершённый литерал регулярного выражения на позиции %d</string>
+    <string name="unexpected_character">Неожиданный символ «%s» на позиции %d</string>
+    <string name="comparison_operators_cannot_be_chained">Операторы сравнения не могут объединяться в цепочку</string>
+    <string name="expected_value_or_field">Ожидалось значение или поле, но найдено «%s» на позиции %d</string>
+    <string name="empty_field_reference">Пустая ссылка на поле на позиции %d</string>
+    <string name="duplicate_qualifier">Повторный квалификатор «%s»</string>
+    <string name="field_name_is_missing">Отсутствует имя поля на позиции %d</string>
+    <string name="unknown_field">Неизвестное поле «%s»</string>
+    <string name="expected_type">Ожидалось «%s», но найдено «%s» на позиции %d</string>
+    <string name="unexpected_token">Неожиданный токен «%s» на позиции %d</string>
+    <string name="expression_must_contain_an_operator">Выражение должно содержать оператор</string>
+    <string name="arithmetic_expression_cannot_be_evaluated_as_boolean">Арифметическое выражение не может быть вычислено как булево значение</string>
+    <string name="expression_does_not_produce_value">Выражение не возвращает значение: «%s»</string>
+    <string name="cannot_evaluate_list_as_single_value">Невозможно обработать список как одно значение</string>
+    <string name="expected_list_expression">Ожидалось выражение список</string>
+    <string name="expected_number_on_left_side">Ожидалось число в левой части «%s»</string>
+    <string name="expected_number_on_right_side">Ожидалось число в правой части «%s»</string>
+    <string name="division_by_zero">Деление на ноль</string>
+    <string name="modulo_by_zero">Деление по модулю на ноль</string>
+    <string name="not_arithmetic_operator">Не является арифметическим оператором: «%s»</string>
+    <string name="invalid_regex">Недопустимое регулярное выражение: /%s/</string>
+    <string name="cannot_convert_value_to_number">Невозможно преобразовать значение «%s» в число</string>
+    <string name="cannot_convert_boolean_to_number">Невозможно преобразовать булево значение в число</string>
+    <string name="cannot_convert_regex_to_number">Невозможно преобразовать регулярное выражение в число</string>
+    <string name="type_mismatch">Несоответствие типов: невозможно сравнить поле типа «%s» с полем типа «%s»</string>
+    <string name="expected_single_value_got_multiple_values">Ожидалось одно значение, найдено несколько значений</string>
+    <string name="field_name">поле «%s»</string>
+    <string name="string_type">строка</string>
+    <string name="regex_type">регулярное выражение</string>
+    <string name="number_type">число</string>
+    <string name="boolean_type">булево значение</string>
+    <string name="operator_value">оператор „%s“</string>
+    <string name="end_of_query">конец запроса</string>
+</resources>

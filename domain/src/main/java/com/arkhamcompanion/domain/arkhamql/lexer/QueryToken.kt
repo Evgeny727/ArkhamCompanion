@@ -45,12 +45,12 @@ sealed interface QueryToken {
     ) : QueryToken
 }
 
-enum class GeneralSymbol : SymbolType {
-    LEFT_PAREN,
-    RIGHT_PAREN,
+enum class GeneralSymbol(override val value: String) : SymbolType {
+    LEFT_PAREN("("),
+    RIGHT_PAREN(")"),
 
-    LEFT_BRACKET,
-    RIGHT_BRACKET,
+    LEFT_BRACKET("["),
+    RIGHT_BRACKET("]"),
 
-    COMMA,
+    COMMA(","),
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="unterminated_string_literal">Unterminated string literal at position %d</string>
+    <string name="unterminated_regex_literal">Unterminated regex literal at position %d</string>
+    <string name="unexpected_character">Unexpected character \'%s\' at position %d</string>
+    <string name="comparison_operators_cannot_be_chained">Comparison operators cannot be chained</string>
+    <string name="expected_value_or_field">Expected value or field, got %s at position %d</string>
+    <string name="empty_field_reference">Empty field reference at position %d</string>
+    <string name="duplicate_qualifier">Duplicate \'%s\' qualifier</string>
+    <string name="field_name_is_missing">Field name is missing at position %d</string>
+    <string name="unknown_field">Unknown field \'%s\'</string>
+    <string name="expected_type">Expected \'%s\', got %s at position %d</string>
+    <string name="unexpected_token">Unexpected token %s at position %d</string>
+    <string name="expression_must_contain_an_operator">Expression must contain an operator</string>
+    <string name="arithmetic_expression_cannot_be_evaluated_as_boolean">Arithmetic expression cannot be evaluated as boolean</string>
+    <string name="expression_does_not_produce_value">Expression does not produce a value: \'%s\'</string>
+    <string name="cannot_evaluate_list_as_single_value">Cannot evaluate a list as a single value</string>
+    <string name="expected_list_expression">Expected list expression</string>
+    <string name="expected_number_on_left_side">Expected number on left side of \'%s\'</string>
+    <string name="expected_number_on_right_side">Expected number on right side of \'%s\'</string>
+    <string name="division_by_zero">Division by zero</string>
+    <string name="modulo_by_zero">Modulo by zero</string>
+    <string name="not_arithmetic_operator">Not an arithmetic operator: \'%s\'</string>
+    <string name="invalid_regex">Invalid regex: /%s/</string>
+    <string name="cannot_convert_value_to_number">Cannot convert value \'%s\' to number</string>
+    <string name="cannot_convert_boolean_to_number">Cannot convert boolean to number</string>
+    <string name="cannot_convert_regex_to_number">Cannot convert regex to number</string>
+    <string name="type_mismatch">Type mismatch: cannot compare %s field with %s field</string>
+    <string name="expected_single_value_got_multiple_values">Expected single value, got multiple values</string>
+    <string name="field_name">field \'%s\'</string>
+    <string name="string_type">string</string>
+    <string name="regex_type">regex</string>
+    <string name="number_type">number</string>
+    <string name="boolean_type">boolean</string>
+    <string name="operator_value">operator \'%s\'</string>
+    <string name="end_of_query">end of query</string>
+</resources>

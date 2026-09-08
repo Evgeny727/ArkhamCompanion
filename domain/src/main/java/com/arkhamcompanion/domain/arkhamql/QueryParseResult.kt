@@ -8,6 +8,6 @@ sealed interface QueryParseResult {
     ) : QueryParseResult
 
     data class Error(
-        val message: String,
+        val error: QueryError,
     ) : QueryParseResult
 }

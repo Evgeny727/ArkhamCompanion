@@ -1,5 +1,7 @@
 package com.arkhamcompanion.domain.arkhamql.parser
 
+import com.arkhamcompanion.domain.arkhamql.QueryError
+
 class QueryParserException(
-    override val message: String,
-) : IllegalArgumentException(message)
+    val error: QueryError,
+) : IllegalArgumentException()

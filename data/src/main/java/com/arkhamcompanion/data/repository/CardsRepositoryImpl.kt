@@ -31,12 +31,16 @@ import com.arkhamcompanion.data.objects.CardRelationResolver.buildCardWithRelati
 import com.arkhamcompanion.data.objects.CardRelationResolver.resolveCardCodesWithRelations
 import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
 import com.arkhamcompanion.data.remote.CardsRemoteDataSource
+import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.QueryParseResult
+import com.arkhamcompanion.domain.arkhamql.evaluator.QueryEvaluationException
 import com.arkhamcompanion.domain.arkhamql.evaluator.QueryEvaluator
 import com.arkhamcompanion.domain.arkhamql.fields.QueryFieldRegistry
 import com.arkhamcompanion.domain.arkhamql.fields.QueryFields
 import com.arkhamcompanion.domain.arkhamql.lexer.QueryLexer
+import com.arkhamcompanion.domain.arkhamql.lexer.QueryLexerException
 import com.arkhamcompanion.domain.arkhamql.parser.QueryParser
+import com.arkhamcompanion.domain.arkhamql.parser.QueryParserException
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
@@ -464,7 +468,13 @@ class CardsRepositoryImpl @Inject constructor(
                 QueryParser(tokens, queryFieldRegistry).parse()
             }.fold(
                 onSuccess = { QueryParseResult.Success(it) },
-                onFailure = { error -> error.message?.let { QueryParseResult.Error(it) } },
+                onFailure = { error ->
+                    when (error) {
+                        is QueryLexerException -> QueryParseResult.Error(error.error)
+                        is QueryParserException -> QueryParseResult.Error(error.error)
+                        else -> QueryParseResult.Error(QueryError.UnknownError(error.message.toString()))
+                    }
+                },
             )
         } else {
             null
@@ -483,7 +493,7 @@ class CardsRepositoryImpl @Inject constructor(
                         when (queryResult) {
                             is QueryParseResult.Error -> {
                                 CardSearchResult(
-                                    errorMessage = queryResult.message,
+                                    error = queryResult.error,
                                     cards = list.toDomain(),
                                 )
                             }
@@ -499,13 +509,16 @@ class CardsRepositoryImpl @Inject constructor(
                                 }.fold(
                                     onSuccess = { filtered ->
                                         CardSearchResult(
-                                            errorMessage = null,
+                                            error = null,
                                             cards = filtered.toDomain(),
                                         )
                                     },
                                     onFailure = { error ->
                                         CardSearchResult(
-                                            errorMessage = error.message,
+                                            error = when (error) {
+                                                is QueryEvaluationException -> error.error
+                                                else -> QueryError.UnknownError(error.message.toString())
+                                            },
                                             cards = list.toDomain(),
                                         )
                                     },
@@ -514,7 +527,7 @@ class CardsRepositoryImpl @Inject constructor(
 
                             null -> {
                                 CardSearchResult(
-                                    errorMessage = null,
+                                    error = null,
                                     cards = list.toDomain(),
                                 )
                             }
@@ -538,13 +551,13 @@ class CardsRepositoryImpl @Inject constructor(
                                 isInQlMode = true
 
                                 CardSearchResult(
-                                    errorMessage = null,
+                                    error = null,
                                     cards = filteredList.toDomain(),
                                 )
                             },
                             onFailure = {
                                 CardSearchResult(
-                                    errorMessage = null,
+                                    error = null,
                                     cards = list
                                         .filter {
                                             it.fuzzySearch(
@@ -561,7 +574,7 @@ class CardsRepositoryImpl @Inject constructor(
 
                     // Not QL and couldn't parse → normal fuzzy search.
                     else -> CardSearchResult(
-                        errorMessage = null,
+                        error = null,
                         cards = list
                             .filter {
                                 it.fuzzySearch(

@@ -1,6 +1,12 @@
 package com.arkhamcompanion.ui.utils
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.res.stringResource
 import com.arkhamcompanion.R
+import com.arkhamcompanion.domain.arkhamql.QueryError
+import com.arkhamcompanion.domain.arkhamql.lexer.QueryToken
+import com.arkhamcompanion.ui.theme.language
 
 fun getLocalizedAction(code: String) =
     when (code) {
@@ -547,4 +553,52 @@ fun getLocalizedSkill(code: String) =
         "intellect" -> R.string.intellect
         "willpower" -> R.string.willpower
         else -> R.string.unknown
+    }
+
+@ReadOnlyComposable
+@Composable
+fun QueryError.localizedMessage(): String =
+    when (this) {
+        QueryError.ArithmeticExpressionCannotBeEvaluatedAsBoolean -> stringResource(R.string.arithmetic_expression_cannot_be_evaluated_as_boolean)
+        QueryError.CannotConvertBooleanToNumber -> stringResource(R.string.cannot_convert_boolean_to_number)
+        QueryError.CannotConvertRegexToNumber -> stringResource(R.string.cannot_convert_regex_to_number)
+        is QueryError.CannotConvertValueToNumber -> stringResource(R.string.cannot_convert_value_to_number, value)
+        QueryError.CannotEvaluateListAsSingleValue -> stringResource(R.string.cannot_evaluate_list_as_single_value)
+        QueryError.ComparisonOperatorsCannotBeChained -> stringResource(R.string.comparison_operators_cannot_be_chained)
+        QueryError.DivisionByZero -> stringResource(R.string.division_by_zero)
+        is QueryError.DuplicateQualifier -> stringResource(R.string.duplicate_qualifier, qualifier)
+        is QueryError.EmptyFieldReference -> stringResource(R.string.empty_field_reference, position)
+        QueryError.ExpectedListExpression -> stringResource(R.string.expected_list_expression)
+        is QueryError.ExpectedNumberOnLeftSide -> stringResource(R.string.expected_number_on_left_side, operator)
+        is QueryError.ExpectedNumberOnRightSide -> stringResource(R.string.expected_number_on_right_side, operator)
+        QueryError.ExpectedSingleValueGotMultipleValues -> stringResource(R.string.expected_single_value_got_multiple_values)
+        is QueryError.ExpectedType -> stringResource(R.string.expected_type, value, token.messageValue(), position)
+        is QueryError.ExpectedValueOrField -> stringResource(R.string.expected_value_or_field, token.messageValue(), position)
+        is QueryError.ExpressionDoesNotProduceValue -> stringResource(R.string.expression_does_not_produce_value, operator)
+        QueryError.ExpressionMustContainAnOperator -> stringResource(R.string.expression_must_contain_an_operator)
+        is QueryError.FieldNameIsMissing -> stringResource(R.string.field_name_is_missing, position)
+        is QueryError.InvalidRegex -> stringResource(R.string.invalid_regex, pattern)
+        QueryError.ModuloByZero -> stringResource(R.string.modulo_by_zero)
+        is QueryError.NotArithmeticOperator -> stringResource(R.string.not_arithmetic_operator, operator)
+        is QueryError.TypeMismatch -> stringResource(R.string.type_mismatch, leftType, rightType)
+        is QueryError.UnexpectedCharacter -> stringResource(R.string.unexpected_character, value, position)
+        is QueryError.UnexpectedToken -> stringResource(R.string.unexpected_token, token.messageValue(), position)
+        is QueryError.UnknownError -> "${stringResource(R.string.unknown_error)}${language.colon}$message"
+        is QueryError.UnknownField -> stringResource(R.string.unknown_field, fieldName)
+        is QueryError.UnterminatedRegexLiteral -> stringResource(R.string.unterminated_regex_literal, position)
+        is QueryError.UnterminatedStringLiteral -> stringResource(R.string.unterminated_string_literal, position)
+    }
+
+@ReadOnlyComposable
+@Composable
+private fun QueryToken.messageValue(): String =
+    when (this) {
+        is QueryToken.BooleanLiteral -> stringResource(R.string.boolean_type)
+        is QueryToken.End -> stringResource(R.string.end_of_query)
+        is QueryToken.Identifier -> stringResource(R.string.field_name, value)
+        is QueryToken.NullLiteral -> "null"
+        is QueryToken.NumberLiteral -> stringResource(R.string.number_type)
+        is QueryToken.Operator -> stringResource(R.string.operator_value, type.value)
+        is QueryToken.RegexLiteral -> stringResource(R.string.regex_type)
+        is QueryToken.StringLiteral -> stringResource(R.string.string_type)
     }
