@@ -18,3 +18,5 @@ fun Context.openEmail(email: String) {
     val intent = Intent(Intent.ACTION_SENDTO, uri)
     startActivity(intent)
 }
+
+const val ARKHAM_BUILD_CARD_URL = "https://arkham.build/card/"

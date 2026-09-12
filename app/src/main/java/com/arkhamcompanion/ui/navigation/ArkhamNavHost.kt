@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -125,7 +126,9 @@ import com.arkhamcompanion.ui.settings.SettingsScreen
 import com.arkhamcompanion.ui.settings.SettingsViewModel
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
+import com.arkhamcompanion.ui.utils.ARKHAM_BUILD_CARD_URL
 import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
+import com.arkhamcompanion.ui.utils.openLink
 import com.arkhamcompanion.ui.utils.resolveExceptionToStringResId
 
 @Composable
@@ -972,10 +975,14 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
 
                         val cardsLazyCodes by cardsViewModel.searchResultCodes.collectAsState()
 
+                        var currentCardCode by rememberSaveable { mutableStateOf(destination.cardCode) }
+                        val context = LocalContext.current
+
                         CardDetailsScreen(
                             cardCode = destination.cardCode,
                             cardCodes = cardsLazyCodes,
                             cardDetailsViewModel = cardDetailsViewModel,
+                            onCurrentCardCodeChanged = { currentCardCode = it },
                             innerPadding = innerPadding
                         )
 
@@ -990,6 +997,15 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                                 onClick = navController::navigateUp,
                                 iconGlyph = AppIcon.ArrowBack,
                             )
+                        }
+                        rightActions = {
+                            currentCardCode.takeUnless { it.startsWith("z") }?.let { code ->
+                                ArkhamAppBarAction(
+                                    contentColor = CustomTheme.colors.m,
+                                    onClick = { context.openLink(ARKHAM_BUILD_CARD_URL + code) },
+                                    iconGlyph = AppIcon.World,
+                                )
+                            }
                         }
                     }
                 }
@@ -1046,7 +1062,9 @@ internal fun <T: Any> NavHostController.navigateSingleTop(route: T) = navigate(r
 @Composable
 private fun CardsCacheLoading(paddingValues: PaddingValues) {
     Surface(
-        modifier = Modifier.applyScaffoldPaddings(paddingValues).padding(8.dp),
+        modifier = Modifier
+            .applyScaffoldPaddings(paddingValues)
+            .padding(8.dp),
         color = CustomTheme.colors.d30,
         shape = CustomTheme.shapes.medium
     ) {
