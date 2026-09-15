@@ -433,9 +433,9 @@ class QueryFieldResolverImpl : QueryFieldResolver<CardSearchResultEntity> {
             }
 
             QueryFields.tabooSet -> {
-                val tabooName = if (card.front.tabooPlaceholder) null else card.front.tabooSetName
+                val taboo = if (card.front.tabooPlaceholder) false else card.front.tabooSetId != null
 
-                EvaluatedValues.Single(tabooName.toQueryValue())
+                EvaluatedValues.Single(taboo.toQueryValue())
             }
 
             QueryFields.text -> {

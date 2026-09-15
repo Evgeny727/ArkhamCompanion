@@ -289,9 +289,9 @@ object QueryFields {
     )
 
     val tabooSet = QueryField(
-        name = "taboo_set",
-        type = QueryFieldType.STRING,
-        aliases = setOf("ts"),
+        name = "taboo",
+        type = QueryFieldType.BOOLEAN,
+        aliases = setOf("ta"),
     )
 
     val text = QueryField(

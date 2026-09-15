@@ -115,7 +115,6 @@ data class CardSearchQLFields(
     val tabooXp: Int?,
     @ColumnInfo("taboo_set_id")
     val tabooSetId: Int?,
-    val tabooSetName: String?,
     @ColumnInfo("taboo_placeholder")
     val tabooPlaceholder: Boolean,
 

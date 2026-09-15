@@ -707,7 +707,6 @@ class CardsRepositoryImpl @Inject constructor(
                     JOIN pack cp ON c.pack_code = cp.code
                     JOIN cycle ccy ON c.cycle_code = ccy.code
                     LEFT JOIN encounter_set ce ON c.encounter_code = ce.code
-                    LEFT JOIN taboo_set cts ON c.taboo_set_id = cts.id
                     
                     LEFT JOIN card b ON b.code = c.back_link_id
                     
@@ -719,7 +718,6 @@ class CardsRepositoryImpl @Inject constructor(
                     LEFT JOIN pack bp ON b.pack_code = bp.code
                     LEFT JOIN cycle bcy ON b.cycle_code = bcy.code
                     LEFT JOIN encounter_set be ON b.encounter_code = be.code
-                    LEFT JOIN taboo_set bts ON b.taboo_set_id = bts.id
                     
                     CROSS JOIN selected_taboo taboo
                     WHERE (c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL)" else "NULL OR c.xp IS NOT NULL)"} 
@@ -885,7 +883,6 @@ class CardsRepositoryImpl @Inject constructor(
             ${alias}t.name AS ${columnPrefix}typeName,
             $alias.taboo_xp AS ${columnPrefix}taboo_xp,
             $alias.taboo_set_id AS ${columnPrefix}taboo_set_id,
-            ${alias}ts.name AS ${columnPrefix}tabooSetName,
             $alias.taboo_placeholder AS ${columnPrefix}taboo_placeholder,
             $alias.skill_willpower AS ${columnPrefix}skill_willpower,
             $alias.skill_intellect AS ${columnPrefix}skill_intellect,
