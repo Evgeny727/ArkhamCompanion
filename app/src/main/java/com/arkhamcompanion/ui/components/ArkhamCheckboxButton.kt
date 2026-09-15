@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.ui.icons.IconGlyph
@@ -33,6 +34,7 @@ fun ArkhamCheckboxButton(
     enabled: Boolean = true,
     isRadio: Boolean = false,
     isPackRow: Boolean = false,
+    isRegularText: Boolean = false,
     onValueChange: (Boolean) -> Unit,
 ) {
     Surface(
@@ -72,6 +74,7 @@ fun ArkhamCheckboxButton(
                 Text(
                     text = title,
                     style = CustomTheme.typography.large,
+                    fontWeight = if (isRegularText) FontWeight.Normal else null,
                     fontSize = if (isPackRow) 16.appSp(CustomTheme.typography.scaleFactor) else TextUnit.Unspecified,
                 )
 

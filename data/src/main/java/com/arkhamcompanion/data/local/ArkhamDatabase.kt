@@ -8,6 +8,7 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
 import com.arkhamcompanion.data.local.cards.CardTypeEntity
+import com.arkhamcompanion.data.local.cards.FavoriteCardEntity
 import com.arkhamcompanion.data.local.dao.CardsDao
 import com.arkhamcompanion.data.local.dao.MetaDao
 import com.arkhamcompanion.data.local.meta.CycleEntity
@@ -18,8 +19,8 @@ import com.arkhamcompanion.data.local.meta.TabooSetEntity
 import com.arkhamcompanion.data.objects.JsonElementConverter
 
 @Database(entities = [CardEntity::class, CycleEntity::class, PackEntity::class, EncounterSetEntity::class, TabooSetEntity::class,
-    FactionEntity::class, CardTypeEntity::class, CardSubtypeEntity::class],
-    version = 2,
+    FactionEntity::class, CardTypeEntity::class, CardSubtypeEntity::class, FavoriteCardEntity::class],
+    version = 3,
     exportSchema = false)
 @ColumnTypeConverters(JsonElementConverter::class)
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)

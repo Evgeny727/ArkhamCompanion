@@ -60,6 +60,7 @@ fun CardsScreen(
     val searchResultCodes by viewModel.searchResultCodes.collectAsState()
     val searchFilters by viewModel.cardFilters.collectAsState()
     val defaultFilters = remember { CardFilters() }
+    val favoriteCodes by viewModel.favoriteCodes.collectAsState()
     val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
 
     val density = LocalDensity.current
@@ -154,6 +155,7 @@ fun CardsScreen(
             searchQuery = searchOptions.searchQuery,
             searchResults = searchResults,
             searchResultCodes = searchResultCodes,
+            favoriteCodes = favoriteCodes,
             listState = listState,
             rowHeight = rowHeight,
             onCardClick = onCardClick,

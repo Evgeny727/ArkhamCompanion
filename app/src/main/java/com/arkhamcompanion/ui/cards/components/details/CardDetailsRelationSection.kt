@@ -17,6 +17,7 @@ fun LazyListScope.cardDetailsRelationSection(
     ignoreCollection: Boolean,
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
+    toggleFavorite: (String, Boolean) -> Unit,
 ) {
     var headerAdded = false
 
@@ -28,7 +29,14 @@ fun LazyListScope.cardDetailsRelationSection(
             cardDetailsRelationSectionHeader(prefix, sectionTitleResId)
         }
 
-        cardDetailsWithLinkedBack(relatedCard, prefix, collection, styleResolver, flavorStyleResolver)
+        cardDetailsWithLinkedBack(
+            relatedCard,
+            prefix,
+            collection,
+            styleResolver,
+            flavorStyleResolver,
+            toggleFavorite = toggleFavorite
+        )
     }
 }
 
@@ -41,12 +49,20 @@ fun LazyListScope.cardDetailsRelationSectionSingle(
     ignoreCollection: Boolean,
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
+    toggleFavorite: (String, Boolean) -> Unit,
 ) {
     if (!relatedCard.shouldShow(collection, ignoreCollection, showFanmade)) return
 
     cardDetailsRelationSectionHeader(prefix, sectionTitleResId)
 
-    cardDetailsWithLinkedBack(relatedCard, prefix, collection, styleResolver, flavorStyleResolver)
+    cardDetailsWithLinkedBack(
+        relatedCard,
+        prefix,
+        collection,
+        styleResolver,
+        flavorStyleResolver,
+        toggleFavorite = toggleFavorite
+    )
 }
 
 private fun LazyListScope.cardDetailsRelationSectionHeader(
@@ -67,6 +83,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
     collection: Collection,
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
+    toggleFavorite: (String, Boolean) -> Unit,
 ) {
     relatedCard.details.run {
         doubleSidedCardDetails(
@@ -74,7 +91,8 @@ fun LazyListScope.cardDetailsWithLinkedBack(
             prefix = prefix,
             collection = collection,
             styleResolver = styleResolver,
-            flavorStyleResolver = flavorStyleResolver
+            flavorStyleResolver = flavorStyleResolver,
+            toggleFavorite = toggleFavorite,
         )
     }
 
@@ -85,7 +103,8 @@ fun LazyListScope.cardDetailsWithLinkedBack(
             collection = collection,
             suffix = "_back",
             styleResolver = styleResolver,
-            flavorStyleResolver = flavorStyleResolver
+            flavorStyleResolver = flavorStyleResolver,
+            toggleFavorite = toggleFavorite,
         )
     }
 }

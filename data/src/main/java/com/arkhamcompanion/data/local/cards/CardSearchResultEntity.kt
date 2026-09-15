@@ -59,6 +59,7 @@ data class CardSearchQLFields(
     val health: Int?,
     val id: String,
     val illustrator: String?,
+    val isFavorite: Boolean,
     @ColumnInfo("is_unique")
     val isUnique: Boolean,
     val myriad: Boolean,

@@ -1,7 +1,9 @@
 package com.arkhamcompanion.ui.cards.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,12 +47,11 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.absoluteValue
 
-const val UNIQUE_SYMBOL = "✷"
-
 @Composable
 fun CardListItem(
     cardListItem: CardListItem,
     rowHeight: Dp,
+    isFavorite: Boolean,
     modifier: Modifier = Modifier,
     invalid: Boolean = false,
     onClick: () -> Unit,
@@ -68,25 +70,52 @@ fun CardListItem(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .fillMaxWidth()
-                    .height(rowHeight),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                cardListItem.thumbnailUrl?.let { thumbnail ->
-                    CardListItemThumbnail(
-                        thumbnailUrl = thumbnail,
-                        factionColor = factionColor,
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .weight(1f)
+                        .height(rowHeight),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    cardListItem.thumbnailUrl?.let { thumbnail ->
+                        CardListItemThumbnail(
+                            thumbnailUrl = thumbnail,
+                            factionColor = factionColor,
+                        )
+                    }
+
+                    with(cardListItem) {
+                        CardIcon(
+                            xp,
+                            type,
+                            subType,
+                            faction,
+                            faction2,
+                            factionColor,
+                            realCost,
+                            encounterCode
+                        )
+                    }
+
+                    CardListItemName(cardListItem, factionColor, invalid)
+                }
+
+                if (isFavorite) {
+                    Box(
+                        Modifier
+                            .padding(end = 4.dp)
+                            .width(2.dp)
+                            .height(rowHeight)
+                            .background(
+                                color = factionColor.text,
+                                shape = CustomTheme.shapes.circle
+                            )
                     )
                 }
-
-                with(cardListItem) {
-                    CardIcon(xp, type, subType, faction, faction2, factionColor, realCost, encounterCode)
-                }
-
-                CardListItemName(cardListItem, factionColor, invalid)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)

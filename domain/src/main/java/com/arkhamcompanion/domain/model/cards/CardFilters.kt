@@ -12,6 +12,7 @@ data class CardFilters(
     val levelFilter: LevelFilter = LevelFilter(),
     val types: ImmutableSet<CardType> = persistentSetOf(),
     val subTypes: ImmutableSet<CardSubType?> = persistentSetOf(),
+    val favoritesOnly: Boolean = false,
     val costFilter: CostFilter = CostFilter(),
     val skillsFilter: SkillsFilter = SkillsFilter(),
     val actions: ImmutableSet<String> = persistentSetOf(),

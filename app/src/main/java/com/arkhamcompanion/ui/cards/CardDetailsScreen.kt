@@ -42,7 +42,7 @@ fun CardDetailsScreen(
     cardCode: String,
     cardCodes: ImmutableList<CardSearchResultItem>,
     cardDetailsViewModel: CardDetailsViewModel,
-    onCurrentCardCodeChanged: (String) -> Unit,
+    onCurrentCardCodeChanged: (String?) -> Unit,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues
 ) {
@@ -72,8 +72,23 @@ fun CardDetailsScreen(
         val targetPage = cardCodes.indexOfFirst { it.code == cardCode }
 
         if (targetPage < 0) {
-            // The requested card isn't available in the current result yet.
+            // Keep waiting while the result list is empty.
+            if (cardCodes.isEmpty()) {
+                pagerReady = false
+                return@LaunchedEffect
+            }
+
+            // The list is available, but the requested card was removed.
+            // Show the first available card.
             pagerReady = false
+
+            val fallbackCode = cardCodes.first().code
+
+            pagerState.scrollToPage(0)
+
+            handledCardCode = fallbackCode
+            pagerReady = true
+
             return@LaunchedEffect
         }
 
@@ -91,8 +106,8 @@ fun CardDetailsScreen(
     LaunchedEffect(pagerState, cardCodes) {
         snapshotFlow { pagerState.currentPage }
             .collect { page ->
-                val item = cardCodes.getOrNull(page) ?: return@collect
-                onCurrentCardCodeChanged(item.code)
+                val item = cardCodes.getOrNull(page)
+                onCurrentCardCodeChanged(item?.code)
             }
     }
 
@@ -154,7 +169,14 @@ fun CardDetailsScreen(
                     val isBase = cardDetailsWithRelations?.cardRelations?.base != null
 
                     cardDetailsWithRelations?.card?.let { relatedCard ->
-                        cardDetailsWithLinkedBack(relatedCard, "main", collection, styleResolver, flavorStyleResolver)
+                        cardDetailsWithLinkedBack(
+                            relatedCard,
+                            "main",
+                            collection,
+                            styleResolver,
+                            flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                        )
                     }
 
                     if (isInvestigator) {
@@ -168,7 +190,8 @@ fun CardDetailsScreen(
                                     showFanmade = showFanmade,
                                     ignoreCollection = ignoreCollection,
                                     styleResolver = styleResolver,
-                                    flavorStyleResolver = flavorStyleResolver
+                                    flavorStyleResolver = flavorStyleResolver,
+                                    toggleFavorite = cardDetailsViewModel::toggleFavorite
                                 )
                             }
                         }
@@ -183,7 +206,8 @@ fun CardDetailsScreen(
                                     showFanmade = showFanmade,
                                     ignoreCollection = ignoreCollection,
                                     styleResolver = styleResolver,
-                                    flavorStyleResolver = flavorStyleResolver
+                                    flavorStyleResolver = flavorStyleResolver,
+                                    toggleFavorite = cardDetailsViewModel::toggleFavorite
                                 )
                             }
                         }
@@ -199,7 +223,8 @@ fun CardDetailsScreen(
                                 showFanmade = showFanmade,
                                 ignoreCollection = ignoreCollection,
                                 styleResolver = styleResolver,
-                                flavorStyleResolver = flavorStyleResolver
+                                flavorStyleResolver = flavorStyleResolver,
+                                toggleFavorite = cardDetailsViewModel::toggleFavorite
                             )
                         }
 
@@ -228,7 +253,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -243,7 +269,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -258,7 +285,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -273,7 +301,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -288,7 +317,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -303,7 +333,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -318,7 +349,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -333,7 +365,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -348,7 +381,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
 
@@ -363,7 +397,8 @@ fun CardDetailsScreen(
                             showFanmade = showFanmade,
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
-                            flavorStyleResolver = flavorStyleResolver
+                            flavorStyleResolver = flavorStyleResolver,
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite
                         )
                     }
                 }

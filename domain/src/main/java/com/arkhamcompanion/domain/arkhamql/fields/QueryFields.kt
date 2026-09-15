@@ -101,6 +101,12 @@ object QueryFields {
         aliases = setOf("cls", "class", "f"),
     )
 
+    val favorite = QueryField(
+        name = "favorite",
+        type = QueryFieldType.BOOLEAN,
+        aliases = setOf("fav"),
+    )
+
     val fight = QueryField(
         name = "fight",
         type = QueryFieldType.NUMBER,
@@ -179,12 +185,6 @@ object QueryFields {
     val inSideDeck = QueryField(
         name = "in_side_deck",
         type = QueryFieldType.NUMBER,
-    )
-
-    val isFavorite = QueryField(
-        name = "is_favorite",
-        type = QueryFieldType.BOOLEAN,
-        aliases = setOf("fav"),
     )
 
     val isUpgrade = QueryField(
@@ -377,7 +377,7 @@ object QueryFields {
         investigatorAccess,
         inDeck,
         inSideDeck,
-        isFavorite,
+        favorite,
         isUpgrade,
         level,
         multiclass,

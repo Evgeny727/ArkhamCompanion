@@ -74,6 +74,7 @@ data class CardDetailsEntity(
     @ColumnInfo("health_per_investigator")
     val healthPerInvestigator: Boolean,
     val illustrator: String?,
+    val isFavorite: Boolean,
     @ColumnInfo("is_unique")
     val isUnique: Boolean,
     val official: Boolean,

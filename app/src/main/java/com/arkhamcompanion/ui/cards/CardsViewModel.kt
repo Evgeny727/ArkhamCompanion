@@ -137,13 +137,15 @@ class CardsViewModel @Inject constructor(
                     _cardsUiState.value = CardsUiState.Idle
                 }
             }
-            .map { codes -> config to codes.cards }
+            .map { results -> config to results.cards }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val searchResults = _searchCodesWithConfig.flatMapLatest { (config, codes) ->
-        cardsRepository.searchPaginatedCardsFlow(codes.map { it.id }, config)
-    }.cachedIn(viewModelScope)
+    val searchResults = _searchCodesWithConfig
+        .distinctUntilChanged()
+        .flatMapLatest { (config, codes) ->
+            cardsRepository.searchPaginatedCardsFlow(codes.map { it.id }, config)
+        }.cachedIn(viewModelScope)
 
     val searchResultCodes = _searchCodesWithConfig
         .map { (_, codes) -> codes }
@@ -152,6 +154,12 @@ class CardsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000L),
             initialValue = persistentListOf()
         )
+
+    val favoriteCodes = cardsRepository.observeFavoriteCodes().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = persistentSetOf()
+    )
 
     private fun updateCardFilters(update: (CardFilters) -> CardFilters) {
         _cardFilters.update { update(it) }
@@ -224,6 +232,14 @@ class CardsViewModel @Inject constructor(
     fun clearSubTypesFilter() {
         updateCardFilters {
             it.copy(subTypes = persistentSetOf())
+        }
+    }
+
+    fun toggleFavorites(value: Boolean) {
+        updateCardFilters {
+            it.copy(
+                favoritesOnly = value
+            )
         }
     }
 

@@ -2,6 +2,9 @@ package com.arkhamcompanion.data.local.dao
 
 import androidx.paging.PagingSource
 import androidx.room3.Dao
+import androidx.room3.Delete
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.RawQuery
 import androidx.room3.RewriteQueriesToDropUnusedColumns
@@ -13,6 +16,7 @@ import com.arkhamcompanion.data.local.cards.CardListItemEntity
 import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
 import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
 import com.arkhamcompanion.data.local.cards.CardTypeEntity
+import com.arkhamcompanion.data.local.cards.FavoriteCardEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -35,8 +39,11 @@ interface CardsDao {
     @RawQuery(observedEntities = [CardEntity::class])
     fun getPagedCardsByIds(query: RoomRawQuery): PagingSource<Int, CardListItemEntity>
 
-    @RawQuery(observedEntities = [CardEntity::class])
+    @RawQuery(observedEntities = [CardEntity::class, FavoriteCardEntity::class])
     fun getSearchedCardCodesRaw(query: RoomRawQuery): Flow<List<CardSearchResultEntity>>
+
+    @Query("SELECT code FROM favorite_card")
+    fun observeFavoriteCodes(): Flow<List<String>>
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
@@ -48,12 +55,15 @@ interface CardsDao {
         )
         
         SELECT c.*, p.name AS packName, rp.name AS reprintPackName, 
-            st.name AS subTypeName, t.name AS typeName, e.name AS encounterName FROM card c 
+            st.name AS subTypeName, t.name AS typeName, e.name AS encounterName, 
+            CASE WHEN fc.code IS NULL THEN 0 ELSE 1 END AS isFavorite 
+            FROM card c 
         JOIN card_type t ON c.type_code = t.code
         LEFT JOIN card_subtype st ON c.subtype_code = st.code
         JOIN pack p ON c.pack_code = p.code
         LEFT JOIN pack rp ON c.reprint_pack_code = rp.code
         LEFT JOIN encounter_set e ON c.encounter_code = e.code
+        LEFT JOIN favorite_card fc ON c.code = fc.code
         CROSS JOIN selected_taboo taboo
         WHERE c.code IN (:codes) AND (
             -- No taboo selected -> originals only
@@ -82,4 +92,10 @@ interface CardsDao {
 
     @Query("SELECT * FROM card")
     suspend fun getAllCards(): List<CardEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addFavorite(favorite: FavoriteCardEntity)
+
+    @Delete
+    suspend fun removeFavorite(favorite: FavoriteCardEntity)
 }

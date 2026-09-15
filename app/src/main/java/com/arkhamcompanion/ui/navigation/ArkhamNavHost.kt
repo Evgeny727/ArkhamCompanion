@@ -975,7 +975,9 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
 
                         val cardsLazyCodes by cardsViewModel.searchResultCodes.collectAsState()
 
-                        var currentCardCode by rememberSaveable { mutableStateOf(destination.cardCode) }
+                        var currentCardCode by rememberSaveable {
+                            mutableStateOf<String?>(destination.cardCode)
+                        }
                         val context = LocalContext.current
 
                         CardDetailsScreen(
@@ -999,7 +1001,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                             )
                         }
                         rightActions = {
-                            currentCardCode.takeUnless { it.startsWith("z") }?.let { code ->
+                            currentCardCode?.takeUnless { it.startsWith("z") }?.let { code ->
                                 ArkhamAppBarAction(
                                     contentColor = CustomTheme.colors.m,
                                     onClick = { context.openLink(ARKHAM_BUILD_CARD_URL + code) },

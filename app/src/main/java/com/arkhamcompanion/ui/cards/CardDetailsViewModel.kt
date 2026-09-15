@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,4 +38,11 @@ class CardDetailsViewModel @Inject constructor(
 
     fun getCardDetailsWithRelations(code: String, tabooSetId: Int?) =
         cardsRepository.getCardWithRelationsByCodeFlow(code, tabooSetId)
+
+    fun toggleFavorite(code: String, value: Boolean) {
+        viewModelScope.launch {
+            if (value) cardsRepository.addFavorite(code)
+            else cardsRepository.removeFavorite(code)
+        }
+    }
 }

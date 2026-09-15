@@ -55,6 +55,7 @@ internal fun CardDetailsEntity.toDomain(
     health = health,
     healthPerInvestigator = healthPerInvestigator,
     illustrator = illustrator,
+    isFavorite = isFavorite,
     isUnique = isUnique,
     official = official,
     packCode = packCode,

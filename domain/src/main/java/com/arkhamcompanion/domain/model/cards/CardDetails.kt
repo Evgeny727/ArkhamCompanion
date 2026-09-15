@@ -43,6 +43,7 @@ data class CardDetails(
     val health: Int?,
     val healthPerInvestigator: Boolean,
     val illustrator: String?,
+    val isFavorite: Boolean,
     val isUnique: Boolean,
     val official: Boolean,
     val packCode: String,

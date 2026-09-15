@@ -47,6 +47,7 @@ import com.arkhamcompanion.ui.cards.components.filters.CollapsableFiltersSection
 import com.arkhamcompanion.ui.cards.components.filters.FilersSkillIconsSection
 import com.arkhamcompanion.ui.cards.components.filters.FiltersPropertiesSectionContent
 import com.arkhamcompanion.ui.cards.components.filters.NavigationFilterButton
+import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamTabooDialog
 import com.arkhamcompanion.ui.components.factionColor
@@ -222,6 +223,18 @@ fun CardsFiltersScreen(
             ) {
                 navigateTo(CardsFiltersSubTypesScreen)
             }
+
+            HorizontalDivider(color = CustomTheme.colors.divider)
+        }
+
+        item("favorite_button", "button") {
+            ArkhamCheckboxButton(
+                title = stringResource(R.string.favorites),
+                isSelected = filters.favoritesOnly,
+                isRegularText = true,
+                onValueChange = cardsViewModel::toggleFavorites,
+                modifier = Modifier.padding(8.dp)
+            )
 
             HorizontalDivider(color = CustomTheme.colors.divider)
         }

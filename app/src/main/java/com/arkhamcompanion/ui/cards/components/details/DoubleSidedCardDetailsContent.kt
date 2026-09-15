@@ -27,11 +27,13 @@ fun LazyListScope.doubleSidedCardDetails(
     suffix: String = "",
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
+    toggleFavorite: (String, Boolean) -> Unit,
 ) {
     cardDetailsWithPackInfo.run {
         val firstPackInCollection = firstPackIn(collection)
         val isBackFirst = cardDetails.isBackFirst()
         val noBackHeader = cardDetails.type == CardType.Investigator
+        var isFirst = true
 
         if (isBackFirst) {
             //Back
@@ -51,6 +53,24 @@ fun LazyListScope.doubleSidedCardDetails(
                                 isBack = true
                             )
                         }
+                    },
+                    footer = if (!isFirst) null else {
+                        {
+                            CardDetailsFooter(
+                                cardDetails.official,
+                                onFaq = { /*TODO:navigate to FAQ screen*/ },
+                                cardDetails.tabooSetId,
+                                cardDetails.tabooPlaceholder,
+                                onTaboo = { /*TODO:navigate to taboo history screen*/ },
+                                cardDetails.isFavorite,
+                                onFavorite = {
+                                    toggleFavorite(
+                                        cardDetails.code,
+                                        !cardDetails.isFavorite
+                                    )
+                                }
+                            )
+                        }
                     }
                 ) {
                     CardDetailsBackContent(
@@ -60,6 +80,8 @@ fun LazyListScope.doubleSidedCardDetails(
                     )
                 }
             }
+
+            isFirst = false
         }
 
         //Front
@@ -76,6 +98,24 @@ fun LazyListScope.doubleSidedCardDetails(
                         cardDetails,
                         firstPackInCollection = firstPackInCollection
                     )
+                },
+                footer = if (!isFirst) null else {
+                    {
+                        CardDetailsFooter(
+                            cardDetails.official,
+                            onFaq = { /*TODO:navigate to FAQ screen*/ },
+                            cardDetails.tabooSetId,
+                            cardDetails.tabooPlaceholder,
+                            onTaboo = { /*TODO:navigate to taboo history screen*/ },
+                            cardDetails.isFavorite,
+                            onFavorite = {
+                                toggleFavorite(
+                                    cardDetails.code,
+                                    !cardDetails.isFavorite
+                                )
+                            }
+                        )
+                    }
                 }
             ) {
                 CardDetailsFrontContent(
@@ -85,6 +125,8 @@ fun LazyListScope.doubleSidedCardDetails(
                     flavorStyleResolver
                 )
             }
+
+            isFirst = false
         }
 
         cardDetails.parsedCustomizationText?.let { customizationText ->

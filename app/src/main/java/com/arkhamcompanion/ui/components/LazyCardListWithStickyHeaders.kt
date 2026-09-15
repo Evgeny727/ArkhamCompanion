@@ -47,12 +47,14 @@ import com.arkhamcompanion.ui.cards.components.buildHeaderTitle
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 
 @Composable
 fun LazyCardListWithStickyHeaders(
     searchQuery: String,
     searchResults: LazyPagingItems<CardListItemUiModel>,
     searchResultCodes: ImmutableList<CardSearchResultItem>,
+    favoriteCodes: ImmutableSet<String>,
     listState: LazyListState,
     rowHeight: Dp,
     onCardClick: (String) -> Unit,
@@ -251,6 +253,7 @@ fun LazyCardListWithStickyHeaders(
                         CardListItem(
                             cardListItem = item.card,
                             rowHeight = rowHeight,
+                            isFavorite = item.card.code in favoriteCodes,
                             onClick = {
                                 onCardClick(item.card.code)
                             }

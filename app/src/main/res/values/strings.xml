@@ -2014,4 +2014,5 @@
     <string name="ownership_collection">Collection</string>
     <string name="ownership_unavailable">Unavailable</string>
     <string name="ownership_filter">Ownership</string>
+    <string name="favorites">Favorites</string>
 </resources>

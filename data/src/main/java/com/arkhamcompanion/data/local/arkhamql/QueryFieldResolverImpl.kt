@@ -486,6 +486,10 @@ class QueryFieldResolverImpl : QueryFieldResolver<CardSearchResultEntity> {
                 )
             }
 
+            QueryFields.favorite -> {
+                EvaluatedValues.Single(card.front.isFavorite.toQueryValue())
+            }
+
             QueryFields.unique -> {
                 val frontValue = card.front.isUnique.toQueryValue()
                 val backValue = (card.back?.isUnique ?: false).toQueryValue()

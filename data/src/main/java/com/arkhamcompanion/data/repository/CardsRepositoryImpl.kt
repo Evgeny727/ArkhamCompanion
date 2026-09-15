@@ -14,6 +14,7 @@ import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
 import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
 import com.arkhamcompanion.data.local.cards.CardTypeEntity
+import com.arkhamcompanion.data.local.cards.FavoriteCardEntity
 import com.arkhamcompanion.data.local.cards.patches.CardPatchRegistry
 import com.arkhamcompanion.data.local.meta.CycleEntity
 import com.arkhamcompanion.data.local.meta.EncounterSetEntity
@@ -60,6 +61,8 @@ import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.PerformanceRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -603,6 +606,18 @@ class CardsRepositoryImpl @Inject constructor(
             }
     }
 
+    override suspend fun addFavorite(code: String) {
+        cardsDao.addFavorite(FavoriteCardEntity(code))
+    }
+
+    override suspend fun removeFavorite(code: String) {
+        cardsDao.removeFavorite(FavoriteCardEntity(code))
+    }
+
+    override fun observeFavoriteCodes(): Flow<ImmutableSet<String>> = cardsDao.observeFavoriteCodes().map {
+        it.toImmutableSet()
+    }
+
     private fun buildSearchCardsQuery(
         searchConfig: CardSearchConfig,
     ): RoomRawQuery {
@@ -661,6 +676,8 @@ class CardsRepositoryImpl @Inject constructor(
                     SELECT
                         $qlFields
                         $backQLFields
+                        
+                        CASE WHEN fc.code IS NULL THEN 0 ELSE 1 END AS isFavorite,
                     
                         c.duplicate_of_code,
                         c.pack_position,
@@ -707,6 +724,7 @@ class CardsRepositoryImpl @Inject constructor(
                     JOIN pack cp ON c.pack_code = cp.code
                     JOIN cycle ccy ON c.cycle_code = ccy.code
                     LEFT JOIN encounter_set ce ON c.encounter_code = ce.code
+                    LEFT JOIN favorite_card fc ON c.code = fc.code
                     
                     LEFT JOIN card b ON b.code = c.back_link_id
                     
@@ -1136,6 +1154,12 @@ class CardsRepositoryImpl @Inject constructor(
             /*
             *  Non-indexed filters
             */
+
+            favoritesOnly.run {
+                if (!this) return@run
+
+                add("isFavorite = 1")
+            }
 
             levelFilter.run {
                 if (this == defaultFilters.levelFilter) return@run
