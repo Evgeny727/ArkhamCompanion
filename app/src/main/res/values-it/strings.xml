@@ -1750,7 +1750,7 @@
     <string name="mutated">Mutato</string>
     <string name="original_card_text">Testo originale della carta</string>
     <string name="original_card_text_back">Testo originale della carta (retro)</string>
-    <string name="latest_taboo_list_name_date">Ultimo Elenco dei Tabù: %s - %s</string>
+    <string name="latest_taboo_list_name_date">Ultimo Elenco dei Tabù: %s — %s</string>
     <string name="this_card_is_no_longer_on_the_taboo_list">Questa carta non è più nell\'elenco dei tabù.</string>
     <string name="see_taboo_list_history">Vedi elenco dei tabù</string>
     <string name="taboo_list_history">Elenco dei tabù:</string>

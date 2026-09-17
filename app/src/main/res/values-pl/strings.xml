@@ -1742,7 +1742,7 @@
     <string name="mutated">Zmutowana</string>
     <string name="original_card_text">Oryginalny tekst karty</string>
     <string name="original_card_text_back">Oryginalny tekst karty (tył)</string>
-    <string name="latest_taboo_list_name_date">Najnowsza lista tabu: %s - %s</string>
+    <string name="latest_taboo_list_name_date">Najnowsza lista tabu: %s — %s</string>
     <string name="this_card_is_no_longer_on_the_taboo_list">Ta karta nie znajduje się już na liście tabu.</string>
     <string name="see_taboo_list_history">Zobacz historię listy tabu</string>
     <string name="taboo_list_history">Historia listy tabu:</string>

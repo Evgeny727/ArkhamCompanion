@@ -1738,7 +1738,7 @@
     <string name="mutated">Mutada</string>
     <string name="original_card_text">Texto original</string>
     <string name="original_card_text_back">Texto original (trasera)</string>
-    <string name="latest_taboo_list_name_date">Última lista de tabúes: %s - %s</string>
+    <string name="latest_taboo_list_name_date">Última lista de tabúes: %s — %s</string>
     <string name="this_card_is_no_longer_on_the_taboo_list">Esta carta ya no está en la lista de tabúes.</string>
     <string name="see_taboo_list_history">Ver historial de la lista de tabúes</string>
     <string name="taboo_list_history">Historial de la lista de tabúes:</string>

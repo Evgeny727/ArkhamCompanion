@@ -15,6 +15,7 @@ import com.arkhamcompanion.data.local.cards.CardEntity
 import com.arkhamcompanion.data.local.cards.CardListItemEntity
 import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
 import com.arkhamcompanion.data.local.cards.CardSubtypeEntity
+import com.arkhamcompanion.data.local.cards.CardTabooInfoEntity
 import com.arkhamcompanion.data.local.cards.CardTypeEntity
 import com.arkhamcompanion.data.local.cards.FavoriteCardEntity
 import kotlinx.coroutines.flow.Flow
@@ -98,4 +99,12 @@ interface CardsDao {
 
     @Delete
     suspend fun removeFavorite(favorite: FavoriteCardEntity)
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("""
+        SELECT c.*, ts.name as tabooName, ts.date as tabooDate FROM card c 
+        LEFT JOIN taboo_set ts ON c.taboo_set_id = ts.id
+        WHERE c.code = :code AND c.taboo_set_id IS NOT NULL ORDER BY ts.date DESC
+    """)
+    fun getTabooHistoryByCodeFlow(code: String): Flow<List<CardTabooInfoEntity>>
 }

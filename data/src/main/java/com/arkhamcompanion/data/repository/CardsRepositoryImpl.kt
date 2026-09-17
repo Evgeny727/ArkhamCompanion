@@ -48,6 +48,7 @@ import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
+import com.arkhamcompanion.domain.model.cards.CardTabooInfo
 import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
@@ -61,7 +62,9 @@ import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.PerformanceRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -617,6 +620,11 @@ class CardsRepositoryImpl @Inject constructor(
     override fun observeFavoriteCodes(): Flow<ImmutableSet<String>> = cardsDao.observeFavoriteCodes().map {
         it.toImmutableSet()
     }
+
+    override fun getCarTabooHistoryByCodeFlow(code: String): Flow<ImmutableList<CardTabooInfo>> =
+        cardsDao.getTabooHistoryByCodeFlow(code).map {
+            it.map { item -> item.toDomain() }.toImmutableList()
+        }
 
     private fun buildSearchCardsQuery(
         searchConfig: CardSearchConfig,

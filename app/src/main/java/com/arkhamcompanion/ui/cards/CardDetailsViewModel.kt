@@ -45,4 +45,6 @@ class CardDetailsViewModel @Inject constructor(
             else cardsRepository.removeFavorite(code)
         }
     }
+
+    fun getTabooHistory(code: String) = cardsRepository.getCarTabooHistoryByCodeFlow(code)
 }

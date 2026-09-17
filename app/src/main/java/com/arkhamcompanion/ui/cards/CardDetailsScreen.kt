@@ -43,6 +43,7 @@ fun CardDetailsScreen(
     cardCodes: ImmutableList<CardSearchResultItem>,
     cardDetailsViewModel: CardDetailsViewModel,
     onCurrentCardCodeChanged: (String?) -> Unit,
+    onTabooNavigation: (String,  String) -> Unit,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues
 ) {
@@ -175,7 +176,8 @@ fun CardDetailsScreen(
                             collection,
                             styleResolver,
                             flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -191,7 +193,8 @@ fun CardDetailsScreen(
                                     ignoreCollection = ignoreCollection,
                                     styleResolver = styleResolver,
                                     flavorStyleResolver = flavorStyleResolver,
-                                    toggleFavorite = cardDetailsViewModel::toggleFavorite
+                                    toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                                    onTabooNavigation = onTabooNavigation
                                 )
                             }
                         }
@@ -207,7 +210,8 @@ fun CardDetailsScreen(
                                     ignoreCollection = ignoreCollection,
                                     styleResolver = styleResolver,
                                     flavorStyleResolver = flavorStyleResolver,
-                                    toggleFavorite = cardDetailsViewModel::toggleFavorite
+                                    toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                                    onTabooNavigation = onTabooNavigation
                                 )
                             }
                         }
@@ -224,7 +228,8 @@ fun CardDetailsScreen(
                                 ignoreCollection = ignoreCollection,
                                 styleResolver = styleResolver,
                                 flavorStyleResolver = flavorStyleResolver,
-                                toggleFavorite = cardDetailsViewModel::toggleFavorite
+                                toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                                onTabooNavigation = onTabooNavigation
                             )
                         }
 
@@ -254,7 +259,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -270,7 +276,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -286,7 +293,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -302,7 +310,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -318,7 +327,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -334,7 +344,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -350,7 +361,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -366,7 +378,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -382,7 +395,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
 
@@ -398,7 +412,8 @@ fun CardDetailsScreen(
                             ignoreCollection = ignoreCollection,
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
-                            toggleFavorite = cardDetailsViewModel::toggleFavorite
+                            toggleFavorite = cardDetailsViewModel::toggleFavorite,
+                            onTabooNavigation = onTabooNavigation
                         )
                     }
                 }

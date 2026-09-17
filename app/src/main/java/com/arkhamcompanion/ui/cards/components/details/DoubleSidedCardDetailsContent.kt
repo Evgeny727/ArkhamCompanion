@@ -28,6 +28,7 @@ fun LazyListScope.doubleSidedCardDetails(
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
+    onTabooNavigation: (String,  String) -> Unit,
 ) {
     cardDetailsWithPackInfo.run {
         val firstPackInCollection = firstPackIn(collection)
@@ -61,7 +62,9 @@ fun LazyListScope.doubleSidedCardDetails(
                                 onFaq = { /*TODO:navigate to FAQ screen*/ },
                                 cardDetails.tabooSetId,
                                 cardDetails.tabooPlaceholder,
-                                onTaboo = { /*TODO:navigate to taboo history screen*/ },
+                                onTaboo = {
+                                    onTabooNavigation(cardDetails.code, cardDetails.name)
+                                },
                                 cardDetails.isFavorite,
                                 onFavorite = {
                                     toggleFavorite(
@@ -106,7 +109,9 @@ fun LazyListScope.doubleSidedCardDetails(
                             onFaq = { /*TODO:navigate to FAQ screen*/ },
                             cardDetails.tabooSetId,
                             cardDetails.tabooPlaceholder,
-                            onTaboo = { /*TODO:navigate to taboo history screen*/ },
+                            onTaboo = {
+                                onTabooNavigation(cardDetails.code, cardDetails.name)
+                            },
                             cardDetails.isFavorite,
                             onFavorite = {
                                 toggleFavorite(

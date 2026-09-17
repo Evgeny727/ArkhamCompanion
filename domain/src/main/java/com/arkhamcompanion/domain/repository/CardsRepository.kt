@@ -5,6 +5,8 @@ import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
+import com.arkhamcompanion.domain.model.cards.CardTabooInfo
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.flow.Flow
 
@@ -41,5 +43,7 @@ interface CardsRepository {
     suspend fun removeFavorite(code: String)
 
     fun observeFavoriteCodes(): Flow<ImmutableSet<String>>
+
+    fun getCarTabooHistoryByCodeFlow(code: String): Flow<ImmutableList<CardTabooInfo>>
 
 }

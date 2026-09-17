@@ -51,3 +51,9 @@ object CardsFiltersIllustratorsScreen
 data class CardDetailsScreen(
     val cardCode: String
 )
+
+@Serializable
+data class CardTabooHistoryScreen(
+    val cardCode: String,
+    val cardName: String
+)

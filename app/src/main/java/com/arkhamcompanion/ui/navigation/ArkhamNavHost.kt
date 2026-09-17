@@ -74,6 +74,7 @@ import com.arkhamcompanion.ui.campaigns.Campaigns
 import com.arkhamcompanion.ui.campaigns.CampaignsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsViewModel
+import com.arkhamcompanion.ui.cards.CardTabooHistoryScreen
 import com.arkhamcompanion.ui.cards.Cards
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
@@ -985,6 +986,11 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                             cardCodes = cardsLazyCodes,
                             cardDetailsViewModel = cardDetailsViewModel,
                             onCurrentCardCodeChanged = { currentCardCode = it },
+                            onTabooNavigation = { code, name ->
+                                navController.navigateSingleTop(
+                                    CardTabooHistoryScreen(code, name)
+                                )
+                            },
                             innerPadding = innerPadding
                         )
 
@@ -1009,6 +1015,34 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                                 )
                             }
                         }
+                    }
+                    composable<CardTabooHistoryScreen> { backStackEntry ->
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardDetailsScreen>()
+                        }
+                        val destination = backStackEntry.toRoute<CardTabooHistoryScreen>()
+
+                        val cardDetailsViewModel: CardDetailsViewModel = hiltViewModel(parentEntry)
+
+                        CardTabooHistoryScreen(
+                            cardCode = destination.cardCode,
+                            cardDetailsViewModel = cardDetailsViewModel,
+                            innerPadding = innerPadding
+                        )
+
+                        title = destination.cardName
+                        subtitle = stringResource(R.string.taboos)
+                        color = baseColor
+                        contentColor = baseContentColor
+                        rightActions = null
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                        rightActions = null
                     }
                 }
                 navigation<BottomBarItem.Decks>(

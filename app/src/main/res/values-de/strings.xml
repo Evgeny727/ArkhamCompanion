@@ -1651,7 +1651,7 @@
     <string name="mutated">Mutiert</string>
     <string name="original_card_text">Original Kartentext</string>
     <string name="original_card_text_back">Original Kartentext (Rückseite)</string>
-    <string name="latest_taboo_list_name_date">Aktuelle Tabuliste: %s - %s</string>
+    <string name="latest_taboo_list_name_date">Aktuelle Tabuliste: %s — %s</string>
     <string name="this_card_is_no_longer_on_the_taboo_list">Diese Karte ist nicht mehr in der Tabuliste.</string>
     <string name="see_taboo_list_history">Tabulisten Verlauf anschauen</string>
     <string name="taboo_list_history">Tabulisten Verlauf:</string>

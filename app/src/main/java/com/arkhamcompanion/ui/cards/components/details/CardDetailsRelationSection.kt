@@ -18,6 +18,7 @@ fun LazyListScope.cardDetailsRelationSection(
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
+    onTabooNavigation: (String,  String) -> Unit,
 ) {
     var headerAdded = false
 
@@ -35,7 +36,8 @@ fun LazyListScope.cardDetailsRelationSection(
             collection,
             styleResolver,
             flavorStyleResolver,
-            toggleFavorite = toggleFavorite
+            toggleFavorite = toggleFavorite,
+            onTabooNavigation = onTabooNavigation,
         )
     }
 }
@@ -50,6 +52,7 @@ fun LazyListScope.cardDetailsRelationSectionSingle(
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
+    onTabooNavigation: (String,  String) -> Unit,
 ) {
     if (!relatedCard.shouldShow(collection, ignoreCollection, showFanmade)) return
 
@@ -61,7 +64,8 @@ fun LazyListScope.cardDetailsRelationSectionSingle(
         collection,
         styleResolver,
         flavorStyleResolver,
-        toggleFavorite = toggleFavorite
+        toggleFavorite = toggleFavorite,
+        onTabooNavigation = onTabooNavigation,
     )
 }
 
@@ -84,6 +88,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
+    onTabooNavigation: (String,  String) -> Unit,
 ) {
     relatedCard.details.run {
         doubleSidedCardDetails(
@@ -93,6 +98,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
             styleResolver = styleResolver,
             flavorStyleResolver = flavorStyleResolver,
             toggleFavorite = toggleFavorite,
+            onTabooNavigation = onTabooNavigation,
         )
     }
 
@@ -105,6 +111,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
             styleResolver = styleResolver,
             flavorStyleResolver = flavorStyleResolver,
             toggleFavorite = toggleFavorite,
+            onTabooNavigation = onTabooNavigation,
         )
     }
 }

@@ -1648,7 +1648,7 @@
     <string name="mutated">변형</string>
     <string name="original_card_text">원본 카드 문구</string>
     <string name="original_card_text_back">원본 카드 문구 (뒷면)</string>
-    <string name="latest_taboo_list_name_date">최신 금기 목록: %s - %s</string>
+    <string name="latest_taboo_list_name_date">최신 금기 목록: %s — %s</string>
     <string name="this_card_is_no_longer_on_the_taboo_list">이 카드는 더 이상 금기 목록에 없습니다.</string>
     <string name="see_taboo_list_history">금기 목록 기록 보기</string>
     <string name="taboo_list_history">금기 목록 기록:</string>
