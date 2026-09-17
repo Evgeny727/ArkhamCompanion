@@ -33,16 +33,16 @@ fun CardDetailsFooter(
     val showTaboo = tabooSetId != null || tabooPlaceholder
 
     ArkhamRoundedCardFooter(modifier = modifier) {
-        if (official) {
-            ArkhamRoundedCardFooterItem(
-                iconGlyph = AppIcon.Wild,
-                iconSize = 20.appSp(scaleFactor),
-                text = stringResource(R.string.faq),
-                onClick = onFaq
-            )
-
-            VerticalDivider(modifier = Modifier.fillMaxHeight(0.6f), color = CustomTheme.colors.d20)
-        }
+//        if (official) {
+//            ArkhamRoundedCardFooterItem(
+//                iconGlyph = AppIcon.Wild,
+//                iconSize = 20.appSp(scaleFactor),
+//                text = stringResource(R.string.faq),
+//                onClick = onFaq
+//            )
+//
+//            VerticalDivider(modifier = Modifier.fillMaxHeight(0.6f), color = CustomTheme.colors.d20)
+//        }
 
         if (showTaboo) {
             ArkhamRoundedCardFooterItem(
