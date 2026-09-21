@@ -3,7 +3,6 @@ package com.arkhamcompanion.ui.cards
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.arkhamcompanion.UiErrorState
 import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
@@ -32,9 +31,7 @@ import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -63,13 +60,6 @@ class CardsViewModel @Inject constructor(
 
     private val _cardsUiState = MutableStateFlow<CardsUiState>(CardsUiState.Idle)
     val cardsUiState = _cardsUiState.asStateFlow()
-
-    private val _errors = MutableSharedFlow<UiErrorState>(extraBufferCapacity = 1)
-    val errors: SharedFlow<UiErrorState> = _errors
-
-    fun emitError(throwable: Throwable) {
-        _errors.tryEmit(UiErrorState(throwable))
-    }
 
     private val _spoilerState = MutableStateFlow(false)
     val spoilerState = _spoilerState.asStateFlow()
@@ -107,8 +97,17 @@ class CardsViewModel @Inject constructor(
         initialValue = CardSearchPreferences()
     )
 
-    private val _cardFilters = MutableStateFlow(CardFilters())
+    val defaultFilters = CardFilters()
+    private val _cardFilters = MutableStateFlow(defaultFilters)
     val cardFilters = _cardFilters.asStateFlow()
+
+    val isFiltersActive = cardFilters
+        .map { it != defaultFilters }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
 
     @OptIn(FlowPreview::class)
     private val _searchConfig = combine(
@@ -166,7 +165,7 @@ class CardsViewModel @Inject constructor(
     }
 
     fun clearCardFilters() {
-        _cardFilters.value = CardFilters()
+        _cardFilters.value = defaultFilters
     }
 
     fun updateFactions(value: Faction) =

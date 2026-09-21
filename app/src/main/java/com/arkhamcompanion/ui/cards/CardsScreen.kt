@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -31,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.arkhamcompanion.R
-import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.ui.components.ArkhamButton
 import com.arkhamcompanion.ui.components.ArkhamButtonSearchIcon
 import com.arkhamcompanion.ui.components.ArkhamIconText
@@ -48,7 +46,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun CardsScreen(
     viewModel: CardsViewModel,
-    emitError: (Throwable) -> Unit,
     onCardClick: (String) -> Unit,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
@@ -59,7 +56,7 @@ fun CardsScreen(
     val searchResults = viewModel.searchResults.collectAsLazyPagingItems()
     val searchResultCodes by viewModel.searchResultCodes.collectAsState()
     val searchFilters by viewModel.cardFilters.collectAsState()
-    val defaultFilters = remember { CardFilters() }
+    val defaultFilters = viewModel.defaultFilters
     val favoriteCodes by viewModel.favoriteCodes.collectAsState()
     val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
 
@@ -71,11 +68,6 @@ fun CardsScreen(
         )
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.errors.collect {
-            emitError(it.exception)
-        }
-    }
     // Whenever the search query changes, scroll the list back to the top.
     LaunchedEffect(searchResults) {
         snapshotFlow {

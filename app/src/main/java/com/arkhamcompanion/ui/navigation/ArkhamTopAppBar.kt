@@ -1,5 +1,6 @@
 package com.arkhamcompanion.ui.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -82,21 +83,36 @@ fun ArkhamAppBarAction(
     contentColor: Color,
     onClick: () -> Unit,
     iconGlyph: IconGlyph? = null,
-    text: String? = null
+    text: String? = null,
+    isActive: Boolean = false,
 ) {
     if (iconGlyph != null) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CustomTheme.shapes.circle)
-                .clickable(onClick = onClick),
-            contentAlignment = Alignment.Center
-        ) {
-            ArkhamIconText(
-                iconGlyph = iconGlyph,
-                size = 28.dp,
-                color = contentColor
-            )
+        Box {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CustomTheme.shapes.circle)
+                    .clickable(onClick = onClick),
+                contentAlignment = Alignment.Center
+            ) {
+                ArkhamIconText(
+                    iconGlyph = iconGlyph,
+                    size = 28.dp,
+                    color = contentColor
+                )
+            }
+
+            if (isActive) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .align(Alignment.TopEnd)
+                        .background(
+                            color = CustomTheme.colors.faction.rogue.border,
+                            shape = CustomTheme.shapes.circle
+                        )
+                )
+            }
         }
     } else if (text != null) {
         Box(

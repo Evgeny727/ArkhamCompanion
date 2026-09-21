@@ -378,10 +378,10 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
 
                         val cardsViewModel = hiltViewModel<CardsViewModel>()
                         val spoilerState by cardsViewModel.spoilerState.collectAsState()
+                        val isFiltersActive by cardsViewModel.isFiltersActive.collectAsState()
 
                         CardsScreen(
                             viewModel = cardsViewModel,
-                            emitError = viewModel::emitError,
                             onCardClick = { code ->
                                 navController.navigateSingleTop(CardDetailsScreen(code))
                             },
@@ -398,6 +398,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                                 contentColor = CustomTheme.colors.m,
                                 onClick = { navController.navigateSingleTop(CardsFiltersScreen) },
                                 iconGlyph = AppIcon.Filter,
+                                isActive = isFiltersActive
                             )
                             ArkhamAppBarAction(
                                 contentColor = CustomTheme.colors.m,

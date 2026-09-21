@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
-import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
@@ -73,7 +72,7 @@ fun CardsFiltersScreen(
     modifier: Modifier = Modifier,
 ) {
     val resources = LocalResources.current
-    val defaultFilters = remember { CardFilters() }
+    val defaultFilters = cardsViewModel.defaultFilters
     val filters by cardsViewModel.cardFilters.collectAsState()
     val spoilerState by cardsViewModel.spoilerState.collectAsState()
     val filtersUiState by cardsFiltersViewModel.uiState.collectAsState()
