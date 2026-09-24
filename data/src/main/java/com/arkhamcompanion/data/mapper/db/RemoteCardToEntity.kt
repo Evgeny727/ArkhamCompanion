@@ -13,8 +13,8 @@ import com.arkhamcompanion.data.local.meta.PackEntity
 import com.arkhamcompanion.data.objects.CardSortOrder.sortByFactionOrder
 import com.arkhamcompanion.data.objects.CardSortOrder.sortBySlotOrder
 import com.arkhamcompanion.data.objects.CardSortOrder.sortByTypeOrder
-import com.arkhamcompanion.domain.objects.normalizeForSearch
 import com.arkhamcompanion.domain.model.cards.ARKHAM_BUILD_BASE_IMAGE_URL
+import com.arkhamcompanion.domain.objects.normalizeForSearch
 import com.arkhamcompanion.fragment.CoreCardText
 import com.arkhamcompanion.fragment.SingleCard
 
@@ -237,14 +237,15 @@ fun CoreCardText?.toTranslation(card: SingleCard): Translation {
         } else card.real_back_traits
 
     return Translation(
-        backFlavor = (this?.back_flavor ?: card.real_back_flavor)?.preprocessCardText(processBullets = false),
+        backFlavor = (this?.back_flavor ?: card.real_back_flavor)?.preprocessCardText(),
         backName = this?.back_name ?: card.real_back_name,
         backSubname = this?.back_subname ?: card.real_back_subname,
         backText = (this?.back_text ?: card.real_back_text)?.preprocessCardText(processBullets = true),
         backTraits = backTraits,
         customizationChange = this?.customization_change ?: card.real_customization_change,
-        customizationText = this?.customization_text ?: card.real_customization_text,
-        flavor = (this?.flavor ?: card.real_flavor)?.preprocessCardText(processBullets = false),
+        customizationText = (this?.customization_text ?: card.real_customization_text)
+            ?.preprocessCardText(),
+        flavor = (this?.flavor ?: card.real_flavor)?.preprocessCardText(),
         name = this?.name ?: card.real_name,
         slot = (this?.slot ?: card.real_slot)?.ifBlank { null },
         subname = this?.subname ?: card.real_subname,
@@ -252,7 +253,8 @@ fun CoreCardText?.toTranslation(card: SingleCard): Translation {
             ?.preprocessCardText(processBullets = true),
         tabooOriginalText = (this?.taboo_original_text ?: card.real_taboo_original_text)
             ?.preprocessCardText(processBullets = true),
-        tabooTextChange = this?.taboo_text_change ?: card.real_taboo_text_change,
+        tabooTextChange = (this?.taboo_text_change ?: card.real_taboo_text_change)
+            ?.preprocessCardText(processBullets = false),
         text = (this?.text ?: card.real_text)?.preprocessCardText(processBullets = true),
         traits = this?.traits ?: card.real_traits,
     )
@@ -286,7 +288,7 @@ private val GUIDE_BULLET_REGEX = Regex("""(^\s?=|^=\s+)([^0-9].+)$""", RegexOpti
 private val PARAGRAPH_BULLET_REGEX = Regex("""(<p>- )|(<p>–)""", RegexOption.MULTILINE)
 private val DOUBLE_BRACKET_REGEX = Regex("""\[\[([^\]]+)\]\]""")
 
-internal fun String.preprocessCardText(processBullets: Boolean): String {
+internal fun String.preprocessCardText(processBullets: Boolean = false): String {
     val result = this
         .replace(WEIRD_BULLET_REGEX, "•")
         .replace(LINEBREAK_REGEX, "\n")
