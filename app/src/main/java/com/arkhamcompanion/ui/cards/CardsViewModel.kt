@@ -12,9 +12,13 @@ import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
+import com.arkhamcompanion.domain.model.cards.CardpoolFilter
+import com.arkhamcompanion.domain.model.cards.CardpoolTarget
 import com.arkhamcompanion.domain.model.cards.CostFilter
+import com.arkhamcompanion.domain.model.cards.DeckOption
 import com.arkhamcompanion.domain.model.cards.EnemyFilter
 import com.arkhamcompanion.domain.model.cards.HealthSanityFilter
+import com.arkhamcompanion.domain.model.cards.InvestigatorAccessConfig
 import com.arkhamcompanion.domain.model.cards.LevelFilter
 import com.arkhamcompanion.domain.model.cards.LocationFilter
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
@@ -165,7 +169,34 @@ class CardsViewModel @Inject constructor(
     }
 
     fun clearCardFilters() {
-        _cardFilters.value = defaultFilters
+        updateCardFilters { filters ->
+            defaultFilters.copy(cardpoolFilter = filters.cardpoolFilter)
+        }
+    }
+
+    fun setCardpoolFilter(
+        investigatorConfig: InvestigatorAccessConfig,
+        deckOptions: List<DeckOption>,
+        deckRequirements: List<String>,
+        sideDeckOptions: List<DeckOption>,
+        sideDeckRequirements: List<String>,
+    ) {
+        updateCardFilters {
+            it.copy(cardpoolFilter = CardpoolFilter(
+                deckOptions = deckOptions.filterNot { option -> option.virtual },
+                requiredCardCodes = deckRequirements.toSet(),
+                sideDeckOptions = sideDeckOptions,
+                sideDeckRequiredCardCodes = sideDeckRequirements.toSet(),
+                investigatorConfig = investigatorConfig,
+                target = CardpoolTarget.Both
+            ))
+        }
+    }
+
+    fun clearCardpoolFilter() {
+        updateCardFilters {
+            it.copy(cardpoolFilter = null)
+        }
     }
 
     fun updateFactions(value: Faction) =

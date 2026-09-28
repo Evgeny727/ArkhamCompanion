@@ -992,6 +992,16 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                                     CardTabooHistoryScreen(code, name)
                                 )
                             },
+                            onShowInvestigatorCardpool = { config, deckOptions, deckRequirements, sideDeckOptions, sideDeckRequirements ->
+                                cardsViewModel.setCardpoolFilter(
+                                    config,
+                                    deckOptions,
+                                    deckRequirements,
+                                    sideDeckOptions,
+                                    sideDeckRequirements
+                                )
+                                navController.navigateUp()
+                            },
                             innerPadding = innerPadding
                         )
 

@@ -17,6 +17,7 @@ import com.arkhamcompanion.domain.model.cards.ARKHAM_BUILD_BASE_IMAGE_URL
 import com.arkhamcompanion.domain.objects.normalizeForSearch
 import com.arkhamcompanion.fragment.CoreCardText
 import com.arkhamcompanion.fragment.SingleCard
+import kotlinx.serialization.json.JsonArray
 
 val REPRINT_PACKS = setOf("dwl", "ptc", "tfa", "tcu", "tde", "tic")
 
@@ -46,8 +47,14 @@ fun SingleCard.toEntity(
     } else null
 
     return CardEntity(
-        id = id,
-        code = code,
+        id = when(id) {
+            "custom_001" -> "zcu_00004"
+            else -> id
+        },
+        code = when(code) {
+            "custom_001" -> "zcu_00004"
+            else -> code
+        },
         advancedFor = advanced_for,
         altArtInvestigator = alt_art_investigator ?: false,
         alternateOfCode = alternate_of_code,
@@ -141,7 +148,9 @@ fun SingleCard.toEntity(
             "zcxc_00264" -> "weakness" //Fix subtype for fanmade card
             else -> subtype_code
         },
-        tags = patchValues.tags.resolve(tags),
+        tags = patchValues.tags.resolve(tags)?.let { tags ->
+            tags as? JsonArray ?: JsonArray(emptyList())
+        },
         xp = xp,
         vengeance = vengeance,
         victory = victory,

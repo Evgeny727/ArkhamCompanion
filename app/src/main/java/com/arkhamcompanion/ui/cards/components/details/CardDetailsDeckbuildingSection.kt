@@ -20,6 +20,7 @@ fun LazyListScope.cardDetailsDeckbuildingSection(
             normalCase = false
         )
     }
+
     if (isBase) {
         item("base_investigator_cards_button", contentType = "button") {
             ArkhamButton(
@@ -33,6 +34,7 @@ fun LazyListScope.cardDetailsDeckbuildingSection(
                 )
             }
         }
+
         onShowParallelInvestigatorCards?.let {
             item("parallel_investigator_cards_button", contentType = "button") {
                 ArkhamButton(
@@ -62,6 +64,7 @@ fun LazyListScope.cardDetailsDeckbuildingSection(
                 }
             }
         }
+
         item("base_investigator_cards_button", contentType = "button") {
             ArkhamButton(
                 title = stringResource(R.string.show_all_available_cards_for_base),
@@ -75,16 +78,18 @@ fun LazyListScope.cardDetailsDeckbuildingSection(
             }
         }
     }
-    item("create_deck_button", contentType = "button") {
-        ArkhamButton(
-            title = stringResource(R.string.create_new_deck),
-            onClick = onCreateNewDeck,
-        ) { color ->
-            ArkhamIconText(
-                iconGlyph = AppIcon.Deck,
-                color = color,
-                size = 24.dp
-            )
-        }
-    }
+
+    //TODO:Implement deck creation
+//    item("create_deck_button", contentType = "button") {
+//        ArkhamButton(
+//            title = stringResource(R.string.create_new_deck),
+//            onClick = onCreateNewDeck,
+//        ) { color ->
+//            ArkhamIconText(
+//                iconGlyph = AppIcon.Deck,
+//                color = color,
+//                size = 24.dp
+//            )
+//        }
+//    }
 }

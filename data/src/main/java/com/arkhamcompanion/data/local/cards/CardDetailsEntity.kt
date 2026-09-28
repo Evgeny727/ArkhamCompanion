@@ -1,6 +1,7 @@
 package com.arkhamcompanion.data.local.cards
 
 import androidx.room3.ColumnInfo
+import kotlinx.serialization.json.JsonElement
 
 data class CardDetailsEntity(
     val id: String,
@@ -30,6 +31,8 @@ data class CardDetailsEntity(
     val text: String?,
     val traits: String?,
 
+    @ColumnInfo("alternate_of_code")
+    val alternateOfCode: String?,
     @ColumnInfo("back_illustrator")
     val backIllustrator: String?,
     @ColumnInfo("back_type")
@@ -38,6 +41,8 @@ data class CardDetailsEntity(
     @ColumnInfo("clues_fixed")
     val cluesFixed: Boolean,
     val cost: Int?,
+    @ColumnInfo("customization_options")
+    val customizationOptions: JsonElement?,
     val doom: Int?,
     @ColumnInfo("doom_per_investigator")
     val doomPerInvestigator: Boolean,
@@ -47,6 +52,10 @@ data class CardDetailsEntity(
     val duplicateOfCode: String?,
     @ColumnInfo("deck_limit")
     val deckLimit: Int?,
+    @ColumnInfo("deck_options")
+    val deckOptions: JsonElement?,
+    @ColumnInfo("deck_requirements")
+    val deckRequirements: JsonElement?,
     @ColumnInfo("encounter_code")
     val encounterCode: String?,
     @ColumnInfo("encounter_position")
@@ -90,10 +99,17 @@ data class CardDetailsEntity(
     val reprintPackName: String?,
     @ColumnInfo("real_slot")
     val realSlot: String?,
+    @ColumnInfo("real_traits")
+    val realTraits: String?,
+    val restrictions: JsonElement?,
     val sanity: Int?,
     val shroud: Int?,
     @ColumnInfo("shroud_per_investigator")
     val shroudPerInvestigator: Boolean,
+    @ColumnInfo("side_deck_options")
+    val sideDeckOptions: JsonElement?,
+    @ColumnInfo("side_deck_requirements")
+    val sideDeckRequirements: JsonElement?,
     @ColumnInfo("skill_willpower")
     val skillWillpower: Int?,
     @ColumnInfo("skill_intellect")

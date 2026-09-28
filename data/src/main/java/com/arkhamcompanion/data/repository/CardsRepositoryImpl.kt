@@ -32,6 +32,7 @@ import com.arkhamcompanion.data.objects.CardRelationResolver.buildCardWithRelati
 import com.arkhamcompanion.data.objects.CardRelationResolver.resolveCardCodesWithRelations
 import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
 import com.arkhamcompanion.data.remote.CardsRemoteDataSource
+import com.arkhamcompanion.data.utils.filterByCardpool
 import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.QueryParseResult
 import com.arkhamcompanion.domain.arkhamql.evaluator.QueryEvaluationException
@@ -493,6 +494,18 @@ class CardsRepositoryImpl @Inject constructor(
                 analyticsRepository.logError(it)
             }
             .map { list ->
+                val filteredList = when {
+                    searchConfig.filters.cardpoolFilter != null ->
+                        list.filterByCardpool(
+                            searchConfig.filters.cardpoolFilter!!,
+                            analyticsRepository::logMessage
+                        )
+
+                    //searchConfig.filters.cardFilter != null -> TODO()
+
+                    else -> list
+                }
+
                 when {
                     // Already in QL mode: parsing/evaluation errors are errors.
                     isInQlMode -> {
@@ -500,13 +513,13 @@ class CardsRepositoryImpl @Inject constructor(
                             is QueryParseResult.Error -> {
                                 CardSearchResult(
                                     error = queryResult.error,
-                                    cards = list.toDomain(),
+                                    cards = filteredList.toDomain(),
                                 )
                             }
 
                             is QueryParseResult.Success -> {
                                 runCatching {
-                                    list.filter {
+                                    filteredList.filter {
                                         queryEvaluator.evaluate(
                                             queryResult.expression,
                                             it,
@@ -525,7 +538,7 @@ class CardsRepositoryImpl @Inject constructor(
                                                 is QueryEvaluationException -> error.error
                                                 else -> QueryError.UnknownError(error.message.toString())
                                             },
-                                            cards = list.toDomain(),
+                                            cards = filteredList.toDomain(),
                                         )
                                     },
                                 )
@@ -534,7 +547,7 @@ class CardsRepositoryImpl @Inject constructor(
                             null -> {
                                 CardSearchResult(
                                     error = null,
-                                    cards = list.toDomain(),
+                                    cards = filteredList.toDomain(),
                                 )
                             }
                         }
@@ -544,7 +557,7 @@ class CardsRepositoryImpl @Inject constructor(
                     // until evaluation succeeds.
                     queryResult is QueryParseResult.Success -> {
                         val evaluationResult = runCatching {
-                            list.filter {
+                            filteredList.filter {
                                 queryEvaluator.evaluate(
                                     queryResult.expression,
                                     it,
@@ -564,7 +577,7 @@ class CardsRepositoryImpl @Inject constructor(
                             onFailure = {
                                 CardSearchResult(
                                     error = null,
-                                    cards = list
+                                    cards = filteredList
                                         .filter {
                                             it.fuzzySearch(
                                                 searchConfig.options,
@@ -581,7 +594,7 @@ class CardsRepositoryImpl @Inject constructor(
                     // Not QL and couldn't parse → normal fuzzy search.
                     else -> CardSearchResult(
                         error = null,
-                        cards = list
+                        cards = filteredList
                             .filter {
                                 it.fuzzySearch(
                                     searchConfig.options,
@@ -690,6 +703,12 @@ class CardsRepositoryImpl @Inject constructor(
                         c.duplicate_of_code,
                         c.pack_position,
                         c.encounter_position,
+                        
+                        c.customization_options,
+                        c.deck_options,
+                        c.deck_requirements,
+                        c.side_deck_options,
+                        c.side_deck_requirements,
                         
                         c.sort_by_type,
                         c.sort_by_faction,
@@ -1162,6 +1181,20 @@ class CardsRepositoryImpl @Inject constructor(
             /*
             *  Non-indexed filters
             */
+
+            cardpoolFilter?.run {
+                add("""
+                    (
+                        EXISTS (
+                            SELECT 1 FROM card c2 
+                            WHERE c2.code = c.code 
+                                AND c2.taboo_set_id IS NULL 
+                                AND c2.deck_limit > 0
+                        ) 
+                        AND c.type_code != 'investigator'
+                    )
+                """.trimIndent())
+            }
 
             favoritesOnly.run {
                 if (!this) return@run

@@ -3,6 +3,7 @@ package com.arkhamcompanion.domain.model.cards
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
+import com.arkhamcompanion.domain.model.decks.Selections
 import com.arkhamcompanion.domain.model.settings.Collection
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
@@ -13,6 +14,7 @@ data class CardFilters(
     val types: ImmutableSet<CardType> = persistentSetOf(),
     val subTypes: ImmutableSet<CardSubType?> = persistentSetOf(),
     val favoritesOnly: Boolean = false,
+    val cardpoolFilter: CardpoolFilter? = null,
     val costFilter: CostFilter = CostFilter(),
     val skillsFilter: SkillsFilter = SkillsFilter(),
     val actions: ImmutableSet<String> = persistentSetOf(),
@@ -34,6 +36,29 @@ data class LevelFilter(
     val range: NullableIntRange = NullableIntRange(null, 5),
     val forcedRange: NullableIntRange? = null,
 )
+
+data class CardpoolFilter(
+    val deckOptions: List<DeckOption>,
+    val requiredCardCodes: Set<String>,
+    val sideDeckOptions: List<DeckOption>,
+    val sideDeckRequiredCardCodes: Set<String>,
+    val investigatorConfig: InvestigatorAccessConfig,
+    val additionalDeckOptions: List<DeckOption> = emptyList(),
+    val showLimitedAccess: Boolean = true,
+    val target: CardpoolTarget
+)
+
+data class InvestigatorAccessConfig(
+    val investigatorId: String,
+    val investigatorName: String,
+    val investigatorFaction: Faction,
+    val investigatorTraits: Set<String>,
+    val selections: Selections? = null
+)
+
+enum class CardpoolTarget {
+    Slots, ExtraSlots, Both
+}
 
 data class CostFilter(
     val range: NullableIntRange = NullableIntRange(null, 20),

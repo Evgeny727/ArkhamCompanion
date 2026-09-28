@@ -26,12 +26,18 @@ data class CardSearchQLFields(
     val clues: Int?,
     val code: String,
     val cost: Int?,
+    @ColumnInfo("customization_options")
+    val customizationOptions: JsonElement?,
     @ColumnInfo("cycle_code")
     val cycleCode: String,
     val cycleName: String,
     val cycleRealName: String,
     @ColumnInfo("deck_limit")
     val deckLimit: Int?,
+    @ColumnInfo("deck_options")
+    val deckOptions: JsonElement?,
+    @ColumnInfo("deck_requirements")
+    val deckRequirements: JsonElement?,
     val doom: Int?,
     @ColumnInfo("encounter_code")
     val encounterCode: String?,
@@ -97,6 +103,10 @@ data class CardSearchQLFields(
     val restrictions: JsonElement?,
     val sanity: Int?,
     val shroud: Int?,
+    @ColumnInfo("side_deck_options")
+    val sideDeckOptions: JsonElement?,
+    @ColumnInfo("side_deck_requirements")
+    val sideDeckRequirements: JsonElement?,
     @Embedded
     val skills: Skills,
     val stage: Int?,
@@ -110,6 +120,7 @@ data class CardSearchQLFields(
     @ColumnInfo("type_code")
     val typeCode: String,
     val typeName: String,
+    val tags: JsonElement?,
 
     //Taboo fields
     @ColumnInfo("taboo_xp")

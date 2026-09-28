@@ -2,6 +2,12 @@ package com.arkhamcompanion.data.local.cards.patches
 
 internal fun loadHiddenFixesPatches(): List<CardPatch> = listOf(
     CardPatch(
+        code = "01000",
+        values = EntityPatch(
+            hidden = PatchValue.Set(false),
+        )
+    ),
+    CardPatch(
         code = "03325",
         values = EntityPatch(
             backLinkId = PatchValue.Set("03325b"),

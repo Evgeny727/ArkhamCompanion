@@ -37,7 +37,6 @@ fun CardDetailsTabooBlock(
     tabooOriginalText: CardText?,
     tabooOriginalBackText: CardText?,
     styleResolver: CardTextStyleResolver,
-    deckLimit: Int,
     modifier: Modifier = Modifier,
 ) {
     var showTabooTextChange by remember { mutableStateOf(false) }
@@ -74,11 +73,6 @@ fun CardDetailsTabooBlock(
 
                 Text(
                     text = "$state $value",
-                    style = CustomTheme.typography.small
-                )
-            } else if (deckLimit == 0) {
-                Text(
-                    text = stringResource(R.string.forbidden),
                     style = CustomTheme.typography.small
                 )
             } else {

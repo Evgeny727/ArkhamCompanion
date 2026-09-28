@@ -4,6 +4,7 @@ import com.arkhamcompanion.domain.enums.CardBackType
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
+import kotlinx.collections.immutable.ImmutableList
 
 data class CardDetails(
     val id: String,
@@ -54,6 +55,7 @@ data class CardDetails(
     val reprintPackCode: String?,
     val reprintPackName: String?,
     val realSlot: String?,
+    val realTraits: String?,
     val sanity: Int?,
     val shroud: Int?,
     val shroudPerInvestigator: Boolean,
@@ -93,7 +95,16 @@ data class CardDetails(
     val parsedTabooOriginalText: CardText?,
 
     //Linked Back info
-    val backInfo: CardBackInfo?
+    val backInfo: CardBackInfo?,
+
+    //Deckbuilding fields
+    val alternateOfCode: String?,
+    val customizationOptions: List<CustomizationOption>?,
+    val deckOptions: ImmutableList<DeckOption>?,
+    val deckRequirements: DeckRequirements?,
+    val sideDeckOptions: ImmutableList<DeckOption>?,
+    val sideDeckRequirements: DeckRequirements?,
+    val restrictions: Restrictions?,
 )
 
 data class CardPackInfo(

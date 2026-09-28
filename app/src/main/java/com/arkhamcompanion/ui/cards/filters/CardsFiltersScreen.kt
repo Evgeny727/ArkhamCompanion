@@ -123,6 +123,20 @@ fun CardsFiltersScreen(
             }
         }
 
+        if (filters.cardpoolFilter != null) {
+            item("investigator_access", "button") {
+                ArkhamCheckboxButton(
+                    title = stringResource(R.string.investigator) + CustomTheme.language.colon
+                            + filters.cardpoolFilter!!.investigatorConfig.investigatorName,
+                    isSelected = true,
+                    isRegularText = true,
+                    modifier = Modifier.padding(8.dp)
+                ) { cardsViewModel.clearCardpoolFilter() }
+
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
+        }
+
         item("level_section", "section") {
             val label = stringResource(R.string.level)
             val colon = LocalLanguage.current.colon

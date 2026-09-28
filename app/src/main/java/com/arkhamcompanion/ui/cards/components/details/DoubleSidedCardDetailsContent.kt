@@ -269,7 +269,6 @@ fun CardDetailsFrontContent(
                 tabooOriginalText = cardDetails.parsedTabooOriginalText,
                 tabooOriginalBackText = cardDetails.parsedTabooOriginalBackText,
                 styleResolver = styleResolver,
-                deckLimit = cardDetails.deckLimit ?: 0
             )
         }
     }
