@@ -47,14 +47,8 @@ fun SingleCard.toEntity(
     } else null
 
     return CardEntity(
-        id = when(id) {
-            "custom_001" -> "zcu_00004"
-            else -> id
-        },
-        code = when(code) {
-            "custom_001" -> "zcu_00004"
-            else -> code
-        },
+        id = id,
+        code = code,
         advancedFor = advanced_for,
         altArtInvestigator = alt_art_investigator ?: false,
         alternateOfCode = alternate_of_code,

@@ -2,6 +2,7 @@ package com.arkhamcompanion.data.local.cards
 
 import androidx.room3.ColumnInfo
 import androidx.room3.Embedded
+import kotlinx.serialization.json.JsonElement
 
 data class CardListItemEntity(
     val id: String,
@@ -73,4 +74,30 @@ data class CardListItemEntity(
     @ColumnInfo(name = "sort_by_slot")
     val slotNumber: Int,
     val stage: Int?,
+
+    //Fields for investigator access
+    @ColumnInfo(name = "alternate_of_code")
+    val alternateOfCode: String?,
+    @ColumnInfo(name = "duplicate_of_code")
+    val duplicateOfCode: String?,
+    @ColumnInfo(name = "real_traits")
+    val realTraits: String?,
+    @ColumnInfo(name = "customization_options")
+    val customizationOptions: JsonElement?,
+    @ColumnInfo(name = "deck_options")
+    val deckOptions: JsonElement?,
+    @ColumnInfo(name = "deck_requirements")
+    val deckRequirements: JsonElement?,
+    @ColumnInfo(name = "side_deck_options")
+    val sideDeckOptions: JsonElement?,
+    @ColumnInfo(name = "side_deck_requirements")
+    val sideDeckRequirements: JsonElement?,
+    @ColumnInfo(name = "restrictions")
+    val restrictions: JsonElement?,
+    @ColumnInfo(name = "real_text")
+    val realText: String?,
+    @ColumnInfo(name = "real_back_text")
+    val realBackText: String?,
+    @ColumnInfo(name = "real_customization_text")
+    val realCustomizationText: String?,
 )

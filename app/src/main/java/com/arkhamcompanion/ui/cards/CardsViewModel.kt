@@ -9,6 +9,7 @@ import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.AssetFilter
 import com.arkhamcompanion.domain.model.cards.CardFilters
+import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
@@ -170,7 +171,10 @@ class CardsViewModel @Inject constructor(
 
     fun clearCardFilters() {
         updateCardFilters { filters ->
-            defaultFilters.copy(cardpoolFilter = filters.cardpoolFilter)
+            defaultFilters.copy(
+                cardpoolFilter = filters.cardpoolFilter,
+                whoCanTakeCard = filters.whoCanTakeCard
+            )
         }
     }
 
@@ -182,20 +186,38 @@ class CardsViewModel @Inject constructor(
         sideDeckRequirements: List<String>,
     ) {
         updateCardFilters {
-            it.copy(cardpoolFilter = CardpoolFilter(
-                deckOptions = deckOptions.filterNot { option -> option.virtual },
-                requiredCardCodes = deckRequirements.toSet(),
-                sideDeckOptions = sideDeckOptions,
-                sideDeckRequiredCardCodes = sideDeckRequirements.toSet(),
-                investigatorConfig = investigatorConfig,
-                target = CardpoolTarget.Both
-            ))
+            it.copy(
+                cardpoolFilter = CardpoolFilter(
+                    deckOptions = deckOptions.filterNot { option -> option.virtual },
+                    requiredCardCodes = deckRequirements.toSet(),
+                    sideDeckOptions = sideDeckOptions,
+                    sideDeckRequiredCardCodes = sideDeckRequirements.toSet(),
+                    investigatorConfig = investigatorConfig,
+                    target = CardpoolTarget.Both
+                ),
+                whoCanTakeCard = persistentSetOf()
+            )
         }
     }
 
     fun clearCardpoolFilter() {
         updateCardFilters {
             it.copy(cardpoolFilter = null)
+        }
+    }
+
+    fun toggleWhoCanTakeCardFilter(fields: CardInvestigatorAccessFields) {
+        updateCardFilters {
+            it.copy(
+                cardpoolFilter = null,
+                whoCanTakeCard = it.whoCanTakeCard.toggle(fields)
+            )
+        }
+    }
+
+    fun clearWhoCanTakeCardFilter() {
+        updateCardFilters {
+            it.copy(whoCanTakeCard = persistentSetOf())
         }
     }
 

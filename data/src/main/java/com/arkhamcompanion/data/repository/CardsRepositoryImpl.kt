@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
 import androidx.room3.RoomRawQuery
 import androidx.room3.withWriteTransaction
 import com.arkhamcompanion.data.local.ArkhamDatabase
@@ -32,7 +33,8 @@ import com.arkhamcompanion.data.objects.CardRelationResolver.buildCardWithRelati
 import com.arkhamcompanion.data.objects.CardRelationResolver.resolveCardCodesWithRelations
 import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
 import com.arkhamcompanion.data.remote.CardsRemoteDataSource
-import com.arkhamcompanion.data.utils.filterByCardpool
+import com.arkhamcompanion.data.utils.filterByInvestigatorAccess
+import com.arkhamcompanion.data.utils.filterInvestigatorsByCards
 import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.QueryParseResult
 import com.arkhamcompanion.domain.arkhamql.evaluator.QueryEvaluationException
@@ -410,6 +412,19 @@ class CardsRepositoryImpl @Inject constructor(
                 c.slot,
                 c.stage,
                 
+                c.alternate_of_code,
+                c.duplicate_of_code,
+                c.real_traits,
+                c.customization_options,
+                c.deck_options,
+                c.deck_requirements,
+                c.side_deck_options,
+                c.side_deck_requirements,
+                c.restrictions,
+                c.real_text,
+                c.real_back_text,
+                c.real_customization_text,
+                
                 c.sort_by_type,
                 c.sort_by_faction,
                 c.sort_by_slot
@@ -496,12 +511,16 @@ class CardsRepositoryImpl @Inject constructor(
             .map { list ->
                 val filteredList = when {
                     searchConfig.filters.cardpoolFilter != null ->
-                        list.filterByCardpool(
+                        list.filterByInvestigatorAccess(
                             searchConfig.filters.cardpoolFilter!!,
                             analyticsRepository::logMessage
                         )
 
-                    //searchConfig.filters.cardFilter != null -> TODO()
+                    searchConfig.filters.whoCanTakeCard.isNotEmpty() ->
+                        list.filterInvestigatorsByCards(
+                            searchConfig.filters.whoCanTakeCard,
+                            analyticsRepository::logMessage
+                        )
 
                     else -> list
                 }
@@ -638,6 +657,40 @@ class CardsRepositoryImpl @Inject constructor(
         cardsDao.getTabooHistoryByCodeFlow(code).map {
             it.map { item -> item.toDomain() }.toImmutableList()
         }
+
+    override fun getAllInvestigatorsByName(name: String) = Pager(
+        config = PagingConfig(
+            pageSize = 70,
+            prefetchDistance = 140,
+            enablePlaceholders = true,
+            initialLoadSize = 300,
+        ),
+        pagingSourceFactory = {
+            LoggingPagingSource(
+                delegate = cardsDao.getAllInvestigatorsByNamePaged(name),
+                analyticsRepository = analyticsRepository
+            )
+        }
+    ).flow.map { data ->
+        data.map { it.toDomain() }
+    }
+
+    override fun getAllPlayableCardsByName(name: String) = Pager(
+        config = PagingConfig(
+            pageSize = 70,
+            prefetchDistance = 140,
+            enablePlaceholders = true,
+            initialLoadSize = 300,
+        ),
+        pagingSourceFactory = {
+            LoggingPagingSource(
+                delegate = cardsDao.getAllPlayableCardsByNamePaged(name),
+                analyticsRepository = analyticsRepository
+            )
+        }
+    ).flow.map { data ->
+        data.map { it.toDomain() }
+    }
 
     private fun buildSearchCardsQuery(
         searchConfig: CardSearchConfig,
@@ -865,6 +918,7 @@ class CardsRepositoryImpl @Inject constructor(
         val columnPrefix = prefix.orEmpty()
 
         return """
+            $alias.alternate_of_code AS ${columnPrefix}alternate_of_code,
             $alias.id AS ${columnPrefix}id,
             $alias.code AS ${columnPrefix}code,
             $alias.back_illustrator AS ${columnPrefix}backIllustrator,
@@ -877,6 +931,7 @@ class CardsRepositoryImpl @Inject constructor(
             ${alias}cy.real_name AS ${columnPrefix}cycleRealName,
             $alias.deck_limit AS ${columnPrefix}deck_limit,
             $alias.doom AS ${columnPrefix}doom,
+            $alias.duplicate_of_code AS ${columnPrefix}duplicate_of_code,
             $alias.encounter_code AS ${columnPrefix}encounter_code,
             ${alias}e.name AS ${columnPrefix}encounterName,
             ${alias}e.real_name AS ${columnPrefix}encounterRealName,
@@ -1194,6 +1249,10 @@ class CardsRepositoryImpl @Inject constructor(
                         AND c.type_code != 'investigator'
                     )
                 """.trimIndent())
+            }
+
+            if (whoCanTakeCard.isNotEmpty()) {
+                add("(c.type_code == 'investigator' AND c.deck_options IS NOT NULL)")
             }
 
             favoritesOnly.run {

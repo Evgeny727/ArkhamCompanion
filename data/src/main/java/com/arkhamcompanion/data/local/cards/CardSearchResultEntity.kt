@@ -19,6 +19,8 @@ data class CardSearchResultEntity(
 )
 
 data class CardSearchQLFields(
+    @ColumnInfo("alternate_of_code")
+    val alternateOfCode: String?,
     val backIllustrator: String?,
     @ColumnInfo("back_type")
     val backType: String,
@@ -39,6 +41,8 @@ data class CardSearchQLFields(
     @ColumnInfo("deck_requirements")
     val deckRequirements: JsonElement?,
     val doom: Int?,
+    @ColumnInfo("duplicate_of_code")
+    val duplicateOfCode: String?,
     @ColumnInfo("encounter_code")
     val encounterCode: String?,
     val encounterName: String?,

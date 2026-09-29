@@ -2,15 +2,19 @@ package com.arkhamcompanion.ui.cards
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -28,7 +32,8 @@ data class FiltersUiState(
 
 @HiltViewModel
 class CardsFiltersViewModel @Inject constructor(
-    private val metaRepository: MetaRepository
+    private val metaRepository: MetaRepository,
+    private val cardsRepository: CardsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FiltersUiState())
@@ -119,4 +124,25 @@ class CardsFiltersViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000L),
         initialValue = persistentSetOf()
     )
+
+    private val _dialogQuery = MutableStateFlow("")
+    val dialogQuery = _dialogQuery.asStateFlow()
+
+    fun updateSearchQuery(query: String) {
+        _dialogQuery.value = query
+    }
+
+    fun clearSearchQuery() {
+        _dialogQuery.value = ""
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val investigators = _dialogQuery.flatMapLatest { query ->
+        cardsRepository.getAllInvestigatorsByName(query)
+    }.cachedIn(viewModelScope)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val cards = _dialogQuery.flatMapLatest { query ->
+        cardsRepository.getAllPlayableCardsByName(query)
+    }.cachedIn(viewModelScope)
 }

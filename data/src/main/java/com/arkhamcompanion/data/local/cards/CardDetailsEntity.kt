@@ -99,6 +99,12 @@ data class CardDetailsEntity(
     val reprintPackName: String?,
     @ColumnInfo("real_slot")
     val realSlot: String?,
+    @ColumnInfo("real_text")
+    val realText: String?,
+    @ColumnInfo("real_back_text")
+    val realBackText: String?,
+    @ColumnInfo("real_customization_text")
+    val realCustomizationText: String?,
     @ColumnInfo("real_traits")
     val realTraits: String?,
     val restrictions: JsonElement?,

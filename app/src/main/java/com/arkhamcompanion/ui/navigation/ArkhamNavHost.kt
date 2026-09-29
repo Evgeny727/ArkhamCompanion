@@ -1002,6 +1002,10 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                                 )
                                 navController.navigateUp()
                             },
+                            onShowWhoCanTakeCard = { fields ->
+                                fields?.run { cardsViewModel.toggleWhoCanTakeCardFilter(this) }
+                                navController.navigateUp()
+                            },
                             innerPadding = innerPadding
                         )
 
@@ -1018,7 +1022,10 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                             )
                         }
                         rightActions = {
-                            currentCardCode?.takeUnless { it.startsWith("z") }?.let { code ->
+                            currentCardCode?.takeUnless {
+                                //Hide button for fanmade cards and handle legacy investigator
+                                it.startsWith("z") || it == "custom_001"
+                            }?.let { code ->
                                 ArkhamAppBarAction(
                                     contentColor = CustomTheme.colors.m,
                                     onClick = { context.openLink(ARKHAM_BUILD_CARD_URL + code) },

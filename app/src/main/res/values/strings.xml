@@ -2015,4 +2015,5 @@
     <string name="ownership_unavailable">Unavailable</string>
     <string name="ownership_filter">Ownership</string>
     <string name="favorites">Favorites</string>
+    <string name="who_can_take_this_card">Who can take this card?</string>
 </resources>

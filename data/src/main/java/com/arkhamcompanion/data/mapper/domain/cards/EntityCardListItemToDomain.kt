@@ -53,7 +53,19 @@ fun CardListItemEntity.toDomain() = CardListItem(
     skillWild = skills.skillWild,
     parallel = parallel,
     isUnique = isUnique,
-    stage = stage
+    stage = stage,
+    alternateOfCode = alternateOfCode,
+    duplicateOfCode = duplicateOfCode,
+    realTraits = realTraits?.split(".")?.map { it.trim().lowercase() }.orEmpty().toSet(),
+    customizationOptions = customizationOptions?.toCustomizationOptions(),
+    deckOptions = deckOptions?.toDeckOptions(),
+    deckRequirements = deckRequirements?.toDeckRequirements(),
+    sideDeckOptions = sideDeckOptions?.toDeckOptions(),
+    sideDeckRequirements = sideDeckRequirements?.toDeckRequirements(),
+    restrictions = restrictions?.toRestrictions(),
+    realText = realText,
+    realBackText = realBackText,
+    realCustomizationText = realCustomizationText,
 )
 
 internal fun Int?.realCardCost(typeCode: String?, permanent: Boolean): String? {

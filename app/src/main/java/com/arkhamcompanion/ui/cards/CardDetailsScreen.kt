@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.CardType
+import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
 import com.arkhamcompanion.domain.model.cards.CardSearchResultItem
 import com.arkhamcompanion.domain.model.cards.DeckOption
 import com.arkhamcompanion.domain.model.cards.InvestigatorAccessConfig
@@ -48,6 +49,7 @@ fun CardDetailsScreen(
     onCurrentCardCodeChanged: (String?) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
     onShowInvestigatorCardpool: (InvestigatorAccessConfig, List<DeckOption>, List<String>, List<DeckOption>, List<String>) -> Unit,
+    onShowWhoCanTakeCard: (CardInvestigatorAccessFields?) -> Unit,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues
 ) {
@@ -172,6 +174,8 @@ fun CardDetailsScreen(
 
                     val isParallel = cardDetailsWithRelations?.cardRelations?.parallel != null
                     val isBase = cardDetailsWithRelations?.cardRelations?.base != null
+                    val isAvailableForDecks = cardDetailsWithRelations?.card?.details?.cardDetails?.deckLimit != null
+                            && cardDetailsWithRelations?.cardRelations?.bonded.orEmpty().isEmpty()
 
                     cardDetailsWithRelations?.card?.let { relatedCard ->
                         cardDetailsWithLinkedBack(
@@ -236,83 +240,82 @@ fun CardDetailsScreen(
                                 onTabooNavigation = onTabooNavigation
                             )
                         }
+                    }
 
-                        if (cardDetailsWithRelations?.card?.details?.cardDetails?.encounterCode == null) {
-                            cardDetailsDeckbuildingSection(
-                                onShowBaseInvestigatorCards = {
-                                    if (!isBase) {
-                                        cardDetailsWithRelations?.card?.details?.cardDetails?.run {
-                                            onShowInvestigatorCardpool(
-                                                InvestigatorAccessConfig(
-                                                    alternateOfCode ?: duplicateOfCode ?: code,
-                                                    name,
-                                                    faction,
-                                                    realTraits?.split(".")
-                                                        ?.map { trait -> trait.trim().lowercase() }.orEmpty().toSet(),
-                                                ),
-                                                deckOptions.orEmpty(),
-                                                deckRequirements?.card.orEmpty().flatten(),
-                                                sideDeckOptions.orEmpty(),
-                                                sideDeckRequirements?.card.orEmpty().flatten(),
-                                            )
-                                        }
-                                    } else {
-                                        cardDetailsWithRelations?.cardRelations?.base?.details?.cardDetails?.run {
-                                            onShowInvestigatorCardpool(
-                                                InvestigatorAccessConfig(
-                                                    alternateOfCode ?: duplicateOfCode ?: code,
-                                                    name,
-                                                    faction,
-                                                    realTraits?.split(".")
-                                                        ?.map { trait -> trait.trim().lowercase() }.orEmpty().toSet(),
-                                                ),
-                                                deckOptions.orEmpty(),
-                                                deckRequirements?.card.orEmpty().flatten(),
-                                                sideDeckOptions.orEmpty(),
-                                                sideDeckRequirements?.card.orEmpty().flatten(),
-                                            )
-                                        }
+                    if (isInvestigator || isAvailableForDecks) {
+                        cardDetailsDeckbuildingSection(
+                            onShowBaseInvestigatorCards = {
+                                if (!isBase) {
+                                    cardDetailsWithRelations?.card?.details?.cardDetails?.run {
+                                        onShowInvestigatorCardpool(
+                                            InvestigatorAccessConfig(
+                                                alternateOfCode ?: duplicateOfCode ?: code,
+                                                name,
+                                                faction,
+                                                realTraits,
+                                            ),
+                                            deckOptions.orEmpty(),
+                                            deckRequirements?.card.orEmpty().flatten(),
+                                            sideDeckOptions.orEmpty(),
+                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                        )
                                     }
-                                },
-                                onShowParallelInvestigatorCards = if (isParallel || isBase) { {
-                                    if (isBase) {
-                                        cardDetailsWithRelations?.card?.details?.cardDetails?.run {
-                                            onShowInvestigatorCardpool(
-                                                InvestigatorAccessConfig(
-                                                    alternateOfCode ?: duplicateOfCode ?: code,
-                                                    name,
-                                                    faction,
-                                                    realTraits?.split(".")
-                                                        ?.map { trait -> trait.trim().lowercase() }.orEmpty().toSet(),
-                                                ),
-                                                deckOptions.orEmpty(),
-                                                deckRequirements?.card.orEmpty().flatten(),
-                                                sideDeckOptions.orEmpty(),
-                                                sideDeckRequirements?.card.orEmpty().flatten(),
-                                            )
-                                        }
-                                    } else {
-                                        cardDetailsWithRelations?.cardRelations?.parallel?.details?.cardDetails?.run {
-                                            onShowInvestigatorCardpool(
-                                                InvestigatorAccessConfig(
-                                                    alternateOfCode ?: duplicateOfCode ?: code,
-                                                    name,
-                                                    faction,
-                                                    realTraits?.split(".")
-                                                        ?.map { trait -> trait.trim().lowercase() }.orEmpty().toSet(),
-                                                ),
-                                                deckOptions.orEmpty(),
-                                                deckRequirements?.card.orEmpty().flatten(),
-                                                sideDeckOptions.orEmpty(),
-                                                sideDeckRequirements?.card.orEmpty().flatten(),
-                                            )
-                                        }
+                                } else {
+                                    cardDetailsWithRelations?.cardRelations?.base?.details?.cardDetails?.run {
+                                        onShowInvestigatorCardpool(
+                                            InvestigatorAccessConfig(
+                                                alternateOfCode ?: duplicateOfCode ?: code,
+                                                name,
+                                                faction,
+                                                realTraits,
+                                            ),
+                                            deckOptions.orEmpty(),
+                                            deckRequirements?.card.orEmpty().flatten(),
+                                            sideDeckOptions.orEmpty(),
+                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                        )
                                     }
-                                } } else null,
-                                isBase = !isBase
-                            ) {
-                                /*TODO:Create new deck*/
-                            }
+                                }
+                            },
+                            onShowParallelInvestigatorCards = if (isParallel || isBase) { {
+                                if (isBase) {
+                                    cardDetailsWithRelations?.card?.details?.cardDetails?.run {
+                                        onShowInvestigatorCardpool(
+                                            InvestigatorAccessConfig(
+                                                alternateOfCode ?: duplicateOfCode ?: code,
+                                                name,
+                                                faction,
+                                                realTraits,
+                                            ),
+                                            deckOptions.orEmpty(),
+                                            deckRequirements?.card.orEmpty().flatten(),
+                                            sideDeckOptions.orEmpty(),
+                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                        )
+                                    }
+                                } else {
+                                    cardDetailsWithRelations?.cardRelations?.parallel?.details?.cardDetails?.run {
+                                        onShowInvestigatorCardpool(
+                                            InvestigatorAccessConfig(
+                                                alternateOfCode ?: duplicateOfCode ?: code,
+                                                name,
+                                                faction,
+                                                realTraits,
+                                            ),
+                                            deckOptions.orEmpty(),
+                                            deckRequirements?.card.orEmpty().flatten(),
+                                            sideDeckOptions.orEmpty(),
+                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                        )
+                                    }
+                                }
+                            } } else null,
+                            onShowWhoCanTakeCard = if (!isInvestigator) { {
+                                onShowWhoCanTakeCard(cardDetailsWithRelations?.card?.details?.cardDetails)
+                            } } else null,
+                            isBase = !isBase
+                        ) {
+                            /*TODO:Create new deck*/
                         }
                     }
 

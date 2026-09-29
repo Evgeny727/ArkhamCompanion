@@ -8,13 +8,13 @@ import kotlinx.collections.immutable.ImmutableList
 
 data class CardDetails(
     val id: String,
-    val code: String,
+    override val code: String,
 
     //translated fields
     val backName: String?,
     val backSubname: String?,
     val backTraits: String?,
-    val name: String,
+    override val name: String,
     val slot: String?,
     val subname: String?,
     val traits: String?,
@@ -27,7 +27,7 @@ data class CardDetails(
     val doom: Int?,
     val doomPerInvestigator: Boolean,
     val doubleSided: Boolean,
-    val duplicateOfCode: String?,
+    override val duplicateOfCode: String?,
     val deckLimit: Int?,
     val encounterCode: String?,
     val encounterPosition: Int?,
@@ -38,9 +38,9 @@ data class CardDetails(
     val enemyFightPerInvestigator: Boolean,
     val enemyEvade: Int?,
     val enemyEvadePerInvestigator: Boolean,
-    val faction: Faction,
-    val faction2: Faction?,
-    val faction3: Faction?,
+    override val faction: Faction,
+    override val faction2: Faction?,
+    override val faction3: Faction?,
     val health: Int?,
     val healthPerInvestigator: Boolean,
     val illustrator: String?,
@@ -51,11 +51,11 @@ data class CardDetails(
     val packName: String,
     val packPosition: Int,
     val parallel: Boolean,
-    val permanent: Boolean,
+    override val permanent: Boolean,
     val reprintPackCode: String?,
     val reprintPackName: String?,
     val realSlot: String?,
-    val realTraits: String?,
+    override val realTraits: Set<String>,
     val sanity: Int?,
     val shroud: Int?,
     val shroudPerInvestigator: Boolean,
@@ -65,13 +65,13 @@ data class CardDetails(
     val skillAgility: Int?,
     val skillWild: Int?,
     val stage: Int?,
-    val subType: CardSubType?,
+    override val subType: CardSubType?,
     val subTypeName: String?,
-    val xp: Int?,
+    override val xp: Int?,
     val vengeance: Int?,
     val victory: Int?,
     val quantity: Int,
-    val type: CardType,
+    override val type: CardType,
     val typeName: String,
 
     //image fields
@@ -97,15 +97,18 @@ data class CardDetails(
     //Linked Back info
     val backInfo: CardBackInfo?,
 
-    //Deckbuilding fields
-    val alternateOfCode: String?,
-    val customizationOptions: List<CustomizationOption>?,
-    val deckOptions: ImmutableList<DeckOption>?,
-    val deckRequirements: DeckRequirements?,
-    val sideDeckOptions: ImmutableList<DeckOption>?,
-    val sideDeckRequirements: DeckRequirements?,
-    val restrictions: Restrictions?,
-)
+    //Investigator access fields
+    override val alternateOfCode: String?,
+    override val customizationOptions: List<CustomizationOption>?,
+    override val deckOptions: ImmutableList<DeckOption>?,
+    override val deckRequirements: DeckRequirements?,
+    override val sideDeckOptions: ImmutableList<DeckOption>?,
+    override val sideDeckRequirements: DeckRequirements?,
+    override val restrictions: Restrictions?,
+    override val realText: String?,
+    override val realBackText: String?,
+    override val realCustomizationText: String?,
+) : CardInvestigatorAccessFields
 
 data class CardPackInfo(
     val code: String,

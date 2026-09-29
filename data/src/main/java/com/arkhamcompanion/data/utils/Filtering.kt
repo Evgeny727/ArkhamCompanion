@@ -1,13 +1,11 @@
 package com.arkhamcompanion.data.utils
 
-import android.util.Log
-import com.arkhamcompanion.data.local.cards.CardSearchQLFields
 import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
-import com.arkhamcompanion.data.mapper.domain.cards.toCustomizationOptions
-import com.arkhamcompanion.data.mapper.domain.cards.toRestrictions
+import com.arkhamcompanion.data.mapper.db.toAccessFields
 import com.arkhamcompanion.data.objects.CardCache
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
+import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
 import com.arkhamcompanion.domain.model.cards.CardpoolFilter
 import com.arkhamcompanion.domain.model.cards.CardpoolTarget
 import com.arkhamcompanion.domain.model.cards.DeckOption
@@ -20,13 +18,58 @@ import com.arkhamcompanion.domain.utils.not
 import com.arkhamcompanion.domain.utils.notUnless
 import com.arkhamcompanion.domain.utils.or
 
-internal fun List<CardSearchResultEntity>.filterByCardpool(
+internal fun List<CardSearchResultEntity>.filterInvestigatorsByCards(
+    cards: Set<CardInvestigatorAccessFields>,
+    logMessage: (String) -> Unit
+): List<CardSearchResultEntity> {
+    return this.filter {
+        val investigator = it.front.toAccessFields()
+
+        val cardpoolFilter = CardpoolFilter(
+            deckOptions = investigator.deckOptions.orEmpty(),
+            requiredCardCodes = investigator.deckRequirements?.card?.flatten().orEmpty().toSet(),
+            sideDeckOptions = investigator.sideDeckOptions.orEmpty(),
+            sideDeckRequiredCardCodes = investigator.sideDeckRequirements?.card?.flatten().orEmpty().toSet(),
+            investigatorConfig = InvestigatorAccessConfig(
+                investigatorId = investigator.alternateOfCode
+                    ?: investigator.duplicateOfCode
+                    ?: investigator.code,
+                investigatorName = investigator.name,
+                investigatorFaction = investigator.faction,
+                investigatorTraits = investigator.realTraits,
+            ),
+            target = CardpoolTarget.Both,
+        )
+
+        cards.canInvestigatorTakeAll(cardpoolFilter, logMessage)
+    }
+}
+
+private fun Collection<CardInvestigatorAccessFields>.canInvestigatorTakeAll(
+    cardpoolFilter: CardpoolFilter,
+    logMessage: (String) -> Unit
+): Boolean {
+    val filter = investigatorCardFilter(cardpoolFilter, logMessage)
+
+    return all(filter)
+}
+
+internal fun List<CardSearchResultEntity>.filterByInvestigatorAccess(
     cardpoolFilter: CardpoolFilter,
     logMessage: (String) -> Unit
 ): List<CardSearchResultEntity> {
+    val filter = investigatorCardFilter(cardpoolFilter, logMessage)
+
+    return filter { filter(it.front.toAccessFields()) }
+}
+
+private fun investigatorCardFilter(
+    cardpoolFilter: CardpoolFilter,
+    logMessage: (String) -> Unit,
+): Filter<CardInvestigatorAccessFields> {
     val playerCardsFilter = playerCardsFilter(cardpoolFilter, logMessage)
 
-    val requiredCardsFilter: Filter<CardSearchQLFields> = or(
+    val requiredCardsFilter: Filter<CardInvestigatorAccessFields> = or(
         if (cardpoolFilter.target != CardpoolTarget.ExtraSlots) {
             { card -> card.code in cardpoolFilter.requiredCardCodes }
         } else {
@@ -37,25 +80,26 @@ internal fun List<CardSearchResultEntity>.filterByCardpool(
         } else {
             { false }
         },
-        { card -> cardpoolFilter.investigatorConfig.investigatorId in CardCache.restrictedTo[card.code].orEmpty() }
+        { card ->
+            cardpoolFilter.investigatorConfig.investigatorId in
+                    CardCache.restrictedTo[card.code].orEmpty()
+        },
     )
 
-    return this.filter {
-        or(requiredCardsFilter, playerCardsFilter)(it.front)
-    }
+    return or(requiredCardsFilter, playerCardsFilter)
 }
 
 private fun playerCardsFilter(
     cardpoolFilter: CardpoolFilter,
     logMessage: (String) -> Unit
-): Filter<CardSearchQLFields> {
+): Filter<CardInvestigatorAccessFields> {
     val ands = mutableListOf(
         filterRestrictions(cardpoolFilter.investigatorConfig)
     )
-    val ors = mutableListOf<Filter<CardSearchQLFields>>()
+    val ors = mutableListOf<Filter<CardInvestigatorAccessFields>>()
 
     if (cardpoolFilter.target != CardpoolTarget.ExtraSlots) {
-        ors.add { card -> card.subTypeCode != null
+        ors.add { card -> card.subType != null
                 && CardCache.bonded[card.code].orEmpty().isEmpty() }
     }
 
@@ -130,11 +174,10 @@ private fun playerCardsFilter(
 
 private fun filterRestrictions(
     config: InvestigatorAccessConfig
-) : Filter<CardSearchQLFields> = {
-    val restrictions = it.restrictions?.toRestrictions()
-    val faction = restrictions?.faction.orEmpty()
-    val investigator = restrictions?.investigator.orEmpty()
-    val trait = restrictions?.trait.orEmpty()
+) : Filter<CardInvestigatorAccessFields> = {
+    val faction = it.restrictions?.faction.orEmpty()
+    val investigator = it.restrictions?.investigator.orEmpty()
+    val trait = it.restrictions?.trait.orEmpty()
 
     when {
         investigator.isNotEmpty() -> config.investigatorId in investigator
@@ -154,8 +197,7 @@ private fun optionFilter(
     option: DeckOption,
     config: InvestigatorAccessConfig,
     logMessage: (String) -> Unit
-): Filter<CardSearchQLFields>? {
-    Log.e("test", option.toString())
+): Filter<CardInvestigatorAccessFields>? {
     // Unknown rules or duplicate rules.
     if (
         option.deckSizeSelect.isNotEmpty() || option.tag.contains("st") || option.tag.contains("uc")
@@ -163,7 +205,7 @@ private fun optionFilter(
         return null
     }
 
-    val optionFilters = mutableListOf<Filter<CardSearchQLFields>>()
+    val optionFilters = mutableListOf<Filter<CardInvestigatorAccessFields>>()
     var filterCount = 0
 
     if (option.factionSelect.isNotEmpty()) {
@@ -185,7 +227,7 @@ private fun optionFilter(
 
     // parallel Wendy + Marion
     if (option.optionSelect.isNotEmpty()) {
-        val selectFilters = mutableListOf<Filter<CardSearchQLFields>>()
+        val selectFilters = mutableListOf<Filter<CardInvestigatorAccessFields>>()
 
         val selection = config.selections
             ?.get(option.id ?: "option_selected") as? Selection.OptionSelection
@@ -234,11 +276,11 @@ private fun optionFilter(
 
 private data class ParsedOption(
     val filterCount: Int,
-    val optionFilters: List<Filter<CardSearchQLFields>>,
+    val optionFilters: List<Filter<CardInvestigatorAccessFields>>,
 )
 
 private fun parseOption(option: DeckOption): ParsedOption {
-    val optionFilters = mutableListOf<Filter<CardSearchQLFields>>()
+    val optionFilters = mutableListOf<Filter<CardInvestigatorAccessFields>>()
     var filterCount = 0
 
     if (option.limit != null || option.not) {
@@ -315,64 +357,61 @@ private fun parseOption(option: DeckOption): ParsedOption {
     )
 }
 
-private fun filterFactions(factions: List<Faction>): Filter<CardSearchQLFields> =
+private fun filterFactions(factions: List<Faction>): Filter<CardInvestigatorAccessFields> =
     or(*factions.map { faction ->
-        filterFaction(faction.name.lowercase())
+        filterFaction(faction)
     }.toTypedArray())
 
-private fun filterFaction(faction: String): Filter<CardSearchQLFields> = { card ->
-    card.factionCode == faction || card.faction2Code == faction || card.faction3Code == faction
+private fun filterFaction(faction: Faction): Filter<CardInvestigatorAccessFields> = { card ->
+    card.faction == faction || card.faction2 == faction || card.faction3 == faction
 }
 
-private fun filterUses(uses: String): Filter<CardSearchQLFields> = { card ->
+private fun filterUses(uses: String): Filter<CardInvestigatorAccessFields> = { card ->
     val codes = CardCache.uses[uses].orEmpty()
 
     card.code in codes
 }
 
-private fun filterSlots(slot: String): Filter<CardSearchQLFields> = { card ->
+private fun filterSlots(slot: String): Filter<CardInvestigatorAccessFields> = { card ->
     val codes = CardCache.slots[slot].orEmpty()
 
     card.code in codes
 }
 
-private fun filterCardLevel(levelRange: IntRange): Filter<CardSearchQLFields> = { card ->
+private fun filterCardLevel(levelRange: IntRange): Filter<CardInvestigatorAccessFields> = { card ->
     val level = if (card.realCustomizationText != null) 0 else card.xp
 
     level in levelRange
 }
 
-private fun filterPermanent(): Filter<CardSearchQLFields> = { card -> card.permanent }
+private fun filterPermanent(): Filter<CardInvestigatorAccessFields> = { card -> card.permanent }
 
-private fun filterTag(tag: String): Filter<CardSearchQLFields> = { card ->
-    val customizationOptions = card.customizationOptions?.toCustomizationOptions()
+private fun filterTag(tag: String): Filter<CardInvestigatorAccessFields> = { card ->
     val codes = CardCache.tags[tag].orEmpty()
 
-    card.code in codes || customizationOptions?.any { tag in it.tags } == true
+    card.code in codes || card.customizationOptions?.any { tag in it.tags } == true
 }
 
-private fun filterText(regex: Regex): Filter<CardSearchQLFields> = { card ->
+private fun filterText(regex: Regex): Filter<CardInvestigatorAccessFields> = { card ->
     card.realText?.matches(regex)  == true || card.realBackText?.matches(regex) == true
             || card.realCustomizationText?.matches(regex) == true
 }
 
-private fun filterTraits(traits: List<String>): Filter<CardSearchQLFields> =
+private fun filterTraits(traits: List<String>): Filter<CardInvestigatorAccessFields> =
     or(*traits.map { trait ->
         filterTrait(trait)
     }.toTypedArray())
 
-private fun filterTrait(trait: String): Filter<CardSearchQLFields> = { card ->
-    val traits = card.realTraits?.split(".")?.map { it.trim().lowercase() }.orEmpty().toSet()
-    val backTraits = card.realBackTraits?.split(".")?.map { it.trim().lowercase() }.orEmpty().toSet()
-    val customizationTraits = card.customizationOptions?.toCustomizationOptions()
-        ?.mapNotNull { option -> option.realTraits?.split(".")?.map { it.trim().lowercase() } }
+private fun filterTrait(trait: String): Filter<CardInvestigatorAccessFields> = { card ->
+    val customizationTraits = card.customizationOptions?.mapNotNull {
+        option -> option.realTraits?.split(".")?.map { it.trim().lowercase() }
+    }
         ?.flatten()
         ?.toSet()
         .orEmpty()
 
-    trait in traits || trait in backTraits || trait in customizationTraits
+    trait in card.realTraits || trait in customizationTraits
 }
 
-private fun filterType(types: List<CardType>): Filter<CardSearchQLFields> = { card ->
-    CardType.byType(card.typeCode) in types
-}
+private fun filterType(types: List<CardType>): Filter<CardInvestigatorAccessFields> =
+    { card -> card.type in types }

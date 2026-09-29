@@ -3,17 +3,18 @@ package com.arkhamcompanion.domain.model.cards
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
+import kotlinx.collections.immutable.ImmutableList
 
 data class CardListItem(
     val id: String,
-    val code: String,
+    override val code: String,
     val thumbnailUrl: String?,
 
     //Cost
     val realCost: String?,
     val cost:  Int?,
-    val xp: Int?,
-    val permanent: Boolean,
+    override val xp: Int?,
+    override val permanent: Boolean,
 
     //Taboo
     val tabooXp: Int?,
@@ -21,16 +22,16 @@ data class CardListItem(
     val tabooPlaceholder: Boolean,
 
     //Type
-    val type: CardType,
+    override val type: CardType,
     val typeName: String,
     val typeNumber: Int,
-    val subType: CardSubType?,
+    override val subType: CardSubType?,
     val subTypeName: String?,
 
     //Faction
-    val faction: Faction,
-    val faction2: Faction?,
-    val faction3: Faction?,
+    override val faction: Faction,
+    override val faction2: Faction?,
+    override val faction3: Faction?,
     val factionNumber: Int,
 
     //Slot
@@ -49,7 +50,7 @@ data class CardListItem(
     val reprintPackCode: String?,
 
     //Name
-    val name: String,
+    override val name: String,
     val subname: String?,
 
     //Skill
@@ -62,4 +63,18 @@ data class CardListItem(
     val parallel: Boolean,
     val isUnique: Boolean,
     val stage: Int?,
-)
+
+    //Fields for investigator access
+    override val alternateOfCode: String?,
+    override val duplicateOfCode: String?,
+    override val realTraits: Set<String>,
+    override val customizationOptions: List<CustomizationOption>?,
+    override val deckOptions: ImmutableList<DeckOption>?,
+    override val deckRequirements: DeckRequirements?,
+    override val sideDeckOptions: ImmutableList<DeckOption>?,
+    override val sideDeckRequirements: DeckRequirements?,
+    override val restrictions: Restrictions?,
+    override val realText: String?,
+    override val realBackText: String?,
+    override val realCustomizationText: String?,
+) : CardInvestigatorAccessFields

@@ -70,7 +70,7 @@ internal fun CardDetailsEntity.toDomain(
     reprintPackCode = reprintPackCode,
     reprintPackName = reprintPackName,
     realSlot = realSlot,
-    realTraits = realTraits,
+    realTraits = realTraits?.split(".")?.map { it.trim().lowercase() }.orEmpty().toSet(),
     restrictions = restrictions?.toRestrictions(),
     sanity = sanity,
     sideDeckOptions = sideDeckOptions?.toDeckOptions(),
@@ -113,7 +113,10 @@ internal fun CardDetailsEntity.toDomain(
             tabooPlaceholder = backTabooPlaceholder,
             imageUrl = backImageUrl
         )
-    }
+    },
+    realText = realText,
+    realBackText = realBackText,
+    realCustomizationText = realCustomizationText,
 )
 
 internal fun List<CardDetailsEntity>.toDetailsWithPackInfo(): Map<String, CardDetailsWithPackInfo> {
