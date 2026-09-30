@@ -48,7 +48,13 @@ fun CardDetailsScreen(
     cardDetailsViewModel: CardDetailsViewModel,
     onCurrentCardCodeChanged: (String?) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
-    onShowInvestigatorCardpool: (InvestigatorAccessConfig, List<DeckOption>, List<String>, List<DeckOption>, List<String>) -> Unit,
+    onShowInvestigatorCardpool: (
+        config: InvestigatorAccessConfig,
+        deckOptions: List<DeckOption>,
+        deckRequirements: List<String>,
+        sideDeckOptions: List<DeckOption>,
+        sideDeckRequirements: List<String>
+    ) -> Unit,
     onShowWhoCanTakeCard: (CardInvestigatorAccessFields?) -> Unit,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues

@@ -78,9 +78,11 @@ import com.arkhamcompanion.ui.cards.CardTabooHistoryScreen
 import com.arkhamcompanion.ui.cards.Cards
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersCardsAccessScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersEncountersScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersEnemiesScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersIllustratorsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersInvestigatorAccessScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersLocationsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersPacksScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersScreen
@@ -96,9 +98,11 @@ import com.arkhamcompanion.ui.cards.CardsSortViewModel
 import com.arkhamcompanion.ui.cards.CardsViewModel
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersAssetsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersCardsAccessScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersEncounterSetsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersEnemiesScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersIllustratorsScreen
+import com.arkhamcompanion.ui.cards.filters.CardsFiltersInvestigatorAccessScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersLocationsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersPacksScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersScreen
@@ -558,6 +562,95 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                             ArkhamAppBarAction(
                                 contentColor = CustomTheme.colors.m,
                                 onClick = cardsViewModel::clearSubTypesFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersInvestigatorAccessScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersInvestigatorAccessScreen(
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onInvestigatorSelect = { config, deckOptions, deckRequirements, sideDeckOptions, sideDeckRequirements ->
+                                cardsViewModel.setCardpoolFilter(
+                                    config,
+                                    deckOptions,
+                                    deckRequirements,
+                                    sideDeckOptions,
+                                    sideDeckRequirements
+                                )
+
+                                navController.navigateUp()
+                            },
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.investigators)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearCardpoolFilter,
+                                iconGlyph = AppIcon.FilterClear,
+                            )
+                        }
+                        leftAction = { color ->
+                            ArkhamAppBarAction(
+                                contentColor = color,
+                                onClick = navController::navigateUp,
+                                iconGlyph = AppIcon.ArrowBack,
+                            )
+                        }
+                    }
+                    composable<CardsFiltersCardsAccessScreen> { backStackEntry ->
+                        val parentCardsEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<Cards>()
+                        }
+                        val parentEntry = remember(backStackEntry) {
+                            navController.getBackStackEntry<CardsFiltersScreen>()
+                        }
+                        val cardsViewModel: CardsViewModel = hiltViewModel(parentCardsEntry)
+                        val filters by cardsViewModel.cardFilters.collectAsState()
+                        val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
+                        val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(parentEntry)
+
+                        CardsFiltersCardsAccessScreen(
+                            selectedCards = filters.whoCanTakeCard,
+                            cardsFiltersViewModel = cardsFiltersViewModel,
+                            onCardToggle = cardsViewModel::toggleWhoCanTakeCardFilter,
+                            innerPadding = innerPadding
+                        )
+
+                        title = stringResource(R.string.cards)
+                        subtitle = pluralStringResource(
+                            R.plurals.count_card,
+                            allCardCodes.size,
+                            allCardCodes.size
+                        )
+                        rightActions = {
+                            ArkhamAppBarAction(
+                                contentColor = CustomTheme.colors.m,
+                                onClick = cardsViewModel::clearWhoCanTakeCardFilter,
                                 iconGlyph = AppIcon.FilterClear,
                             )
                         }

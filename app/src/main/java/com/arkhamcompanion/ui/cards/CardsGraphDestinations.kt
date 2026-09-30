@@ -18,6 +18,12 @@ object CardsFiltersTypesScreen
 object CardsFiltersSubTypesScreen
 
 @Serializable
+object CardsFiltersInvestigatorAccessScreen
+
+@Serializable
+object CardsFiltersCardsAccessScreen
+
+@Serializable
 object CardsFiltersActionsScreen
 
 @Serializable

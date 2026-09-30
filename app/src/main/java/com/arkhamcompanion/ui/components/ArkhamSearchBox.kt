@@ -45,14 +45,13 @@ fun ArkhamSearchBox(
     onClearQuery: () -> Unit,
     searchPlaceholder: String,
     modifier: Modifier = Modifier,
-    showBackground: Boolean = true,
     searchOptions: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
     var showOptions by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = if (showBackground) CustomTheme.colors.l20 else Color.Transparent
+        color = CustomTheme.colors.l20
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()

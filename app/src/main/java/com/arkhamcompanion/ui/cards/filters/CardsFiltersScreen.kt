@@ -1,19 +1,11 @@
 package com.arkhamcompanion.ui.cards.filters
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,28 +16,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemContentType
-import androidx.paging.compose.itemKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
-import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
-import com.arkhamcompanion.domain.model.cards.CardListItem
-import com.arkhamcompanion.domain.model.cards.DeckOption
-import com.arkhamcompanion.domain.model.cards.InvestigatorAccessConfig
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersCardsAccessScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersEncountersScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersEnemiesScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersIllustratorsScreen
+import com.arkhamcompanion.ui.cards.CardsFiltersInvestigatorAccessScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersLocationsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersPacksScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersSubTypesScreen
@@ -54,8 +39,6 @@ import com.arkhamcompanion.ui.cards.CardsFiltersTypesScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
 import com.arkhamcompanion.ui.cards.CardsViewModel
 import com.arkhamcompanion.ui.cards.FilterSection
-import com.arkhamcompanion.ui.cards.components.CardListItem
-import com.arkhamcompanion.ui.cards.components.PlaceholderCardListItem
 import com.arkhamcompanion.ui.cards.components.factionIcon
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamFiltersCheckboxOption
 import com.arkhamcompanion.ui.cards.components.filters.ArkhamRangeSlider
@@ -65,11 +48,8 @@ import com.arkhamcompanion.ui.cards.components.filters.CollapsableFiltersSection
 import com.arkhamcompanion.ui.cards.components.filters.FilersSkillIconsSection
 import com.arkhamcompanion.ui.cards.components.filters.FiltersPropertiesSectionContent
 import com.arkhamcompanion.ui.cards.components.filters.NavigationFilterButton
-import com.arkhamcompanion.ui.components.ArkhamCheckCircle
 import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
-import com.arkhamcompanion.ui.components.ArkhamDialog
 import com.arkhamcompanion.ui.components.ArkhamIconText
-import com.arkhamcompanion.ui.components.ArkhamSearchBox
 import com.arkhamcompanion.ui.components.ArkhamTabooDialog
 import com.arkhamcompanion.ui.components.factionColor
 import com.arkhamcompanion.ui.theme.CustomTheme
@@ -80,7 +60,6 @@ import com.arkhamcompanion.ui.utils.getLocalizedSkill
 import com.arkhamcompanion.ui.utils.getLocalizedSlot
 import com.arkhamcompanion.ui.utils.getLocalizedTrait
 import com.arkhamcompanion.ui.utils.getLocalizedUse
-import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableMap
@@ -110,8 +89,6 @@ fun CardsFiltersScreen(
     val packsMap by cardsFiltersViewModel.packsMap.collectAsState()
     val taboos by cardsFiltersViewModel.taboos.collectAsState()
     var showTabooDialog by remember { mutableStateOf(false) }
-    var showInvestigatorsDialog by remember { mutableStateOf(false) }
-    var showCardsDialog by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = modifier
@@ -293,14 +270,11 @@ fun CardsFiltersScreen(
         item("choose_investigator_filter", "navigation") {
             NavigationFilterButton(
                 label = stringResource(R.string.investigator) + CustomTheme.language.colon +
-                        if (filters.cardpoolFilter == null) {
-                            stringResource(R.string.none)
-                        } else {
-                            filters.cardpoolFilter!!.investigatorConfig.investigatorName
-                        },
+                        (filters.cardpoolFilter?.investigatorConfig?.investigatorName
+                            ?: stringResource(R.string.none)),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                showInvestigatorsDialog = true
+                navigateTo(CardsFiltersInvestigatorAccessScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -316,7 +290,7 @@ fun CardsFiltersScreen(
                         },
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                showCardsDialog = true
+                navigateTo(CardsFiltersCardsAccessScreen)
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -772,23 +746,6 @@ fun CardsFiltersScreen(
             onTabooSetChange = cardsViewModel::updateTabooSet
         )
     }
-
-    if (showInvestigatorsDialog) {
-        ArkhamInvestigatorsChooserDialog(
-            onDismiss = { showInvestigatorsDialog = false },
-            cardsFiltersViewModel = cardsFiltersViewModel,
-            onInvestigatorClick = cardsViewModel::setCardpoolFilter
-        )
-    }
-
-    if (showCardsDialog) {
-        ArkhamCardsChooserDialog(
-            onDismiss = { showCardsDialog = false },
-            cardsFiltersViewModel = cardsFiltersViewModel,
-            selectedCards = filters.whoCanTakeCard,
-            onCardChange = cardsViewModel::toggleWhoCanTakeCardFilter
-        )
-    }
 }
 
 internal fun NullableIntRange.format(noValue: String): String =
@@ -817,288 +774,5 @@ private fun selectedFilterLabel(label: String, value: String): String {
         "$label$colon$value"
     } else {
         label
-    }
-}
-
-@Composable
-private fun ArkhamInvestigatorsChooserDialog(
-    onDismiss: () -> Unit,
-    cardsFiltersViewModel: CardsFiltersViewModel,
-    onInvestigatorClick: (InvestigatorAccessConfig, List<DeckOption>, List<String>, List<DeckOption>, List<String>) -> Unit,
-) {
-    val investigators = cardsFiltersViewModel.investigators.collectAsLazyPagingItems()
-    val query by cardsFiltersViewModel.dialogQuery.collectAsState()
-
-    val density = LocalDensity.current
-    val rowHeight = with(density) {
-        maxOf(
-            a = 36.dp,
-            b = (47 * CustomTheme.typography.scaleFactor * fontScale).dp
-        )
-    }
-
-    ArkhamDialog(
-        title = stringResource(R.string.investigators),
-        onDismiss = { cardsFiltersViewModel.clearSearchQuery(); onDismiss() },
-    ) {
-        ArkhamSearchBox(
-            searchQuery = query,
-            onQueryChange = cardsFiltersViewModel::updateSearchQuery,
-            onClearQuery = cardsFiltersViewModel::clearSearchQuery,
-            searchPlaceholder = stringResource(R.string.search_for_a_card),
-            showBackground = false
-        )
-
-        LazyColumn(
-            modifier = Modifier.fillMaxHeight(0.7f),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            if (investigators.itemCount == 0 && investigators.loadState.isIdle) {
-                item("no_results", contentType = "text") {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .animateItem()
-                    ) {
-                        Text(
-                            text = if (query.isBlank()) {
-                                stringResource(R.string.no_matching_cards)
-                            } else {
-                                stringResource(
-                                    id = R.string.no_matching_cards_for_query,
-                                    query
-                                )
-                            },
-                            style = CustomTheme.typography.text,
-                        )
-                    }
-                }
-            }
-
-            // Handle load states: initial load and pagination load errors/loading.
-            investigators.apply {
-                when {
-                    loadState.refresh is LoadState.Loading -> {
-                        item("loading", contentType = "text") {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(32.dp),
-                                    color = CustomTheme.colors.m
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = stringResource(R.string.searching_cards),
-                                    style = CustomTheme.typography.text,
-                                )
-                            }
-                        }
-                    }
-
-                    loadState.append is LoadState.Loading -> {
-                        item("appending", contentType = "text") {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(32.dp),
-                                    color = CustomTheme.colors.m
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            items(
-                count = investigators.itemCount,
-                key = investigators.itemKey { it.id },
-                contentType = investigators.itemContentType { "card" }
-            ) { index ->
-                when (val item = investigators[index]) {
-                    null -> {
-                        PlaceholderCardListItem(rowHeight = rowHeight)
-                    }
-
-                    is CardListItem -> {
-                        CardListItem(
-                            cardListItem = item,
-                            rowHeight = rowHeight,
-                            isFavorite = false,
-                            onClick = {
-                                item.run {
-                                    onInvestigatorClick(
-                                        InvestigatorAccessConfig(
-                                            investigatorId = alternateOfCode ?: duplicateOfCode ?: code,
-                                            investigatorName = name,
-                                            investigatorFaction = faction,
-                                            investigatorTraits = realTraits,
-                                        ),
-                                        deckOptions.orEmpty(),
-                                        deckRequirements?.card.orEmpty().flatten(),
-                                        sideDeckOptions.orEmpty(),
-                                        sideDeckRequirements?.card.orEmpty().flatten(),
-                                    )
-                                }
-
-                                onDismiss()
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ArkhamCardsChooserDialog(
-    onDismiss: () -> Unit,
-    cardsFiltersViewModel: CardsFiltersViewModel,
-    selectedCards: ImmutableSet<CardInvestigatorAccessFields>,
-    onCardChange: (CardInvestigatorAccessFields) -> Unit,
-) {
-    val cards = cardsFiltersViewModel.cards.collectAsLazyPagingItems()
-    val query by cardsFiltersViewModel.dialogQuery.collectAsState()
-
-    val density = LocalDensity.current
-    val rowHeight = with(density) {
-        maxOf(
-            a = 36.dp,
-            b = (47 * CustomTheme.typography.scaleFactor * fontScale).dp
-        )
-    }
-
-    ArkhamDialog(
-        title = stringResource(R.string.cards),
-        onDismiss = { cardsFiltersViewModel.clearSearchQuery(); onDismiss() },
-    ) {
-        ArkhamSearchBox(
-            searchQuery = query,
-            onQueryChange = cardsFiltersViewModel::updateSearchQuery,
-            onClearQuery = cardsFiltersViewModel::clearSearchQuery,
-            searchPlaceholder = stringResource(R.string.search_for_a_card),
-            showBackground = false
-        )
-
-        LazyColumn(
-            modifier = Modifier.fillMaxHeight(0.7f),
-            contentPadding = PaddingValues(vertical = 8.dp),
-        ) {
-            if (cards.itemCount == 0 && cards.loadState.isIdle) {
-                item("no_results", contentType = "text") {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .animateItem()
-                    ) {
-                        Text(
-                            text = if (query.isBlank()) {
-                                stringResource(R.string.no_matching_cards)
-                            } else {
-                                stringResource(
-                                    id = R.string.no_matching_cards_for_query,
-                                    query
-                                )
-                            },
-                            style = CustomTheme.typography.text,
-                        )
-                    }
-                }
-            }
-
-            // Handle load states: initial load and pagination load errors/loading.
-            cards.apply {
-                when {
-                    loadState.refresh is LoadState.Loading -> {
-                        item("loading", contentType = "text") {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(32.dp),
-                                    color = CustomTheme.colors.m
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = stringResource(R.string.searching_cards),
-                                    style = CustomTheme.typography.text,
-                                )
-                            }
-                        }
-                    }
-
-                    loadState.append is LoadState.Loading -> {
-                        item("appending", contentType = "text") {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(32.dp),
-                                    color = CustomTheme.colors.m
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            items(
-                count = cards.itemCount,
-                key = cards.itemKey { it.id },
-                contentType = cards.itemContentType { "card" }
-            ) { index ->
-                when (val item = cards[index]) {
-                    null -> {
-                        PlaceholderCardListItem(rowHeight = rowHeight)
-                    }
-
-                    is CardListItem -> {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            CardListItem(
-                                cardListItem = item,
-                                rowHeight = rowHeight,
-                                isFavorite = false,
-                                onClick = { onCardChange(item) },
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            ArkhamCheckCircle(
-                                value = item in selectedCards,
-                                isRadio = false,
-                                onValueChange = { onCardChange(item) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 }
