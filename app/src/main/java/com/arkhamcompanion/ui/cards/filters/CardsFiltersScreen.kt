@@ -84,7 +84,6 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.collections.immutable.toPersistentList
 
 @Composable
 fun CardsFiltersScreen(
@@ -642,7 +641,6 @@ fun CardsFiltersScreen(
             val defaultText = stringResource(R.string.ownership_collection)
             val colon = LocalLanguage.current.colon
             val isCollapsed = filtersUiState.collapsedSections[FilterSection.Ownership] ?: true
-            val isDefaultValues = filters.ownershipFilter == defaultFilters.ownershipFilter
 
             CollapsableFiltersSection(
                 label = "$label$colon" + when (filters.ownershipFilter) {

@@ -43,15 +43,15 @@ data class CardDetailsWithPackInfo(
     val allPacks: ImmutableList<CardPack> by lazy(LazyThreadSafetyMode.NONE) {
         buildList {
             addAll(packsWithoutReprints)
-            reprintDuplicates.forEach(::addPackInfo)
-            reprints.forEach(::addPackInfo)
+            reprintDuplicates.sortedBy { it.reprintCode ?: it.code }.forEach(::addPackInfo)
+            reprints.sortedBy { it.reprintCode ?: it.code }.forEach(::addPackInfo)
         }.toImmutableList()
     }
 
     private val packsWithoutReprints: ImmutableList<CardPack> by lazy(LazyThreadSafetyMode.NONE) {
         buildList {
             addCard(cardDetails)
-            duplicates.forEach(::addPackInfo)
+            duplicates.sortedBy { it.reprintCode ?: it.code }.forEach(::addPackInfo)
         }.toImmutableList()
     }
 

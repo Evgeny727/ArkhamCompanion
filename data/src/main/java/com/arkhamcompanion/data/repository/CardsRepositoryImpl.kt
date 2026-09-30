@@ -1227,16 +1227,26 @@ class CardsRepositoryImpl @Inject constructor(
             *  Non-indexed filters
             */
 
-            cardpoolFilter?.run {
+            cardpoolFilter?.let {
+                val investigatorId = it.investigatorConfig.investigatorId
+
                 add("""
                     (
-                        EXISTS (
-                            SELECT 1 FROM card c2 
-                            WHERE c2.code = c.code 
-                                AND c2.taboo_set_id IS NULL 
-                                AND c2.deck_limit > 0
-                        ) 
-                        AND c.type_code != 'investigator'
+                        ${if (it.showInvestigator) """
+                            (
+                                c.code = '$investigatorId' 
+                                OR c.duplicate_of_code = '$investigatorId'
+                            ) OR 
+                        """.trimIndent() else ""}
+                        (
+                            EXISTS (
+                                SELECT 1 FROM card c2 
+                                WHERE c2.code = c.code 
+                                    AND c2.taboo_set_id IS NULL 
+                                    AND c2.deck_limit > 0
+                            ) 
+                            AND c.type_code != 'investigator'
+                        )
                     )
                 """.trimIndent())
             }

@@ -46,7 +46,8 @@ data class CardpoolFilter(
     val investigatorConfig: InvestigatorAccessConfig,
     val additionalDeckOptions: List<DeckOption> = emptyList(),
     val showLimitedAccess: Boolean = true,
-    val target: CardpoolTarget
+    val target: CardpoolTarget,
+    val showInvestigator: Boolean = target == CardpoolTarget.Both,
 )
 
 data class InvestigatorAccessConfig(

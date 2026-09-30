@@ -11,6 +11,7 @@ import com.arkhamcompanion.domain.model.cards.CardpoolTarget
 import com.arkhamcompanion.domain.model.cards.DeckOption
 import com.arkhamcompanion.domain.model.cards.InvestigatorAccessConfig
 import com.arkhamcompanion.domain.model.decks.Selection
+import com.arkhamcompanion.domain.model.decks.Selections
 import com.arkhamcompanion.domain.utils.Filter
 import com.arkhamcompanion.domain.utils.GENERIC_CUSTOM_INVESTIGATORS
 import com.arkhamcompanion.domain.utils.and
@@ -60,7 +61,11 @@ internal fun List<CardSearchResultEntity>.filterByInvestigatorAccess(
 ): List<CardSearchResultEntity> {
     val filter = investigatorCardFilter(cardpoolFilter, logMessage)
 
-    return filter { filter(it.front.toAccessFields()) }
+    return filter {
+        val fields = it.front.toAccessFields()
+
+        fields.type == CardType.Investigator || filter(fields)
+    }
 }
 
 private fun investigatorCardFilter(
@@ -106,7 +111,7 @@ private fun playerCardsFilter(
     if (cardpoolFilter.target != CardpoolTarget.ExtraSlots) {
         cardpoolFilter.deckOptions.forEach { deckOption ->
             val filter = if ((deckOption.limit ?: 0) == 0 || cardpoolFilter.showLimitedAccess) {
-                optionFilter(deckOption, cardpoolFilter.investigatorConfig, logMessage)
+                optionFilter(deckOption, cardpoolFilter.investigatorConfig.selections, logMessage)
             } else {
                 { false }
             }
@@ -130,7 +135,7 @@ private fun playerCardsFilter(
 
     if (cardpoolFilter.target != CardpoolTarget.Slots) {
         cardpoolFilter.sideDeckOptions.forEach { deckOption ->
-            val filter = optionFilter(deckOption, cardpoolFilter.investigatorConfig, logMessage)
+            val filter = optionFilter(deckOption, cardpoolFilter.investigatorConfig.selections, logMessage)
                 ?: return@forEach
 
             if (deckOption.not) {
@@ -151,7 +156,7 @@ private fun playerCardsFilter(
     if (cardpoolFilter.target != CardpoolTarget.ExtraSlots) {
         cardpoolFilter.additionalDeckOptions.forEach { deckOption ->
             val filter = if ((deckOption.limit ?: 0) == 0 || cardpoolFilter.showLimitedAccess) {
-                optionFilter(deckOption, cardpoolFilter.investigatorConfig, logMessage)
+                optionFilter(deckOption, cardpoolFilter.investigatorConfig.selections, logMessage)
             } else {
                 { false }
             }
@@ -195,7 +200,7 @@ private fun filterRestrictions(
 
 private fun optionFilter(
     option: DeckOption,
-    config: InvestigatorAccessConfig,
+    selections: Selections?,
     logMessage: (String) -> Unit
 ): Filter<CardInvestigatorAccessFields>? {
     // Unknown rules or duplicate rules.
@@ -213,7 +218,7 @@ private fun optionFilter(
 
         val targetKey = option.id ?: "faction_selected"
 
-        val selection = config.selections
+        val selection = selections
             ?.get(targetKey) as? Selection.FactionSelection
 
         val value = selection?.value
@@ -229,7 +234,7 @@ private fun optionFilter(
     if (option.optionSelect.isNotEmpty()) {
         val selectFilters = mutableListOf<Filter<CardInvestigatorAccessFields>>()
 
-        val selection = config.selections
+        val selection = selections
             ?.get(option.id ?: "option_selected") as? Selection.OptionSelection
 
         val value = selection?.value?.id
