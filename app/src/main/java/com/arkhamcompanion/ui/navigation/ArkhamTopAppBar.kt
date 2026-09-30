@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -128,5 +132,42 @@ fun ArkhamAppBarAction(
                 color = contentColor,
             )
         }
+    }
+}
+
+@Stable
+class TopAppBarState {
+    var title by mutableStateOf("")
+        private set
+
+    var subtitle by mutableStateOf<String?>(null)
+        private set
+
+    var color by mutableStateOf<Color?>(null)
+        private set
+
+    var contentColor by mutableStateOf<Color?>(null)
+        private set
+
+    var rightActions: (@Composable RowScope.(Color) -> Unit)? by mutableStateOf(null)
+        private set
+
+    var leftAction: (@Composable ((Color) -> Unit))? by mutableStateOf(null)
+        private set
+
+    fun update(
+        title: String = this.title,
+        subtitle: String? = this.subtitle,
+        color: Color? = this.color,
+        contentColor: Color? = this.contentColor,
+        rightActions: (@Composable RowScope.(Color) -> Unit)? = this.rightActions,
+        leftAction: (@Composable ((Color) -> Unit))? = this.leftAction,
+    ) {
+        this.title = title
+        this.subtitle = subtitle
+        this.color = color
+        this.contentColor = contentColor
+        this.rightActions = rightActions
+        this.leftAction = leftAction
     }
 }
