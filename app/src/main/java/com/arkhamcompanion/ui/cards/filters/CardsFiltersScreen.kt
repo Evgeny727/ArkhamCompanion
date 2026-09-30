@@ -637,21 +637,18 @@ fun CardsFiltersScreen(
 
         item("ownership_section", "section") {
             val ownershipAllText = stringResource(R.string.ownership_all)
-            val ownershipCollectionText = stringResource(R.string.ownership_collection)
             val ownershipUnavailableText = stringResource(R.string.ownership_unavailable)
             val label = stringResource(R.string.ownership_filter)
-            val defaultText = stringResource(R.string.default_text)
+            val defaultText = stringResource(R.string.ownership_collection)
             val colon = LocalLanguage.current.colon
             val isCollapsed = filtersUiState.collapsedSections[FilterSection.Ownership] ?: true
             val isDefaultValues = filters.ownershipFilter == defaultFilters.ownershipFilter
 
             CollapsableFiltersSection(
-                label = "$label$colon" + if (isDefaultValues) defaultText
-                else when (filters.ownershipFilter) {
+                label = "$label$colon" + when (filters.ownershipFilter) {
                     Ownership.All -> ownershipAllText
-                    Ownership.Collection -> ownershipCollectionText
+                    Ownership.Collection -> defaultText
                     Ownership.Unavailable -> ownershipUnavailableText
-                    else -> ""
                 },
                 isNotCollapsed = !isCollapsed,
                 onCollapseChange = {
@@ -664,7 +661,7 @@ fun CardsFiltersScreen(
                     .animateContentSize()
             ) {
                 ArkhamSingleToggleButtonGroup(
-                    values = Ownership.entries.toPersistentList(),
+                    values = persistentListOf(Ownership.All, Ownership.Unavailable),
                     selectedValue = filters.ownershipFilter,
                     onValueToggle = cardsViewModel::toggleOwnershipFilter,
                     modifier = Modifier.fillMaxWidth()
@@ -672,8 +669,8 @@ fun CardsFiltersScreen(
                     Text(
                         text = when (ownership) {
                             Ownership.All -> ownershipAllText
-                            Ownership.Collection -> ownershipCollectionText
                             Ownership.Unavailable -> ownershipUnavailableText
+                            else -> ""
                         },
                         style = CustomTheme.typography.small
                     )

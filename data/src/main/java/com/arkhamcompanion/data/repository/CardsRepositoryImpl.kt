@@ -824,33 +824,23 @@ class CardsRepositoryImpl @Inject constructor(
                             Ownership.All -> ""
                             
                             Ownership.Collection -> {
-                                """ AND (
+                                if (searchConfig.filters.packs.isNotEmpty() 
+                                    || searchConfig.preferences.ignoreCollection) ""
+                                else """ AND (
                                     c.pack_code IN ($packsQuery) 
                                     OR c.reprint_pack_code IN ($reprintsQuery)
                                 )""".trimIndent()
                             }
                             
                             Ownership.Unavailable -> {
-                                """ AND (
+                                if (searchConfig.preferences.ignoreCollection) " AND NULL "
+                                else """ AND (
                                     c.pack_code NOT IN ($packsQuery) 
                                     AND (
                                         c.reprint_pack_code IS NULL
                                         OR c.reprint_pack_code NOT IN ($reprintsQuery)
                                     )
                                 )""".trimIndent()
-                            }
-                            
-                            else -> {
-                                if (searchConfig.filters.packs.isNotEmpty() 
-                                    || searchConfig.preferences.ignoreCollection) {
-                                        ""
-                                }
-                                else {
-                                    """ AND (
-                                        c.pack_code IN ($packsQuery) 
-                                        OR c.reprint_pack_code IN ($reprintsQuery)
-                                    )""".trimIndent()
-                                }
                             }
                         }
                     }

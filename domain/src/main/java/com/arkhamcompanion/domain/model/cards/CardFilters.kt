@@ -26,7 +26,7 @@ data class CardFilters(
     val enemyFilter: EnemyFilter = EnemyFilter(),
     val locationFilter: LocationFilter = LocationFilter(),
     val encounterSets: ImmutableSet<String> = persistentSetOf(),
-    val ownershipFilter: Ownership? = null,
+    val ownershipFilter: Ownership = Ownership.Collection,
     val officialFilter: Boolean? = null,
     val packs: Collection = Collection(persistentSetOf(), persistentSetOf()),
     val tabooSetId: Int? = null,

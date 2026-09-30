@@ -170,12 +170,7 @@ class CardsViewModel @Inject constructor(
     }
 
     fun clearCardFilters() {
-        updateCardFilters { filters ->
-            defaultFilters.copy(
-                cardpoolFilter = filters.cardpoolFilter,
-                whoCanTakeCard = filters.whoCanTakeCard
-            )
-        }
+        _cardFilters.value = defaultFilters
     }
 
     fun setCardpoolFilter(
@@ -502,7 +497,7 @@ class CardsViewModel @Inject constructor(
     fun toggleOwnershipFilter(value: Ownership) {
         updateCardFilters {
             it.copy(
-                ownershipFilter = if (it.ownershipFilter == value) null else value
+                ownershipFilter = if (it.ownershipFilter == value) defaultFilters.ownershipFilter else value
             )
         }
     }
@@ -510,7 +505,7 @@ class CardsViewModel @Inject constructor(
     fun clearOwnershipFilter() {
         updateCardFilters {
             it.copy(
-                ownershipFilter = null
+                ownershipFilter = defaultFilters.ownershipFilter
             )
         }
     }
