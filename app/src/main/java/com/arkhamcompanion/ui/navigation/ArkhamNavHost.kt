@@ -240,9 +240,33 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                 exitTransition = {
                     if (initialState.destination.parent == targetState.destination.parent) {
                         fadeOut(
-                            animationSpec = tween(400, easing = LinearEasing)
+                            animationSpec = tween(300, easing = LinearEasing)
                         ) + slideOutOfContainer(
-                            animationSpec = tween(400, easing = EaseOut),
+                            animationSpec = tween(300, easing = EaseOut),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        )
+                    } else {
+                        ExitTransition.None
+                    }
+                },
+                popEnterTransition = {
+                    if (initialState.destination.parent == targetState.destination.parent) {
+                        fadeIn(
+                            animationSpec = tween(300, easing = LinearEasing)
+                        ) + slideIntoContainer(
+                            animationSpec = tween(300, easing = EaseIn),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        )
+                    } else {
+                        EnterTransition.None
+                    }
+                },
+                popExitTransition = {
+                    if (initialState.destination.parent == targetState.destination.parent) {
+                        fadeOut(
+                            animationSpec = tween(300, easing = LinearEasing)
+                        ) + slideOutOfContainer(
+                            animationSpec = tween(300, easing = EaseOut),
                             towards = AnimatedContentTransitionScope.SlideDirection.End
                         )
                     } else {
