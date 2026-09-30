@@ -165,7 +165,7 @@ fun CardsFiltersScreen(
         if (filters.whoCanTakeCard.isNotEmpty()) {
             item("cards_filter", "button") {
                 ArkhamCheckboxButton(
-                    title = stringResource(R.string.cards) + CustomTheme.language.colon
+                    title = stringResource(R.string.card_access) + CustomTheme.language.colon
                             + filters.whoCanTakeCard.run { if (this.size == 1) first().name else size },
                     isSelected = true,
                     isRegularText = true,
@@ -309,7 +309,7 @@ fun CardsFiltersScreen(
 
         item("choose_cards_filter", "navigation") {
             NavigationFilterButton(
-                label = stringResource(R.string.cards) + CustomTheme.language.colon +
+                label = stringResource(R.string.card_access) + CustomTheme.language.colon +
                         if (filters.whoCanTakeCard.isEmpty()) {
                             stringResource(R.string.none)
                         } else {

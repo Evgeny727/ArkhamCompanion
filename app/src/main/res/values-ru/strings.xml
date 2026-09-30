@@ -1998,4 +1998,5 @@
     <string name="favorites">Избранное</string>
     <string name="taboos">Табу</string>
     <string name="who_can_take_this_card">Кто может взять карту?</string>
+    <string name="card_access">Доступ к карте</string>
 </resources>
