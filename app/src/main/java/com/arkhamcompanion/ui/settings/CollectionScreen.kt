@@ -1,6 +1,5 @@
 package com.arkhamcompanion.ui.settings
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,7 +28,6 @@ import com.arkhamcompanion.ui.icons.PackIcon
 import com.arkhamcompanion.ui.settings.components.ChapterBuilder
 import com.arkhamcompanion.ui.settings.components.CycleBuilder
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
@@ -43,7 +41,6 @@ fun CollectionScreen(
     allPacks: ImmutableList<Pack>,
     onIgnoreChange: (Boolean) -> Unit,
     onCollectionChange: (Collection) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val groupedPacks = remember(allPacks) {
@@ -80,11 +77,7 @@ fun CollectionScreen(
         mutableStateOf<Set<String>>(emptySet())
     }
 
-    LazyColumn(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    LazyColumn(modifier = modifier.fillMaxSize()) {
         item("text", contentType = "text") {
             Text(
                 text = stringResource(R.string.set_collection_to_limit_cards),

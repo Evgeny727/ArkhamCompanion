@@ -2,7 +2,6 @@ package com.arkhamcompanion.ui.cards.filters
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,14 +22,12 @@ import com.arkhamcompanion.ui.cards.components.filters.ArkhamRangeSlider
 import com.arkhamcompanion.ui.cards.components.filters.CollapsableFiltersSection
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 
 @Composable
 fun CardsFiltersEnemiesScreen(
     enemyFilter: EnemyFilter,
     cardsFiltersViewModel: CardsFiltersViewModel,
     onEnemyFilterChange: (EnemyFilter) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val defaultFilters = remember { EnemyFilter() }
@@ -55,11 +52,7 @@ fun CardsFiltersEnemiesScreen(
     val isHorrorCollapsed = filtersUiState.collapsedSections[FilterSection.Horror] ?: true
     val isHorrorDefault = enemyFilter.horror == defaultFilters.horror
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         CollapsableFiltersSection(
             label = if (isFightDefault) stringResource(R.string.label_all, labelFight)
             else "$labelFight$colon${enemyFilter.fight.format(fightEvadeNullText)}",

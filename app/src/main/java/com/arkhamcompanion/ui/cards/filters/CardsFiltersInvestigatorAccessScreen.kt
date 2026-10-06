@@ -2,7 +2,6 @@ package com.arkhamcompanion.ui.cards.filters
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,7 +33,6 @@ import com.arkhamcompanion.ui.cards.components.CardListItem
 import com.arkhamcompanion.ui.cards.components.PlaceholderCardListItem
 import com.arkhamcompanion.ui.components.ArkhamSearchBox
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 
 @Composable
 fun CardsFiltersInvestigatorAccessScreen(
@@ -46,7 +44,6 @@ fun CardsFiltersInvestigatorAccessScreen(
         sideDeckOptions: List<DeckOption>,
         sideDeckRequirements: List<String>
     ) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val investigators = cardsFiltersViewModel.investigators.collectAsLazyPagingItems()
@@ -60,11 +57,7 @@ fun CardsFiltersInvestigatorAccessScreen(
         )
     }
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         ArkhamSearchBox(
             searchQuery = query,
             onQueryChange = cardsFiltersViewModel::updateSearchQuery,

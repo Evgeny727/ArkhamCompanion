@@ -3,7 +3,6 @@ package com.arkhamcompanion.ui.decks
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,21 +11,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 
 @Composable
-fun DecksScreen(
-    innerPadding: PaddingValues,
-    modifier: Modifier = Modifier,
-) {
+fun DecksScreen(modifier: Modifier = Modifier) {
     val activity = LocalActivity.current
     BackHandler {
         activity?.finish()
     }
 
     Box(
-        modifier = modifier.applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Text(

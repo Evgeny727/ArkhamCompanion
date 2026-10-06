@@ -23,7 +23,6 @@ import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
 import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.ImmutableSet
 
 @Composable
@@ -31,16 +30,11 @@ fun CardsFiltersSubTypesScreen(
     selectedSubTypes: ImmutableSet<CardSubType?>,
     cardsFiltersViewModel: CardsFiltersViewModel,
     onSubTypeChange: (CardSubType?) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val subtypes by cardsFiltersViewModel.subtypes.collectAsState()
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         AnimatedVisibility(subtypes.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),

@@ -1,18 +1,16 @@
 package com.arkhamcompanion.ui.settings
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-object Settings
+object SettingsCollection : NavKey
 
 @Serializable
-object SettingsCollection
+object SettingsAbout : NavKey
 
 @Serializable
-object SettingsAbout
+object SettingsBackup : NavKey
 
 @Serializable
-object SettingsBackup
-
-@Serializable
-object SettingsDiagnostics
+object SettingsDiagnostics : NavKey

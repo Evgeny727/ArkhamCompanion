@@ -28,18 +28,16 @@ import com.arkhamcompanion.ui.components.toLocalizedDate
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.CardTextStyleResolver
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.absoluteValue
 
 @Composable
 fun CardTabooHistoryScreen(
     cardCode: String,
-    cardDetailsViewModel: CardDetailsViewModel,
+    cardTabooHistoryViewModel: CardTabooHistoryViewModel,
     modifier: Modifier = Modifier,
-    innerPadding: PaddingValues
 ) {
-    val tabooHistory by cardDetailsViewModel.getTabooHistory(cardCode)
+    val tabooHistory by cardTabooHistoryViewModel.getTabooHistory(cardCode)
         .collectAsState(initial = persistentListOf())
     val currentTaboo = tabooHistory.firstOrNull()
 
@@ -51,9 +49,7 @@ fun CardTabooHistoryScreen(
     var showHistory by rememberSaveable { mutableStateOf(false) }
 
     LazyColumn(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {

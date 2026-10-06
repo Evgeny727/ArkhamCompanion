@@ -19,7 +19,6 @@ import com.arkhamcompanion.ui.settings.components.SocialsCard
 import com.arkhamcompanion.ui.settings.components.SupportCard
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 
 @Composable
 fun SettingsScreen(
@@ -32,7 +31,6 @@ fun SettingsScreen(
     navigateToBackup: () -> Unit,
     navigateToDiagnostics: () -> Unit,
     emitError: (Throwable) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     val settingsUiState by viewModel.settingsUiState.collectAsState()
@@ -58,8 +56,7 @@ fun SettingsScreen(
     val languageTag = LocalLanguage.current.languageTag
 
     LazyColumn(
-        modifier = modifier.applyScaffoldPaddings(innerPadding)
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .background(CustomTheme.colors.l10),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)

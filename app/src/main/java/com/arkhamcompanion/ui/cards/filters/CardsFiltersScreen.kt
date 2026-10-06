@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
@@ -52,9 +53,13 @@ import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamTabooDialog
 import com.arkhamcompanion.ui.components.factionColor
+import com.arkhamcompanion.ui.navigation.cards.AVAILABLE_CARDS_GRAPH_FILTERS
+import com.arkhamcompanion.ui.navigation.cards.CardsGraphFilter
+import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
+import com.arkhamcompanion.ui.navigation.cards.ELIGIBLE_INVESTIGATORS_GRAPH_FILTERS
+import com.arkhamcompanion.ui.navigation.cards.MAIN_CARDS_GRAPH_FILTERS
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import com.arkhamcompanion.ui.utils.getLocalizedAction
 import com.arkhamcompanion.ui.utils.getLocalizedSkill
 import com.arkhamcompanion.ui.utils.getLocalizedSlot
@@ -68,8 +73,8 @@ import kotlinx.collections.immutable.toImmutableMap
 fun CardsFiltersScreen(
     cardsViewModel: CardsViewModel,
     cardsFiltersViewModel: CardsFiltersViewModel,
-    navigateTo: (Any) -> Unit,
-    innerPadding: PaddingValues,
+    parentConfig: CardsGraphState,
+    navigateTo: (NavKey) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val resources = LocalResources.current
@@ -89,11 +94,14 @@ fun CardsFiltersScreen(
     val packsMap by cardsFiltersViewModel.packsMap.collectAsState()
     val taboos by cardsFiltersViewModel.taboos.collectAsState()
     var showTabooDialog by remember { mutableStateOf(false) }
+    val availableFilters = when (parentConfig) {
+        CardsGraphState.Main -> MAIN_CARDS_GRAPH_FILTERS
+        is CardsGraphState.Investigator -> AVAILABLE_CARDS_GRAPH_FILTERS
+        is CardsGraphState.Card -> ELIGIBLE_INVESTIGATORS_GRAPH_FILTERS
+    }
 
     LazyColumn(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         item("factions_filter", "segmented_button") {
@@ -152,55 +160,91 @@ fun CardsFiltersScreen(
             }
         }
 
-        item("level_section", "section") {
-            val label = stringResource(R.string.level)
-            val colon = LocalLanguage.current.colon
-            val isCollapsed = filtersUiState.collapsedSections[FilterSection.Level] ?: true
-            val range = filters.levelFilter.forcedRange ?: filters.levelFilter.range
-            val isDefaultValues = range == defaultFilters.levelFilter.range
-            val nullText = stringResource(R.string.none)
+        if (CardsGraphFilter.LevelFilter in availableFilters) {
+            item("level_section", "section") {
+                val label = stringResource(R.string.level)
+                val colon = LocalLanguage.current.colon
+                val isCollapsed = filtersUiState.collapsedSections[FilterSection.Level] ?: true
+                val range = filters.levelFilter.forcedRange ?: filters.levelFilter.range
+                val isDefaultValues = range == defaultFilters.levelFilter.range
+                val nullText = stringResource(R.string.none)
 
-            CollapsableFiltersSection(
-                label = if (isDefaultValues) stringResource(R.string.label_all, label)
+                CollapsableFiltersSection(
+                    label = if (isDefaultValues) stringResource(R.string.label_all, label)
                     else label + colon + range.format(nullText),
-                isNotCollapsed = !isCollapsed,
-                onCollapseChange = {
-                    cardsFiltersViewModel.toggleSection(FilterSection.Level)
-                },
-                onSectionClear = cardsViewModel::clearLevelFilter,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .animateContentSize()
-            ) {
-                ArkhamRangeSlider(
-                    range = range,
-                    maxRange = defaultFilters.levelFilter.range,
-                    onUpdateRange = cardsViewModel::updateLevelRange,
-                    nullText = nullText
-                )
+                    isNotCollapsed = !isCollapsed,
+                    onCollapseChange = {
+                        cardsFiltersViewModel.toggleSection(FilterSection.Level)
+                    },
+                    onSectionClear = cardsViewModel::clearLevelFilter,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .animateContentSize()
+                ) {
+                    ArkhamRangeSlider(
+                        range = range,
+                        maxRange = defaultFilters.levelFilter.range,
+                        onUpdateRange = cardsViewModel::updateLevelRange,
+                        nullText = nullText
+                    )
+                }
+
+                if (!isCollapsed) HorizontalDivider(color = CustomTheme.colors.divider)
             }
 
-            if (!isCollapsed) HorizontalDivider(color = CustomTheme.colors.divider)
+            if (filtersUiState.collapsedSections[FilterSection.Level] ?: true) {
+                item("level_short_filter", "segmented_button") {
+                    ArkhamSingleToggleButtonGroup(
+                        values = persistentListOf(
+                            NullableIntRange(0, 0), NullableIntRange(1, 5)
+                        ),
+                        selectedValue = filters.levelFilter.forcedRange,
+                        onValueToggle = cardsViewModel::toggleForcedLevelRange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) { range ->
+                        val text = if (range.min == 0)
+                            stringResource(R.string.level_start, range.min!!)
+                        else stringResource(R.string.level_start_end, range.min!!, range.max!!)
+                        Text(
+                            text = text,
+                            style = CustomTheme.typography.small
+                        )
+                    }
+
+                    HorizontalDivider(color = CustomTheme.colors.divider)
+                }
+            }
         }
 
-        if (filtersUiState.collapsedSections[FilterSection.Level] ?: true) {
-            item("level_short_filter", "segmented_button") {
-                ArkhamSingleToggleButtonGroup(
-                    values = persistentListOf(
-                        NullableIntRange(0, 0), NullableIntRange(1, 5)
+        if (CardsGraphFilter.TypeFilter in availableFilters) {
+            item("type_navigation", "navigation") {
+                val label = stringResource(R.string.types)
+                val selectedTypes = filters.types.mapNotNull { types[it] }
+
+                NavigationFilterButton(
+                    label = selectedFilterLabel(label, selectedTypes),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersTypesScreen(parentConfig))
+                }
+            }
+
+            item("type_short_filter", "segmented_button") {
+                ArkhamToggleButtonGroup(
+                    values = persistentSetOf(
+                        CardType.Asset, CardType.Event, CardType.Skill
                     ),
-                    selectedValue = filters.levelFilter.forcedRange,
-                    onValueToggle = cardsViewModel::toggleForcedLevelRange,
+                    selectedValues = filters.types,
+                    onValueToggle = cardsViewModel::updateTypes,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                ) { range ->
-                    val text = if (range.min == 0)
-                        stringResource(R.string.level_start, range.min!!)
-                    else stringResource(R.string.level_start_end, range.min!!, range.max!!)
+                ) { type, _ ->
                     Text(
-                        text = text,
+                        text = types[type].toString(),
                         style = CustomTheme.typography.small
                     )
                 }
@@ -209,50 +253,20 @@ fun CardsFiltersScreen(
             }
         }
 
-        item("type_navigation", "navigation") {
-            val label = stringResource(R.string.types)
-            val selectedTypes = filters.types.mapNotNull { types[it] }
+        if (CardsGraphFilter.SubTypeFilter in availableFilters) {
+            item("subtype_navigation", "navigation") {
+                val label = stringResource(R.string.subtypes)
+                val selectedSubTypes = filters.subTypes.mapNotNull { subtypes[it] }
 
-            NavigationFilterButton(
-                label = selectedFilterLabel(label, selectedTypes),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersTypesScreen)
+                NavigationFilterButton(
+                    label = selectedFilterLabel(label, selectedSubTypes),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersSubTypesScreen(parentConfig))
+                }
+
+                HorizontalDivider(color = CustomTheme.colors.divider)
             }
-        }
-
-        item("type_short_filter", "segmented_button") {
-            ArkhamToggleButtonGroup(
-                values = persistentSetOf(
-                    CardType.Asset, CardType.Event, CardType.Skill
-                ),
-                selectedValues = filters.types,
-                onValueToggle = cardsViewModel::updateTypes,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) { type, _ ->
-                Text(
-                    text = types[type].toString(),
-                    style = CustomTheme.typography.small
-                )
-            }
-
-            HorizontalDivider(color = CustomTheme.colors.divider)
-        }
-
-        item("subtype_navigation", "navigation") {
-            val label = stringResource(R.string.subtypes)
-            val selectedSubTypes = filters.subTypes.mapNotNull { subtypes[it] }
-
-            NavigationFilterButton(
-                label = selectedFilterLabel(label, selectedSubTypes),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersSubTypesScreen)
-            }
-
-            HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
         item("favorite_button", "button") {
@@ -267,89 +281,97 @@ fun CardsFiltersScreen(
             HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
-        item("choose_investigator_filter", "navigation") {
-            NavigationFilterButton(
-                label = stringResource(R.string.investigator) + CustomTheme.language.colon +
-                        (filters.cardpoolFilter?.investigatorConfig?.investigatorName
-                            ?: stringResource(R.string.none)),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersInvestigatorAccessScreen)
-            }
+        if (CardsGraphFilter.InvestigatorAccessFilter in availableFilters) {
+            item("choose_investigator_filter", "navigation") {
+                NavigationFilterButton(
+                    label = stringResource(R.string.investigator) + CustomTheme.language.colon +
+                            (filters.cardpoolFilter?.investigatorConfig?.investigatorName
+                                ?: stringResource(R.string.none)),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersInvestigatorAccessScreen(parentConfig))
+                }
 
-            HorizontalDivider(color = CustomTheme.colors.divider)
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
         }
 
-        item("choose_cards_filter", "navigation") {
-            NavigationFilterButton(
-                label = stringResource(R.string.card_access) + CustomTheme.language.colon +
-                        if (filters.whoCanTakeCard.isEmpty()) {
-                            stringResource(R.string.none)
-                        } else {
-                            filters.whoCanTakeCard.size
-                        },
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersCardsAccessScreen)
-            }
+        if (CardsGraphFilter.CardsAccessFilter in availableFilters) {
+            item("choose_cards_filter", "navigation") {
+                NavigationFilterButton(
+                    label = stringResource(R.string.card_access) + CustomTheme.language.colon +
+                            if (filters.whoCanTakeCard.isEmpty()) {
+                                stringResource(R.string.none)
+                            } else {
+                                filters.whoCanTakeCard.size
+                            },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersCardsAccessScreen(parentConfig))
+                }
 
-            HorizontalDivider(color = CustomTheme.colors.divider)
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
         }
 
-        item("cost_section", "section") {
-            val label = stringResource(R.string.cost)
-            val colon = LocalLanguage.current.colon
-            val isCollapsed = filtersUiState.collapsedSections[FilterSection.Cost] ?: true
-            val isDefaultValues = filters.costFilter == defaultFilters.costFilter
-            val nullText = stringResource(R.string.none)
+        if (CardsGraphFilter.CostFiler in availableFilters) {
+            item("cost_section", "section") {
+                val label = stringResource(R.string.cost)
+                val colon = LocalLanguage.current.colon
+                val isCollapsed = filtersUiState.collapsedSections[FilterSection.Cost] ?: true
+                val isDefaultValues = filters.costFilter == defaultFilters.costFilter
+                val nullText = stringResource(R.string.none)
 
-            CollapsableFiltersSection(
-                label = if (isDefaultValues) stringResource(R.string.label_all, label)
+                CollapsableFiltersSection(
+                    label = if (isDefaultValues) stringResource(R.string.label_all, label)
                     else "$label$colon${filters.costFilter.range.format(nullText)}",
-                isNotCollapsed = !isCollapsed,
-                onCollapseChange = {
-                    cardsFiltersViewModel.toggleSection(FilterSection.Cost)
-                },
-                onSectionClear = cardsViewModel::clearCostFilter,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .animateContentSize()
-            ) {
-                ArkhamRangeSlider(
-                    range = filters.costFilter.range,
-                    maxRange = defaultFilters.costFilter.range,
-                    onUpdateRange = cardsViewModel::updateCostRange,
-                    nullText = nullText
-                )
+                    isNotCollapsed = !isCollapsed,
+                    onCollapseChange = {
+                        cardsFiltersViewModel.toggleSection(FilterSection.Cost)
+                    },
+                    onSectionClear = cardsViewModel::clearCostFilter,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .animateContentSize()
+                ) {
+                    ArkhamRangeSlider(
+                        range = filters.costFilter.range,
+                        maxRange = defaultFilters.costFilter.range,
+                        onUpdateRange = cardsViewModel::updateCostRange,
+                        nullText = nullText
+                    )
 
-                ArkhamFiltersCheckboxOption(
-                    title = stringResource(R.string.even),
-                    isSelected = filters.costFilter.evenCost,
-                    onValueChange = cardsViewModel::toggleEvenCost
-                )
+                    ArkhamFiltersCheckboxOption(
+                        title = stringResource(R.string.even),
+                        isSelected = filters.costFilter.evenCost,
+                        onValueChange = cardsViewModel::toggleEvenCost
+                    )
 
-                ArkhamFiltersCheckboxOption(
-                    title = stringResource(R.string.odd),
-                    isSelected = filters.costFilter.oddCost,
-                    onValueChange = cardsViewModel::toggleOddCost
-                )
+                    ArkhamFiltersCheckboxOption(
+                        title = stringResource(R.string.odd),
+                        isSelected = filters.costFilter.oddCost,
+                        onValueChange = cardsViewModel::toggleOddCost
+                    )
+                }
+
+                HorizontalDivider(color = CustomTheme.colors.divider)
             }
-
-            HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
-        item("skills_section", "section") {
-            FilersSkillIconsSection(
-                skillsFilter = filters.skillsFilter,
-                defaultFilter = defaultFilters.skillsFilter,
-                isCollapsed = filtersUiState.collapsedSections[FilterSection.Skills] ?: true,
-                onCollapseChange = {
-                    cardsFiltersViewModel.toggleSection(FilterSection.Skills)
-                },
-                onSectionClear = cardsViewModel::clearSkillsFilter,
-                onValueToggle = cardsViewModel::updateSkillsFilter
-            )
+        if (CardsGraphFilter.SkillsFilter in availableFilters) {
+            item("skills_section", "section") {
+                FilersSkillIconsSection(
+                    skillsFilter = filters.skillsFilter,
+                    defaultFilter = defaultFilters.skillsFilter,
+                    isCollapsed = filtersUiState.collapsedSections[FilterSection.Skills] ?: true,
+                    onCollapseChange = {
+                        cardsFiltersViewModel.toggleSection(FilterSection.Skills)
+                    },
+                    onSectionClear = cardsViewModel::clearSkillsFilter,
+                    onValueToggle = cardsViewModel::updateSkillsFilter
+                )
+            }
         }
 
         item("action_navigation", "navigation") {
@@ -362,7 +384,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedActions),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                navigateTo(CardsFiltersActionsScreen)
+                navigateTo(CardsFiltersActionsScreen(parentConfig))
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -378,7 +400,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedTraits),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                navigateTo(CardsFiltersTraitsScreen)
+                navigateTo(CardsFiltersTraitsScreen(parentConfig))
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -456,51 +478,53 @@ fun CardsFiltersScreen(
             HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
-        item("asset_navigation", "navigation") {
-            val slotsText = stringResource(R.string.slots)
-            val usesText = stringResource(R.string.uses)
-            val boostsText = stringResource(R.string.boost)
-            val parts = remember(filters.assetFilter, resources) {
-                buildList {
-                    if (filters.assetFilter.slots.isNotEmpty()) {
-                        add(
-                            "$slotsText (" + filters.assetFilter.slots
-                                .joinToString(", ") {
-                                    resources.getString(getLocalizedSlot(it))
-                                } + ")"
-                        )
-                    }
-                    if (filters.assetFilter.uses.isNotEmpty()) {
-                        add(
-                            "$usesText (" + filters.assetFilter.uses
-                                .take(10)
-                                .joinToString(", ") {
-                                    resources.getString(getLocalizedUse(it))
-                                } + ")"
-                        )
-                    }
-                    if (filters.assetFilter.skillBoosts.isNotEmpty()) {
-                        add(
-                            "$boostsText (" + filters.assetFilter.skillBoosts
-                                .joinToString(", ") {
-                                    resources.getString(getLocalizedSkill(it))
-                                } + ")"
-                        )
-                    }
-                }.joinToString(", ")
-            }
-            val label = stringResource(R.string.assets_parts, parts)
-            val textAll = stringResource(R.string.assets_all)
-            val text = if (parts.isNotEmpty()) label else textAll
+        if (CardsGraphFilter.AssetFilter in availableFilters) {
+            item("asset_navigation", "navigation") {
+                val slotsText = stringResource(R.string.slots)
+                val usesText = stringResource(R.string.uses)
+                val boostsText = stringResource(R.string.boost)
+                val parts = remember(filters.assetFilter, resources) {
+                    buildList {
+                        if (filters.assetFilter.slots.isNotEmpty()) {
+                            add(
+                                "$slotsText (" + filters.assetFilter.slots
+                                    .joinToString(", ") {
+                                        resources.getString(getLocalizedSlot(it))
+                                    } + ")"
+                            )
+                        }
+                        if (filters.assetFilter.uses.isNotEmpty()) {
+                            add(
+                                "$usesText (" + filters.assetFilter.uses
+                                    .take(10)
+                                    .joinToString(", ") {
+                                        resources.getString(getLocalizedUse(it))
+                                    } + ")"
+                            )
+                        }
+                        if (filters.assetFilter.skillBoosts.isNotEmpty()) {
+                            add(
+                                "$boostsText (" + filters.assetFilter.skillBoosts
+                                    .joinToString(", ") {
+                                        resources.getString(getLocalizedSkill(it))
+                                    } + ")"
+                            )
+                        }
+                    }.joinToString(", ")
+                }
+                val label = stringResource(R.string.assets_parts, parts)
+                val textAll = stringResource(R.string.assets_all)
+                val text = if (parts.isNotEmpty()) label else textAll
 
-            NavigationFilterButton(
-                label = text,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersAssetsScreen)
-            }
+                NavigationFilterButton(
+                    label = text,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersAssetsScreen(parentConfig))
+                }
 
-            HorizontalDivider(color = CustomTheme.colors.divider)
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
         }
 
         item("properties_section", "section") {
@@ -528,84 +552,90 @@ fun CardsFiltersScreen(
             HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
-        item("enemy_navigation", "navigation") {
-            val fightText = stringResource(R.string.fight)
-            val evadeText = stringResource(R.string.evade)
-            val damageText = stringResource(R.string.damage)
-            val horrorText = stringResource(R.string.horror)
-            val noValue = stringResource(R.string.none)
-            val fightEvadeNoValue = "—"
-            val parts = remember(filters.enemyFilter) {
-                buildList {
-                    if (filters.enemyFilter.fight != defaultFilters.enemyFilter.fight) {
-                        add("$fightText (${filters.enemyFilter.fight.format(fightEvadeNoValue)})")
-                    }
-                    if (filters.enemyFilter.evade != defaultFilters.enemyFilter.evade) {
-                        add("$evadeText (${filters.enemyFilter.evade.format(fightEvadeNoValue)})")
-                    }
-                    if (filters.enemyFilter.damage != defaultFilters.enemyFilter.damage) {
-                        add("$damageText (${filters.enemyFilter.damage.format(noValue)})")
-                    }
-                    if (filters.enemyFilter.horror != defaultFilters.enemyFilter.horror) {
-                        add("$horrorText (${filters.enemyFilter.horror.format(noValue)})")
-                    }
-                }.joinToString(", ")
-            }
-            val label = stringResource(R.string.enemies_parts, parts)
-            val textAll = stringResource(R.string.enemies_all)
-            val text = if (parts.isNotEmpty()) label else textAll
+        if (CardsGraphFilter.EnemyFilter in availableFilters) {
+            item("enemy_navigation", "navigation") {
+                val fightText = stringResource(R.string.fight)
+                val evadeText = stringResource(R.string.evade)
+                val damageText = stringResource(R.string.damage)
+                val horrorText = stringResource(R.string.horror)
+                val noValue = stringResource(R.string.none)
+                val fightEvadeNoValue = "—"
+                val parts = remember(filters.enemyFilter) {
+                    buildList {
+                        if (filters.enemyFilter.fight != defaultFilters.enemyFilter.fight) {
+                            add("$fightText (${filters.enemyFilter.fight.format(fightEvadeNoValue)})")
+                        }
+                        if (filters.enemyFilter.evade != defaultFilters.enemyFilter.evade) {
+                            add("$evadeText (${filters.enemyFilter.evade.format(fightEvadeNoValue)})")
+                        }
+                        if (filters.enemyFilter.damage != defaultFilters.enemyFilter.damage) {
+                            add("$damageText (${filters.enemyFilter.damage.format(noValue)})")
+                        }
+                        if (filters.enemyFilter.horror != defaultFilters.enemyFilter.horror) {
+                            add("$horrorText (${filters.enemyFilter.horror.format(noValue)})")
+                        }
+                    }.joinToString(", ")
+                }
+                val label = stringResource(R.string.enemies_parts, parts)
+                val textAll = stringResource(R.string.enemies_all)
+                val text = if (parts.isNotEmpty()) label else textAll
 
-            NavigationFilterButton(
-                label = text,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersEnemiesScreen)
-            }
+                NavigationFilterButton(
+                    label = text,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersEnemiesScreen(parentConfig))
+                }
 
-            HorizontalDivider(color = CustomTheme.colors.divider)
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
         }
 
-        item("location_navigation", "navigation") {
-            val shroudText = stringResource(R.string.shroud)
-            val cluesText = stringResource(R.string.clues)
-            val noValue = "—"
-            val parts = remember(filters.locationFilter) {
-                buildList {
-                    if (filters.locationFilter.shroud != defaultFilters.locationFilter.shroud) {
-                        add("$shroudText (${filters.locationFilter.shroud.format(noValue)})")
-                    }
-                    if (filters.locationFilter.clues != defaultFilters.locationFilter.clues) {
-                        add("$cluesText (${filters.locationFilter.clues.format(noValue)})")
-                    }
-                }.joinToString(", ")
-            }
-            val label = stringResource(R.string.locations_parts, parts)
-            val textAll = stringResource(R.string.locations_all)
-            val text = if (parts.isNotEmpty()) label else textAll
+        if (CardsGraphFilter.LocationFilter in availableFilters) {
+            item("location_navigation", "navigation") {
+                val shroudText = stringResource(R.string.shroud)
+                val cluesText = stringResource(R.string.clues)
+                val noValue = "—"
+                val parts = remember(filters.locationFilter) {
+                    buildList {
+                        if (filters.locationFilter.shroud != defaultFilters.locationFilter.shroud) {
+                            add("$shroudText (${filters.locationFilter.shroud.format(noValue)})")
+                        }
+                        if (filters.locationFilter.clues != defaultFilters.locationFilter.clues) {
+                            add("$cluesText (${filters.locationFilter.clues.format(noValue)})")
+                        }
+                    }.joinToString(", ")
+                }
+                val label = stringResource(R.string.locations_parts, parts)
+                val textAll = stringResource(R.string.locations_all)
+                val text = if (parts.isNotEmpty()) label else textAll
 
-            NavigationFilterButton(
-                label = text,
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersLocationsScreen)
-            }
+                NavigationFilterButton(
+                    label = text,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersLocationsScreen(parentConfig))
+                }
 
-            HorizontalDivider(color = CustomTheme.colors.divider)
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
         }
 
-        item("encounter_navigation", "navigation") {
-            val label = stringResource(R.string.encounter_sets)
-            val selectedEncounterSets = filters.encounterSets.take(10)
-                .mapNotNull { encounterSets[it]?.first }
+        if (CardsGraphFilter.EncounterSetFilter in availableFilters) {
+            item("encounter_navigation", "navigation") {
+                val label = stringResource(R.string.encounter_sets)
+                val selectedEncounterSets = filters.encounterSets.take(10)
+                    .mapNotNull { encounterSets[it]?.first }
 
-            NavigationFilterButton(
-                label = selectedFilterLabel(label, selectedEncounterSets),
-                modifier = Modifier.padding(horizontal = 8.dp)
-            ) {
-                navigateTo(CardsFiltersEncountersScreen)
+                NavigationFilterButton(
+                    label = selectedFilterLabel(label, selectedEncounterSets),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    navigateTo(CardsFiltersEncountersScreen(parentConfig))
+                }
+
+                HorizontalDivider(color = CustomTheme.colors.divider)
             }
-
-            HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
         item("ownership_section", "section") {
@@ -701,7 +731,7 @@ fun CardsFiltersScreen(
                 label = text,
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                navigateTo(CardsFiltersPacksScreen)
+                navigateTo(CardsFiltersPacksScreen(parentConfig))
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -731,7 +761,7 @@ fun CardsFiltersScreen(
                 label = selectedFilterLabel(label, selectedIllustrators),
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                navigateTo(CardsFiltersIllustratorsScreen)
+                navigateTo(CardsFiltersIllustratorsScreen(parentConfig))
             }
 
             HorizontalDivider(color = CustomTheme.colors.divider)

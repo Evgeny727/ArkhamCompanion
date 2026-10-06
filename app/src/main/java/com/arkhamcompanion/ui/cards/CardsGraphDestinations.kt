@@ -1,65 +1,102 @@
 package com.arkhamcompanion.ui.cards
 
+import androidx.navigation3.runtime.NavKey
+import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import kotlinx.serialization.Serializable
 
-@Serializable
-object Cards
+interface CardsGraph : NavKey {
+    val parentConfig: CardsGraphState
+}
 
 @Serializable
-object CardsSortScreen
+data class CardsSortScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersScreen
+data class CardsFiltersScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersTypesScreen
+data class CardsFiltersTypesScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersSubTypesScreen
+data class CardsFiltersSubTypesScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersInvestigatorAccessScreen
+data class CardsFiltersInvestigatorAccessScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersCardsAccessScreen
+data class CardsFiltersCardsAccessScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersActionsScreen
+data class CardsFiltersActionsScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersTraitsScreen
+data class CardsFiltersTraitsScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersSlotsScreen
+data class CardsFiltersSlotsScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersUsesScreen
+data class CardsFiltersUsesScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersAssetsScreen
+data class CardsFiltersAssetsScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersEnemiesScreen
+data class CardsFiltersEnemiesScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersLocationsScreen
+data class CardsFiltersLocationsScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersEncountersScreen
+data class CardsFiltersEncountersScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersPacksScreen
+data class CardsFiltersPacksScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
-object CardsFiltersIllustratorsScreen
+data class CardsFiltersIllustratorsScreen(
+    override val parentConfig: CardsGraphState
+) : CardsGraph
 
 @Serializable
 data class CardDetailsScreen(
+    override val parentConfig: CardsGraphState,
     val cardCode: String
-)
+) : CardsGraph
 
 @Serializable
 data class CardTabooHistoryScreen(
+    override val parentConfig: CardsGraphState,
     val cardCode: String,
     val cardName: String
-)
+) : CardsGraph

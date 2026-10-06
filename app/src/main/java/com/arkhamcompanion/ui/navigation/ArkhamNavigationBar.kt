@@ -19,22 +19,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.theme.Alegreya
 import com.arkhamcompanion.ui.theme.CustomTheme
 
-val bottomBarItems = listOf(BottomBarItem.Cards, BottomBarItem.Decks, BottomBarItem.Campaigns, BottomBarItem.Settings)
+val topLevelRoutes = setOf(TopLevelRoute.Cards(), TopLevelRoute.Decks, TopLevelRoute.Campaigns, TopLevelRoute.Settings)
 
 @Composable
-fun ArkhamNavigationBar(
-    navController: NavHostController,
-    currentDestination: NavDestination?
-) {
+fun ArkhamNavigationBar(navigator: Navigator) {
     Column {
         HorizontalDivider(color = CustomTheme.colors.divider)
         Row(
@@ -42,25 +34,14 @@ fun ArkhamNavigationBar(
                 .fillMaxWidth()
                 .padding(horizontal = 4.dp)
         ) {
-            bottomBarItems.forEach { bottomNavItem ->
-                val selected = when (bottomNavItem) {
-                    BottomBarItem.Cards -> currentDestination?.isInHierarchy<BottomBarItem.Cards>() == true
-                    BottomBarItem.Decks -> currentDestination?.isInHierarchy<BottomBarItem.Decks>() == true
-                    BottomBarItem.Campaigns -> currentDestination?.isInHierarchy<BottomBarItem.Campaigns>() == true
-                    BottomBarItem.Settings -> currentDestination?.isInHierarchy<BottomBarItem.Settings>() == true
-                }
+            topLevelRoutes.forEach { bottomNavItem ->
+                val selected = bottomNavItem == navigator.state.topLevelRoute
 
                 ArkhamNavigationBarItem(
                     onClick = { if (selected) {
-                        navController.popBackStack(bottomNavItem.startDestination, false)
+                        navigator.goBackToTopLevelRoute(bottomNavItem)
                     } else {
-                        navController.navigate(bottomNavItem) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navigator.navigate(bottomNavItem)
                     } },
                     icon = { ArkhamIconText(
                         iconGlyph = bottomNavItem.icon,
@@ -79,9 +60,6 @@ fun ArkhamNavigationBar(
         }
     }
 }
-
-private inline fun <reified T : Any> NavDestination?.isInHierarchy(): Boolean =
-    this?.hierarchy?.any { it.hasRoute<T>() } == true
 
 @Composable
 fun RowScope.ArkhamNavigationBarItem(

@@ -1,7 +1,6 @@
 package com.arkhamcompanion.ui.cards.filters
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
@@ -12,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.AssetFilter
 import com.arkhamcompanion.ui.cards.CardsFiltersSlotsScreen
@@ -20,8 +20,8 @@ import com.arkhamcompanion.ui.cards.components.filters.ArkhamToggleButtonGroup
 import com.arkhamcompanion.ui.cards.components.filters.NavigationFilterButton
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.icons.AppIcon
+import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import com.arkhamcompanion.ui.utils.getLocalizedSlot
 import com.arkhamcompanion.ui.utils.getLocalizedUse
 import kotlinx.collections.immutable.persistentSetOf
@@ -30,8 +30,8 @@ import kotlinx.collections.immutable.persistentSetOf
 fun CardsFiltersAssetsScreen(
     assetFilter: AssetFilter,
     onSkillBoostChange: (String) -> Unit,
-    navigateTo: (Any) -> Unit,
-    innerPadding: PaddingValues,
+    parentConfig: CardsGraphState,
+    navigateTo: (NavKey) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val resources = LocalResources.current
@@ -45,16 +45,12 @@ fun CardsFiltersAssetsScreen(
         assetFilter.uses.take(10).map { resources.getString(getLocalizedUse(it)) }
     }
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         NavigationFilterButton(
             label = selectedFilterLabel(labelSlots, selectedSlots),
             modifier = Modifier.padding(horizontal = 8.dp)
         ) {
-            navigateTo(CardsFiltersSlotsScreen)
+            navigateTo(CardsFiltersSlotsScreen(parentConfig))
         }
 
         HorizontalDivider(color = CustomTheme.colors.divider)
@@ -63,7 +59,7 @@ fun CardsFiltersAssetsScreen(
             label = selectedFilterLabel(labelUses, selectedUses),
             modifier = Modifier.padding(horizontal = 8.dp)
         ) {
-            navigateTo(CardsFiltersUsesScreen)
+            navigateTo(CardsFiltersUsesScreen(parentConfig))
         }
 
         HorizontalDivider(color = CustomTheme.colors.divider)

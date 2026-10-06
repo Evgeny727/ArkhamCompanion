@@ -34,7 +34,6 @@ import com.arkhamcompanion.ui.cards.components.PlaceholderCardListItem
 import com.arkhamcompanion.ui.components.ArkhamCheckCircle
 import com.arkhamcompanion.ui.components.ArkhamSearchBox
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.ImmutableSet
 
 @Composable
@@ -42,7 +41,6 @@ fun CardsFiltersCardsAccessScreen(
     cardsFiltersViewModel: CardsFiltersViewModel,
     selectedCards: ImmutableSet<CardInvestigatorAccessFields>,
     onCardToggle: (CardInvestigatorAccessFields) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     val cards = cardsFiltersViewModel.cards.collectAsLazyPagingItems()
@@ -56,11 +54,7 @@ fun CardsFiltersCardsAccessScreen(
         )
     }
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         ArkhamSearchBox(
             searchQuery = query,
             onQueryChange = cardsFiltersViewModel::updateSearchQuery,

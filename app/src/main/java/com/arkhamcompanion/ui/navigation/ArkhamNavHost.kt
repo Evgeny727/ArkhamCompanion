@@ -4,10 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -53,10 +51,8 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.CardsCacheState
 import com.arkhamcompanion.CardsSyncState
@@ -64,6 +60,7 @@ import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.components.ArkhamAlertButton
 import com.arkhamcompanion.ui.components.ArkhamAlertButtonStyle
 import com.arkhamcompanion.ui.components.ArkhamAlertDialog
+import com.arkhamcompanion.ui.navigation.cards.cardsGraph
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
 import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
@@ -73,16 +70,20 @@ val LocalTopAppBarState = compositionLocalOf { TopAppBarState() }
 
 @Composable
 fun ArkhamNavHost(viewModel: AppViewModel) {
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+    val navigationState = rememberNavigationState(
+        startRoute = TopLevelRoute.Cards(),
+        topLevelRoutes = topLevelRoutes,
+    )
+    val navigator = remember { Navigator(navigationState) }
+
     val cardsState by viewModel.cardsSyncState.collectAsState()
     val cardsCacheState by viewModel.cardsCacheState.collectAsState()
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     val activity = LocalActivity.current
     BackHandler {
-        if (!navController.navigateUp()) activity?.finish()
+        if (!navigator.goBack()) activity?.finish()
     }
 
     //TopAppBar values
@@ -106,10 +107,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
             )
         },
         bottomBar = {
-            ArkhamNavigationBar(
-                navController = navController,
-                currentDestination = currentDestination
-            )
+            ArkhamNavigationBar(navigator = navigator)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) { data ->
             Snackbar(
@@ -152,83 +150,112 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
             }
         }
 
+        val entryProvider = entryProvider {
+            settingsGraph(
+                viewModel = viewModel,
+                navigator = navigator,
+            )
+
+            cardsGraph(navigator = navigator)
+
+            decksGraph(navigator = navigator)
+
+            campaignsGraph(navigator = navigator)
+        }
+
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             CompositionLocalProvider(LocalTopAppBarState provides topAppBarState) {
-                NavHost(
-                    navController = navController,
-                    startDestination = BottomBarItem.Cards,
-                    enterTransition = {
-                        if (initialState.destination.parent == targetState.destination.parent) {
-                            fadeIn(
-                                animationSpec = tween(300, easing = LinearEasing)
+                NavDisplay(
+                    entries = navigationState.toEntries(entryProvider),
+                    onBack = navigator::goBack,
+                    transitionSpec = {
+                        ContentTransform(
+                            targetContentEnter = fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
                             ) + slideIntoContainer(
-                                animationSpec = tween(300, easing = EaseIn),
-                                towards = AnimatedContentTransitionScope.SlideDirection.Start
-                            )
-                        } else {
-                            EnterTransition.None
-                        }
-                    },
-                    exitTransition = {
-                        if (initialState.destination.parent == targetState.destination.parent) {
-                            fadeOut(
-                                animationSpec = tween(300, easing = LinearEasing)
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                            ),
+                            initialContentExit = fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
                             ) + slideOutOfContainer(
-                                animationSpec = tween(300, easing = EaseOut),
-                                towards = AnimatedContentTransitionScope.SlideDirection.Start
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
                             )
-                        } else {
-                            ExitTransition.None
-                        }
+                        )
                     },
-                    popEnterTransition = {
-                        if (initialState.destination.parent == targetState.destination.parent) {
-                            fadeIn(
-                                animationSpec = tween(300, easing = LinearEasing)
+                    popTransitionSpec = {
+                        ContentTransform(
+                            targetContentEnter = fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
                             ) + slideIntoContainer(
-                                animationSpec = tween(300, easing = EaseIn),
-                                towards = AnimatedContentTransitionScope.SlideDirection.End
-                            )
-                        } else {
-                            EnterTransition.None
-                        }
-                    },
-                    popExitTransition = {
-                        if (initialState.destination.parent == targetState.destination.parent) {
-                            fadeOut(
-                                animationSpec = tween(300, easing = LinearEasing)
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                            ),
+                            initialContentExit = fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
                             ) + slideOutOfContainer(
-                                animationSpec = tween(300, easing = EaseOut),
-                                towards = AnimatedContentTransitionScope.SlideDirection.End
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
                             )
-                        } else {
-                            ExitTransition.None
-                        }
-                    }
-                ) {
-                    settingsGraph(
-                        viewModel = viewModel,
-                        navController = navController,
-                        innerPadding = innerPadding,
-                    )
-
-                    cardsGraph(
-                        navController = navController,
-                        innerPadding = innerPadding,
-                    )
-
-                    decksGraph(
-                        navController = navController,
-                        innerPadding = innerPadding,
-                    )
-
-                    campaignsGraph(
-                        navController = navController,
-                        innerPadding = innerPadding,
-                    )
-                }
+                        )
+                    },
+                    predictivePopTransitionSpec = {
+                        ContentTransform(
+                            targetContentEnter = fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
+                            ) + slideIntoContainer(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                            ),
+                            initialContentExit = fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
+                            ) + slideOutOfContainer(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                            )
+                        )
+                    },
+                    modifier = Modifier.applyScaffoldPaddings(innerPadding),
+                )
             }
 
             if (cardsState is CardsSyncState.Loading) {
@@ -243,10 +270,6 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
             }
         }
     }
-}
-
-internal fun <T: Any> NavHostController.navigateSingleTop(route: T) = navigate(route) {
-    launchSingleTop = true
 }
 
 @Composable

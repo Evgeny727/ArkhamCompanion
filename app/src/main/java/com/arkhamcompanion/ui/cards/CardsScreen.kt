@@ -5,7 +5,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +37,6 @@ import com.arkhamcompanion.ui.components.CardsSearchOptions
 import com.arkhamcompanion.ui.components.LazyCardListWithStickyHeaders
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import com.arkhamcompanion.ui.utils.localizedMessage
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -47,7 +45,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun CardsScreen(
     viewModel: CardsViewModel,
     onCardClick: (String) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.cardsUiState.collectAsState()
@@ -81,11 +78,7 @@ fun CardsScreen(
             }
     }
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()

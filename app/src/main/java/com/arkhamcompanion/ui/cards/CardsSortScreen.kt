@@ -34,7 +34,6 @@ import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.objects.CardsSortOptions
 import com.arkhamcompanion.ui.objects.SortOption
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -44,7 +43,6 @@ fun CardsSortScreen(
     navigateUp: () -> Unit,
     cardsSortViewModel: CardsSortViewModel,
     onApply: (List<String>) -> Unit,
-    innerPadding: PaddingValues
 ) {
     val playerOrder by cardsSortViewModel.playerSortOptions.collectAsState()
     val mythosOrder by cardsSortViewModel.mythosSortOptions.collectAsState()
@@ -76,11 +74,7 @@ fun CardsSortScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .applyScaffoldPaddings(innerPadding),
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = lazyState,
             modifier = Modifier.weight(1f),

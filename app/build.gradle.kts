@@ -22,7 +22,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        androidResources.localeFilters += setOf("es", "ru", "en", "de", "fr", "pl", "ko", "b+zh+Hant", "b+zh+Hans", "it", "pt", "vi", "uk", "cs",)
+        androidResources.localeFilters += setOf("es", "ru", "en", "de", "fr", "pl", "ko", "b+zh+Hant", "b+zh+Hans", "it", "pt", "vi", "uk", "cs")
     }
 
     buildTypes {
@@ -62,7 +62,6 @@ dependencies {
     implementation(project(":di"))
 
     //Import In-app updates
-    implementation(libs.play.app.update)
     implementation(libs.app.update.ktx)
     implementation(libs.play.services.base)
 
@@ -93,11 +92,16 @@ dependencies {
     implementation(libs.hilt.navigation)
     ksp(libs.hilt.android.compiler)
 
+    //Navigation
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.kotlinx.serialization.core)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.navigation.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -105,7 +109,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.appcompat.resources)
 
     testImplementation(libs.junit)
 

@@ -23,7 +23,6 @@ import com.arkhamcompanion.ui.cards.components.details.toAnnotatedString
 import com.arkhamcompanion.ui.settings.components.supportEmail
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.CardTextStyleResolver
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 
 const val VISUAL_DESIGNER = "Eugene Sarnetsky"
 const val spanishTranslators = "TengounplanAH, Midraed, Alvaro"
@@ -34,10 +33,7 @@ const val simplifiedChineseTranslators = "Chris 崔家宁"
 const val iconAttribution = "\n• 'crate' by Imogen Oh from the Noun Project\n• 'rail' by Angelo Troiano from Noun Project"
 
 @Composable
-fun AboutScreen(
-    innerPadding: PaddingValues,
-    modifier: Modifier = Modifier,
-) {
+fun AboutScreen(modifier: Modifier = Modifier) {
     val aboutText = stringResource(R.string.about_app_text, VISUAL_DESIGNER)
     val annotatedAboutText = buildAnnotatedString {
         val emailIndex = aboutText.indexOf(supportEmail)
@@ -60,8 +56,7 @@ fun AboutScreen(
     val styleResolver = remember(styles) { CardTextStyleResolver(styles) }
 
     LazyColumn(
-        modifier = modifier.applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             top = 8.dp,
             start = 8.dp,

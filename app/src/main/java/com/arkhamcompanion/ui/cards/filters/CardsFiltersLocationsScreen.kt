@@ -2,7 +2,6 @@ package com.arkhamcompanion.ui.cards.filters
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,14 +22,12 @@ import com.arkhamcompanion.ui.cards.components.filters.ArkhamRangeSlider
 import com.arkhamcompanion.ui.cards.components.filters.CollapsableFiltersSection
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 
 @Composable
 fun CardsFiltersLocationsScreen(
     locationFilter: LocationFilter,
     cardsFiltersViewModel: CardsFiltersViewModel,
     onLocationFilterChange: (LocationFilter) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val defaultFilters = remember { LocationFilter() }
@@ -46,11 +43,7 @@ fun CardsFiltersLocationsScreen(
     val isCluesCollapsed = filtersUiState.collapsedSections[FilterSection.Clues] ?: true
     val isCluesDefault = locationFilter.clues == defaultFilters.clues
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         CollapsableFiltersSection(
             label = if (isShroudDefault) stringResource(R.string.label_all, labelShroud)
                 else "$labelShroud$colon${locationFilter.shroud.format(nullText)}",

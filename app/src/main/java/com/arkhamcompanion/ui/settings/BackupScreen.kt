@@ -1,7 +1,6 @@
 package com.arkhamcompanion.ui.settings
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,16 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 
 @Composable
 fun BackUpScreen(
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier.applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
         Text(

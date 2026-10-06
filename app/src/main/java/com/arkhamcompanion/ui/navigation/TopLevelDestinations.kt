@@ -1,42 +1,42 @@
 package com.arkhamcompanion.ui.navigation
 
 import androidx.annotation.StringRes
+import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.icons.AppIcon
+import com.arkhamcompanion.ui.icons.IconGlyph
+import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import kotlinx.serialization.Serializable
 
-sealed interface BottomBarItem {
+sealed interface TopLevelRoute : NavKey {
 
-    val icon: com.arkhamcompanion.ui.icons.IconGlyph
+    val icon: IconGlyph
     @get:StringRes
     val label: Int
-    val startDestination: Any
 
     @Serializable
-    data object Cards : BottomBarItem {
+    data class Cards(
+        val graphState: CardsGraphState = CardsGraphState.Main
+    ) : TopLevelRoute {
         override val icon = AppIcon.Cards
         override val label = R.string.cards
-        override val startDestination = com.arkhamcompanion.ui.cards.Cards
     }
 
     @Serializable
-    data object Decks : BottomBarItem {
+    data object Decks : TopLevelRoute {
         override val icon = AppIcon.Deck
         override val label = R.string.decks
-        override val startDestination = com.arkhamcompanion.ui.decks.Decks
     }
 
     @Serializable
-    data object Campaigns : BottomBarItem {
+    data object Campaigns : TopLevelRoute {
         override val icon = AppIcon.Book
         override val label = R.string.campaigns
-        override val startDestination = com.arkhamcompanion.ui.campaigns.Campaigns
     }
 
     @Serializable
-    data object Settings : BottomBarItem {
+    data object Settings : TopLevelRoute {
         override val icon = AppIcon.Settings
         override val label = R.string.settings
-        override val startDestination = com.arkhamcompanion.ui.settings.Settings
     }
 }

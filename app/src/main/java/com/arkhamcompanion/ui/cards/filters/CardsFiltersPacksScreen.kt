@@ -1,15 +1,9 @@
 package com.arkhamcompanion.ui.cards.filters
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +27,6 @@ import com.arkhamcompanion.ui.icons.PackIcon
 import com.arkhamcompanion.ui.settings.components.ChapterBuilder
 import com.arkhamcompanion.ui.settings.components.CycleBuilder
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
@@ -45,7 +38,6 @@ fun CardsFiltersPacksScreen(
     selectedPacks: Collection,
     allPacks: ImmutableList<Pack>,
     onPacksChange: (Collection) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val groupedPacks = remember(allPacks) {
@@ -82,11 +74,7 @@ fun CardsFiltersPacksScreen(
         mutableStateOf<Set<String>>(emptySet())
     }
 
-    LazyColumn(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    LazyColumn(modifier = modifier.fillMaxSize()) {
         groupedPacks.forEach { (chapter, cycles, reprintCodes, packCodes) ->
             stickyHeader(key = "chapter_$chapter", contentType = "chapter_header") {
                 CardSectionHeader(

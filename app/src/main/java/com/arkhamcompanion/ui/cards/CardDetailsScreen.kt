@@ -27,10 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.CardType
-import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
 import com.arkhamcompanion.domain.model.cards.CardSearchResultItem
-import com.arkhamcompanion.domain.model.cards.DeckOption
-import com.arkhamcompanion.domain.model.cards.InvestigatorAccessConfig
 import com.arkhamcompanion.ui.cards.components.details.cardDetailsDeckbuildingSection
 import com.arkhamcompanion.ui.cards.components.details.cardDetailsRelationSection
 import com.arkhamcompanion.ui.cards.components.details.cardDetailsRelationSectionSingle
@@ -38,7 +35,6 @@ import com.arkhamcompanion.ui.cards.components.details.cardDetailsWithLinkedBack
 import com.arkhamcompanion.ui.cards.components.details.rememberCardTextStyles
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.CardTextStyleResolver
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
@@ -48,16 +44,9 @@ fun CardDetailsScreen(
     cardDetailsViewModel: CardDetailsViewModel,
     onCurrentCardCodeChanged: (String?) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
-    onShowInvestigatorCardpool: (
-        config: InvestigatorAccessConfig,
-        deckOptions: List<DeckOption>,
-        deckRequirements: List<String>,
-        sideDeckOptions: List<DeckOption>,
-        sideDeckRequirements: List<String>
-    ) -> Unit,
-    onShowWhoCanTakeCard: (CardInvestigatorAccessFields?) -> Unit,
+    onShowInvestigatorCardpool: (String, String?) -> Unit,
+    onShowWhoCanTakeCard: (String?) -> Unit,
     modifier: Modifier = Modifier,
-    innerPadding: PaddingValues
 ) {
     val collection by cardDetailsViewModel.collectionFlow.collectAsState()
     val ignoreCollection by cardDetailsViewModel.ignoreCollectionFlow.collectAsState()
@@ -137,8 +126,7 @@ fun CardDetailsScreen(
         state = pagerState,
         key = { page -> cardCodes[page].code },
         modifier = modifier
-            .fillMaxSize()
-            .applyScaffoldPaddings(innerPadding),
+            .fillMaxSize(),
         beyondViewportPageCount = 1
     ) { page ->
         val item = cardCodes[page]
@@ -254,31 +242,15 @@ fun CardDetailsScreen(
                                 if (!isBase) {
                                     cardDetailsWithRelations?.card?.details?.cardDetails?.run {
                                         onShowInvestigatorCardpool(
-                                            InvestigatorAccessConfig(
-                                                alternateOfCode ?: duplicateOfCode ?: code,
-                                                name,
-                                                faction,
-                                                realTraits,
-                                            ),
-                                            deckOptions.orEmpty(),
-                                            deckRequirements?.card.orEmpty().flatten(),
-                                            sideDeckOptions.orEmpty(),
-                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                            alternateOfCode ?: duplicateOfCode ?: code,
+                                            null
                                         )
                                     }
                                 } else {
                                     cardDetailsWithRelations?.cardRelations?.base?.details?.cardDetails?.run {
                                         onShowInvestigatorCardpool(
-                                            InvestigatorAccessConfig(
-                                                alternateOfCode ?: duplicateOfCode ?: code,
-                                                name,
-                                                faction,
-                                                realTraits,
-                                            ),
-                                            deckOptions.orEmpty(),
-                                            deckRequirements?.card.orEmpty().flatten(),
-                                            sideDeckOptions.orEmpty(),
-                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                            alternateOfCode ?: duplicateOfCode ?: code,
+                                            null
                                         )
                                     }
                                 }
@@ -287,37 +259,23 @@ fun CardDetailsScreen(
                                 if (isBase) {
                                     cardDetailsWithRelations?.card?.details?.cardDetails?.run {
                                         onShowInvestigatorCardpool(
-                                            InvestigatorAccessConfig(
-                                                alternateOfCode ?: duplicateOfCode ?: code,
-                                                name,
-                                                faction,
-                                                realTraits,
-                                            ),
-                                            deckOptions.orEmpty(),
-                                            deckRequirements?.card.orEmpty().flatten(),
-                                            sideDeckOptions.orEmpty(),
-                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                            alternateOfCode ?: duplicateOfCode ?: code,
+                                            code
                                         )
                                     }
                                 } else {
                                     cardDetailsWithRelations?.cardRelations?.parallel?.details?.cardDetails?.run {
                                         onShowInvestigatorCardpool(
-                                            InvestigatorAccessConfig(
-                                                alternateOfCode ?: duplicateOfCode ?: code,
-                                                name,
-                                                faction,
-                                                realTraits,
-                                            ),
-                                            deckOptions.orEmpty(),
-                                            deckRequirements?.card.orEmpty().flatten(),
-                                            sideDeckOptions.orEmpty(),
-                                            sideDeckRequirements?.card.orEmpty().flatten(),
+                                            alternateOfCode ?: duplicateOfCode ?: code,
+                                            code
                                         )
                                     }
                                 }
                             } } else null,
                             onShowWhoCanTakeCard = if (!isInvestigator) { {
-                                onShowWhoCanTakeCard(cardDetailsWithRelations?.card?.details?.cardDetails)
+                                onShowWhoCanTakeCard(
+                                    cardDetailsWithRelations?.card?.details?.cardDetails?.id
+                                )
                             } } else null,
                             isBase = !isBase
                         ) {

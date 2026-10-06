@@ -27,7 +27,6 @@ import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
 import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
 import com.arkhamcompanion.ui.components.ArkhamSearchBox
 import com.arkhamcompanion.ui.theme.CustomTheme
-import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import kotlinx.collections.immutable.ImmutableSet
 
 @Composable
@@ -35,7 +34,6 @@ fun CardsFiltersEncounterSetsScreen(
     selectedEncounterSets: ImmutableSet<String>,
     cardsFiltersViewModel: CardsFiltersViewModel,
     onEncounterSetChange: (String) -> Unit,
-    innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     val encounterSets by cardsFiltersViewModel.encounterSets.collectAsState()
@@ -50,11 +48,7 @@ fun CardsFiltersEncounterSetsScreen(
         }
     }
 
-    Column(
-        modifier = modifier
-            .applyScaffoldPaddings(innerPadding)
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         ArkhamSearchBox(
             searchQuery = searchQuery,
             onQueryChange = { searchQuery = it },
