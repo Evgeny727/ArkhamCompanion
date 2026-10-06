@@ -1,7 +1,5 @@
 package com.arkhamcompanion.domain.repository
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardListItem
@@ -47,7 +45,7 @@ interface CardsRepository {
 
     fun observeFavoriteCodes(): Flow<ImmutableSet<String>>
 
-    fun getCarTabooHistoryByCodeFlow(code: String): Flow<ImmutableList<CardTabooInfo>>
+    fun getCardTabooHistoryByCodeFlow(code: String): Flow<ImmutableList<CardTabooInfo>>
 
     fun getAllInvestigatorsByName(name: String): Flow<PagingData<CardListItem>>
 

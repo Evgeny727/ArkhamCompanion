@@ -9,5 +9,5 @@ import javax.inject.Inject
 class CardTabooHistoryViewModel @Inject constructor(
     private val cardsRepository: CardsRepository
 ) : ViewModel() {
-    fun getTabooHistory(code: String) = cardsRepository.getCarTabooHistoryByCodeFlow(code)
+    fun getTabooHistory(code: String) = cardsRepository.getCardTabooHistoryByCodeFlow(code)
 }

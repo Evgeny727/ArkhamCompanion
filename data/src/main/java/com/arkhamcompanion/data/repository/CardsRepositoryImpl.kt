@@ -653,7 +653,7 @@ class CardsRepositoryImpl @Inject constructor(
         it.toImmutableSet()
     }
 
-    override fun getCarTabooHistoryByCodeFlow(code: String): Flow<ImmutableList<CardTabooInfo>> =
+    override fun getCardTabooHistoryByCodeFlow(code: String): Flow<ImmutableList<CardTabooInfo>> =
         cardsDao.getTabooHistoryByCodeFlow(code).map {
             it.map { item -> item.toDomain() }.toImmutableList()
         }
