@@ -29,6 +29,10 @@ import com.arkhamcompanion.domain.model.cards.SkillsFilter
 import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
+import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -47,7 +51,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 sealed interface CardsUiState {
@@ -57,10 +61,11 @@ sealed interface CardsUiState {
     data class Error(val error: QueryError) : CardsUiState
 }
 
-@HiltViewModel
-class CardsViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = CardsViewModel.Factory::class)
+class CardsViewModel @AssistedInject constructor(
     private val cardsRepository: CardsRepository,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
+    @Assisted private val cardsGraphState: CardsGraphState
 ) : ViewModel() {
 
     private val _cardsUiState = MutableStateFlow<CardsUiState>(CardsUiState.Idle)
@@ -102,7 +107,9 @@ class CardsViewModel @Inject constructor(
         initialValue = CardSearchPreferences()
     )
 
-    val defaultFilters = CardFilters()
+    var defaultFilters = CardFilters()
+        private set
+
     private val _cardFilters = MutableStateFlow(defaultFilters)
     val cardFilters = _cardFilters.asStateFlow()
 
@@ -113,6 +120,63 @@ class CardsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = false
         )
+
+    init {
+        when (cardsGraphState) {
+            is CardsGraphState.Investigator -> {
+                getInitialCardFields(
+                    cardsGraphState.investigatorId,
+                    cardsGraphState.parallelCode
+                )
+            }
+
+            is CardsGraphState.Card -> {
+                getInitialCardFields(cardsGraphState.cardId)
+            }
+
+            CardsGraphState.Main -> { /*Do nothing*/ }
+        }
+    }
+
+    fun getInitialCardFields(cardId: String, parallelCode: String? = null) {
+        viewModelScope.launch {
+            _cardsUiState.value = CardsUiState.Loading
+
+            val fields = cardsRepository.getInitialCardFields(parallelCode ?: cardId)
+
+            when (cardsGraphState) {
+                is CardsGraphState.Investigator -> {
+                    defaultFilters = defaultFilters.copy(
+                        cardpoolFilter = CardpoolFilter(
+                            deckOptions = fields.deckOptions.orEmpty(),
+                            requiredCardCodes = fields.deckRequirements?.card?.flatten().orEmpty().toSet(),
+                            sideDeckOptions = fields.sideDeckOptions.orEmpty(),
+                            sideDeckRequiredCardCodes = fields.sideDeckRequirements?.card?.flatten().orEmpty().toSet(),
+                            investigatorConfig = InvestigatorAccessConfig(
+                                investigatorId = fields.alternateOfCode ?: fields.duplicateOfCode ?: fields.code,
+                                investigatorName = fields.name,
+                                investigatorFaction = fields.faction,
+                                investigatorTraits = fields.realTraits,
+                            ),
+                            target = CardpoolTarget.Both,
+                        )
+                    )
+                }
+
+                is CardsGraphState.Card -> {
+                    defaultFilters = defaultFilters.copy(
+                        whoCanTakeCard = persistentSetOf(fields)
+                    )
+                }
+
+                CardsGraphState.Main -> { /*Do nothing*/ }
+            }
+
+            _cardFilters.value = defaultFilters
+
+            _cardsUiState.value = CardsUiState.Idle
+        }
+    }
 
     @OptIn(FlowPreview::class)
     private val _searchConfig = combine(
@@ -574,4 +638,8 @@ class CardsViewModel @Inject constructor(
         }
     }
 
+    @AssistedFactory
+    interface Factory {
+        fun create(cardsGraphState: CardsGraphState): CardsViewModel
+    }
 }

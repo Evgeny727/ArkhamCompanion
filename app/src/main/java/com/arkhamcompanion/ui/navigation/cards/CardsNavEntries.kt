@@ -60,6 +60,7 @@ import com.arkhamcompanion.ui.navigation.LocalTopAppBarState
 import com.arkhamcompanion.ui.navigation.Navigator
 import com.arkhamcompanion.ui.navigation.SharedViewModelStoreNavEntryDecorator
 import com.arkhamcompanion.ui.navigation.TopLevelRoute
+import com.arkhamcompanion.ui.navigation.hiltAssistedViewModel
 import com.arkhamcompanion.ui.navigation.navigateSingleTop
 import com.arkhamcompanion.ui.navigation.toContentKey
 import com.arkhamcompanion.ui.theme.CustomTheme
@@ -74,7 +75,9 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
 
         val graphState = backStackEntry.graphState
 
-        val cardsViewModel = hiltViewModel<CardsViewModel>()
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.graphState
+        ) { create(it) }
         val spoilerState by cardsViewModel.spoilerState.collectAsState()
         val isFiltersActive by cardsViewModel.isFiltersActive.collectAsState()
 
@@ -179,9 +182,10 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )}
     ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalSharedViewModelStoreOwner.current
+        ) { create(it) }
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
 
@@ -223,11 +227,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -269,11 +274,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -315,11 +321,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
             LocalSharedViewModelStoreOwner.current
@@ -369,11 +376,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -415,11 +423,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -461,11 +470,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -508,9 +518,10 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )}
     ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
 
@@ -550,11 +561,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -596,11 +608,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -642,11 +655,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -688,11 +702,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -734,11 +749,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -780,11 +796,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -827,11 +844,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             graphKey = TopLevelRoute.Cards(key.parentConfig).toContentKey(),
             parentKey = CardsFiltersScreen(key.parentConfig).toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalGraphSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalGraphSharedViewModelStoreOwner.current
+        ) { create(it) }
         val filters by cardsViewModel.cardFilters.collectAsState()
         val allCardCodes by cardsViewModel.searchResultCodes.collectAsState()
         val cardsFiltersViewModel: CardsFiltersViewModel = hiltViewModel(
@@ -875,9 +893,10 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
     ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
 
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalSharedViewModelStoreOwner.current
-        )
+        val cardsViewModel = hiltAssistedViewModel<CardsViewModel, CardsViewModel.Factory, CardsGraphState>(
+            key = backStackEntry.parentConfig,
+            viewModelStoreOwner = LocalSharedViewModelStoreOwner.current
+        ) { create(it) }
         val cardDetailsViewModel: CardDetailsViewModel = hiltViewModel()
 
         val cardsLazyCodes by cardsViewModel.searchResultCodes.collectAsState()

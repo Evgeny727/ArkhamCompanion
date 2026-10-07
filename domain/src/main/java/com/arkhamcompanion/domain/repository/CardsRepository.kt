@@ -2,6 +2,7 @@ package com.arkhamcompanion.domain.repository
 
 import androidx.paging.PagingData
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
+import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
 import com.arkhamcompanion.domain.model.cards.CardListItem
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
@@ -50,5 +51,5 @@ interface CardsRepository {
     fun getAllInvestigatorsByName(name: String): Flow<PagingData<CardListItem>>
 
     fun getAllPlayableCardsByName(name: String): Flow<PagingData<CardListItem>>
-
+    suspend fun getInitialCardFields(cardId: String): CardInvestigatorAccessFields
 }

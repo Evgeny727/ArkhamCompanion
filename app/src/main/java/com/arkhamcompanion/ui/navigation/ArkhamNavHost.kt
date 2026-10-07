@@ -52,6 +52,10 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.arkhamcompanion.AppViewModel
@@ -290,6 +294,18 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
             }
         }
     }
+}
+
+@Composable
+inline fun <reified VM : ViewModel, reified Factory, K: Any> hiltAssistedViewModel(
+    key: K,
+    viewModelStoreOwner: ViewModelStoreOwner = LocalViewModelStoreOwner.current!!,
+    crossinline create: Factory.(K) -> VM
+): VM {
+    return hiltViewModel<VM, Factory>(
+        viewModelStoreOwner = viewModelStoreOwner,
+        creationCallback = { it.create(key) }
+    )
 }
 
 @Composable

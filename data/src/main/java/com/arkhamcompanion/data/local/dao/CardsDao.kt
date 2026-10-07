@@ -159,4 +159,24 @@ interface CardsDao {
         ORDER BY c.sort_by_faction, c.official DESC
     """)
     fun getAllPlayableCardsByNamePaged(name: String): PagingSource<Int, CardListItemEntity>
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("""SELECT c.*,
+            t.name AS typeName,
+            st.name AS subTypeName,
+            f.name AS factionName,
+            p.name AS packName,
+            e.name AS encounterName,
+            cy.name AS cycleName,
+            cy.position as cyclePosition
+        FROM card c 
+        JOIN card_type t ON c.type_code = t.code
+        LEFT JOIN card_subtype st ON c.subtype_code = st.code
+        JOIN faction f ON c.faction_code = f.code
+        JOIN pack p ON c.pack_code = p.code
+        JOIN cycle cy ON c.cycle_code = cy.code
+        LEFT JOIN encounter_set e ON c.encounter_code = e.code 
+        WHERE id = :id
+    """)
+    suspend fun getInitialCardFieldsById(id: String): CardListItemEntity
 }
