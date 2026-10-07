@@ -73,6 +73,8 @@ fun SettingsCard(
                 onValueChange = onFanmadeCardsChange
             )
 
+            HorizontalDivider(color = CustomTheme.colors.divider)
+
             ArkhamCheckboxButton(
                 title = stringResource(R.string.show_preview_cards),
                 iconGlyph = AppIcon.Show,
