@@ -35,6 +35,7 @@ fun SettingsScreen(
 ) {
     val settingsUiState by viewModel.settingsUiState.collectAsState()
     val showFanmadeCards by viewModel.showFanmadeCardsState.collectAsState()
+    val showPreviewCards by viewModel.showPreviewCardsState.collectAsState()
     val includeEnglish by viewModel.isIncludeEnglishSearchResultsState.collectAsState()
     val allPacks by viewModel.allPacksState.collectAsState()
     val collection by viewModel.collectionState.collectAsState()
@@ -92,6 +93,8 @@ fun SettingsScreen(
                 onScaleChange = viewModel::setScaleFactor,
                 showFanmadeCards = showFanmadeCards,
                 onFanmadeCardsChange = viewModel::setFanmadeCards,
+                showPreviewCards = showPreviewCards,
+                onPreviewCardsChange = viewModel::setPreviewCards,
                 includeEnglishSearchResults = includeEnglish,
                 onIncludeEnglishResultsChange = viewModel::setEnglishSearchResults,
                 isLoading = settingsUiState is SettingsUiState.Loading,

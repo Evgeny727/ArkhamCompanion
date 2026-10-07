@@ -8,7 +8,6 @@ import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
-import kotlin.collections.orEmpty
 
 internal fun buildCardsListItemsQuery(requested: String) =
     """
@@ -221,70 +220,70 @@ internal fun buildSearchCardsQuery(searchConfig: CardSearchConfig): RoomRawQuery
                     CROSS JOIN selected_taboo taboo
                     WHERE (c.encounter_code IS ${if (searchConfig.spoiler) "NOT NULL)" else "NULL OR c.xp IS NOT NULL)"} 
                     ${
-            when (searchConfig.filters.ownershipFilter) {
-                Ownership.All -> ""
-
-                Ownership.Collection -> {
-                    if (searchConfig.filters.packs.isNotEmpty()
-                        || searchConfig.preferences.ignoreCollection) ""
-                    else """ AND (
+                        when (searchConfig.filters.ownershipFilter) {
+                            Ownership.All -> ""
+            
+                            Ownership.Collection -> {
+                                if (searchConfig.filters.packs.isNotEmpty()
+                                    || searchConfig.preferences.ignoreCollection) ""
+                                else """ AND (
                                     c.pack_code IN ($packsQuery) 
                                     OR c.reprint_pack_code IN ($reprintsQuery)
                                 )""".trimIndent()
-                }
-
-                Ownership.Unavailable -> {
-                    if (searchConfig.preferences.ignoreCollection) " AND NULL "
-                    else """ AND (
+                            }
+            
+                            Ownership.Unavailable -> {
+                                if (searchConfig.preferences.ignoreCollection) " AND NULL "
+                                else """ AND (
                                     c.pack_code NOT IN ($packsQuery) 
                                     AND (
                                         c.reprint_pack_code IS NULL
                                         OR c.reprint_pack_code NOT IN ($reprintsQuery)
                                     )
                                 )""".trimIndent()
-                }
-            }
-        }
+                            }
+                        }
+                    }
                     ${if (filterClause.isNotBlank())
-            """ AND EXISTS (
+                        """ AND EXISTS (
                             SELECT 1
                             FROM card candidate INDEXED BY index_card_code
                             WHERE (candidate.code = c.code OR candidate.code = c.back_link_id) 
                             AND $filterClause
                         )""".trimIndent() else ""
-        }
+                    }
                     ${ if (searchConfig.spoiler || searchConfig.filters.tabooSetId != null) ""
-        else """ AND
-                     (
-                        -- No taboo selected -> originals only
-                        (taboo.id IS NULL AND c.taboo_set_id IS NULL)
-        
-                        OR
-                        
-                        (taboo.id IS NOT NULL AND 
-                            (
-                                -- Selected taboo version
-                                c.taboo_set_id = taboo.id
-                
-                                OR
-                
-                                -- Original version if no taboo override exists
-                                (c.taboo_set_id IS NULL
-                                    AND NOT EXISTS (
-                                        SELECT 1 FROM card t WHERE t.taboo_set_id = taboo.id AND t.code = c.code
+                    else """ AND
+                         (
+                            -- No taboo selected -> originals only
+                            (taboo.id IS NULL AND c.taboo_set_id IS NULL)
+            
+                            OR
+                            
+                            (taboo.id IS NOT NULL AND 
+                                (
+                                    -- Selected taboo version
+                                    c.taboo_set_id = taboo.id
+                    
+                                    OR
+                    
+                                    -- Original version if no taboo override exists
+                                    (c.taboo_set_id IS NULL
+                                        AND NOT EXISTS (
+                                            SELECT 1 FROM card t WHERE t.taboo_set_id = taboo.id AND t.code = c.code
+                                        )
                                     )
                                 )
                             )
-                        )
-                     )
-                    """.trimIndent()
-        }
-                     AND c.hidden = 0 ${ if (searchConfig.preferences.showFanMade) ""
-        else { " AND (" +
-                (if (searchConfig.filters.officialFilter == null) "c.official = 1 AND " else "") +
-                "c.preview = 0)"
-        }
-        }
+                         )
+                        """.trimIndent()
+                    }
+                     AND c.hidden = 0
+                    ${ if (!searchConfig.preferences.showFanMade 
+                        && searchConfig.filters.officialFilter == null) " AND c.official = 1"
+                        else ""
+                    }
+                    ${if (searchConfig.preferences.showPreview) "" else " AND c.preview = 0"}
                 ),
                 
                 ranked_cards AS ($rankedQueryPart)

@@ -35,6 +35,8 @@ fun SettingsCard(
     onScaleChange: (Float) -> Unit,
     showFanmadeCards: Boolean,
     onFanmadeCardsChange: (Boolean) -> Unit,
+    showPreviewCards: Boolean,
+    onPreviewCardsChange: (Boolean) -> Unit,
     includeEnglishSearchResults: Boolean,
     onIncludeEnglishResultsChange: (Boolean) -> Unit,
     isLoading: Boolean,
@@ -66,10 +68,18 @@ fun SettingsCard(
             ArkhamCheckboxButton(
                 title = stringResource(R.string.show_fanmade_cards),
                 iconGlyph = AppIcon.SpecialCards,
-                description = stringResource(R.string.grants_access_to_previewed_player_cards),
                 loading = isLoading,
                 isSelected = showFanmadeCards,
                 onValueChange = onFanmadeCardsChange
+            )
+
+            ArkhamCheckboxButton(
+                title = stringResource(R.string.show_preview_cards),
+                iconGlyph = AppIcon.Show,
+                description = stringResource(R.string.grants_access_to_previewed_player_cards),
+                loading = isLoading,
+                isSelected = showPreviewCards,
+                onValueChange = onPreviewCardsChange
             )
 
             if (languageTag != "en") {

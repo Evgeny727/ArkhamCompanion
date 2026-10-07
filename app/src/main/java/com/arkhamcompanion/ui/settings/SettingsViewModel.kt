@@ -68,6 +68,13 @@ class SettingsViewModel @Inject constructor(
             initialValue = false
         )
 
+    val showPreviewCardsState: StateFlow<Boolean> =
+        userPreferencesRepository.showPreviewCards.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false
+        )
+
     val isIncludeEnglishSearchResultsState: StateFlow<Boolean> =
         userPreferencesRepository.isIncludeEnglishSearchResults.stateIn(
             scope = viewModelScope,
@@ -157,6 +164,12 @@ class SettingsViewModel @Inject constructor(
     fun setFanmadeCards(showFanmadeCards: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.saveShowFanmadeCards(showFanmadeCards)
+        }
+    }
+
+    fun setPreviewCards(showPreviewCards: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveShowPreviewCards(showPreviewCards)
         }
     }
 

@@ -67,6 +67,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }.map { preferences ->
             preferences[FANMADE_CARDS] ?: false
         }
+    override val showPreviewCards: Flow<Boolean> = dataStore.data
+        .catch {
+            if (it is IOException) {
+                analyticsRepository.logMessage("Error reading preview cards preferences.")
+                analyticsRepository.logError(it)
+
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            preferences[PREVIEW_CARDS] ?: false
+        }
     override val isIncludeEnglishSearchResults: Flow<Boolean> = dataStore.data
         .catch {
             if (it is IOException) {
@@ -176,6 +189,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             CardSearchPreferences(
                 includeEnglish = preferences[INCLUDE_ENGLISH_SEARCH_RESULTS] ?: false,
                 showFanMade = preferences[FANMADE_CARDS] ?: false,
+                showPreview = preferences[PREVIEW_CARDS] ?: false,
                 tabooSetId = preferences[TABOO] ?: 0,
                 playerSortOrder = preferences[CARDS_SORT_ORDER_PLAYER]?.split(",")
                     ?.filter { it.isNotBlank() } ?: DEFAULT_PLAYER_SORT_ORDER,
@@ -195,8 +209,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     private companion object {
         val THEME = intPreferencesKey("theme")
         val SCALE_FACTOR = floatPreferencesKey("scale_factor")
-        const val TAG = "UserPreferencesRepo"
         val FANMADE_CARDS = booleanPreferencesKey("fanmade_cards")
+        val PREVIEW_CARDS = booleanPreferencesKey("preview_cards")
         val INCLUDE_ENGLISH_SEARCH_RESULTS = booleanPreferencesKey("english_results")
         val TABOO = intPreferencesKey("taboo")
         val COLLECTION = stringPreferencesKey("collection")
@@ -221,6 +235,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun saveShowFanmadeCards(showFanmadeCards: Boolean) {
         dataStore.edit { preferences ->
             preferences[FANMADE_CARDS] = showFanmadeCards
+        }
+    }
+
+    override suspend fun saveShowPreviewCards(showPreviewCards: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PREVIEW_CARDS] = showPreviewCards
         }
     }
 

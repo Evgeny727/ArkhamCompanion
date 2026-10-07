@@ -8,6 +8,7 @@ import kotlinx.collections.immutable.persistentSetOf
 data class CardSearchPreferences(
     val includeEnglish: Boolean = false,
     val showFanMade: Boolean = false,
+    val showPreview: Boolean = false,
     val tabooSetId: Int = 0,
     val playerSortOrder: List<String> = DEFAULT_PLAYER_SORT_ORDER,
     val mythosSortOrder: List<String> = DEFAULT_MYTHOS_SORT_ORDER,
