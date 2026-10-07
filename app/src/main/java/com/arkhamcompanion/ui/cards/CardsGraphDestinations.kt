@@ -10,8 +10,8 @@ interface CardsGraph : NavKey {
 
 @Serializable
 data class CardsSortScreen(
-    override val parentConfig: CardsGraphState
-) : CardsGraph
+    val spoilerState: Boolean
+) : NavKey
 
 @Serializable
 data class CardsFiltersScreen(
@@ -96,7 +96,6 @@ data class CardDetailsScreen(
 
 @Serializable
 data class CardTabooHistoryScreen(
-    override val parentConfig: CardsGraphState,
     val cardCode: String,
     val cardName: String
-) : CardsGraph
+) : NavKey

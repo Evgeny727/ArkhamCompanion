@@ -21,11 +21,13 @@ import com.arkhamcompanion.ui.settings.SettingsDiagnostics
 import com.arkhamcompanion.ui.settings.SettingsScreen
 import com.arkhamcompanion.ui.settings.SettingsViewModel
 
-fun EntryProviderScope<NavKey>.settingsGraph(
+fun EntryProviderScope<NavKey>.settingsEntries(
     viewModel: AppViewModel,
     navigator: Navigator,
 ) {
-    entry<TopLevelRoute.Settings> {
+    entry<TopLevelRoute.Settings>(
+        clazzContentKey = { key -> key.toContentKey() }
+    ) {
         val topAppBarState = LocalTopAppBarState.current
         val settingsViewModel = hiltViewModel<SettingsViewModel>()
         val theme by viewModel.themeState.collectAsState()

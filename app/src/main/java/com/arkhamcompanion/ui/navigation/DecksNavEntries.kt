@@ -5,8 +5,10 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.ui.decks.DecksScreen
 
-fun EntryProviderScope<NavKey>.decksGraph(navigator: Navigator) {
-    entry<TopLevelRoute.Decks> {
+fun EntryProviderScope<NavKey>.decksEntries(navigator: Navigator) {
+    entry<TopLevelRoute.Decks>(
+        clazzContentKey = { key -> key.toContentKey() }
+    ) {
         val topAppBarState = LocalTopAppBarState.current
 
         DecksScreen()

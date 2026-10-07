@@ -66,7 +66,7 @@ import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.ARKHAM_BUILD_CARD_URL
 import com.arkhamcompanion.ui.utils.openLink
 
-fun EntryProviderScope<NavKey>.cardsGraph(navigator: Navigator) {
+fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
     entry<TopLevelRoute.Cards>(
         clazzContentKey = { key -> key.toContentKey() }
     ) { backStackEntry ->
@@ -110,7 +110,7 @@ fun EntryProviderScope<NavKey>.cardsGraph(navigator: Navigator) {
 
                 ArkhamAppBarAction(
                     contentColor = CustomTheme.colors.m,
-                    onClick = { navigator.navigateSingleTop(CardsSortScreen(graphState)) },
+                    onClick = { navigator.navigateSingleTop(CardsSortScreen(spoilerState)) },
                     iconGlyph = AppIcon.Sort,
                 )
             },
@@ -135,16 +135,9 @@ fun EntryProviderScope<NavKey>.cardsGraph(navigator: Navigator) {
         )
     }
 
-    entry<CardsSortScreen>(
-        metadata = { key -> SharedViewModelStoreNavEntryDecorator.parent(
-            TopLevelRoute.Cards(key.parentConfig).toContentKey()
-        )}
-    ) {
+    entry<CardsSortScreen> { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
-        val cardsViewModel: CardsViewModel = hiltViewModel(
-            LocalSharedViewModelStoreOwner.current
-        )
-        val spoilerState by cardsViewModel.spoilerState.collectAsState()
+        val spoilerState = backStackEntry.spoilerState
         val cardsSortViewModel = hiltViewModel<CardsSortViewModel>()
 
         CardsSortScreen(
@@ -901,7 +894,7 @@ fun EntryProviderScope<NavKey>.cardsGraph(navigator: Navigator) {
             onCurrentCardCodeChanged = { currentCardCode = it },
             onTabooNavigation = { code, name ->
                 navigator.navigateSingleTop(
-                    CardTabooHistoryScreen(backStackEntry.parentConfig, code, name)
+                    CardTabooHistoryScreen( code, name)
                 )
             },
             onShowInvestigatorCardpool = { investigatorId, parallelCode ->

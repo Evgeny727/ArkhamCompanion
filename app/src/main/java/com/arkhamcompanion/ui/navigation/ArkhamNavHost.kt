@@ -11,6 +11,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -60,7 +61,7 @@ import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.components.ArkhamAlertButton
 import com.arkhamcompanion.ui.components.ArkhamAlertButtonStyle
 import com.arkhamcompanion.ui.components.ArkhamAlertDialog
-import com.arkhamcompanion.ui.navigation.cards.cardsGraph
+import com.arkhamcompanion.ui.navigation.cards.cardsEntries
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
 import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
@@ -151,16 +152,16 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
         }
 
         val entryProvider = entryProvider {
-            settingsGraph(
+            settingsEntries(
                 viewModel = viewModel,
                 navigator = navigator,
             )
 
-            cardsGraph(navigator = navigator)
+            cardsEntries(navigator = navigator)
 
-            decksGraph(navigator = navigator)
+            decksEntries(navigator = navigator)
 
-            campaignsGraph(navigator = navigator)
+            campaignsEntries(navigator = navigator)
         }
 
         Box(
@@ -171,32 +172,51 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                     entries = navigationState.toEntries(entryProvider),
                     onBack = navigator::goBack,
                     transitionSpec = {
-                        ContentTransform(
-                            targetContentEnter = fadeIn(
+                        val targetKey = targetState.entries.lastOrNull()?.contentKey
+
+                        val isTopLevelNavigation =
+                            targetKey in topLevelRoutes.map { it.toContentKey() }
+
+                        if (isTopLevelNavigation) {
+                            fadeIn(
                                 animationSpec = tween(
                                     durationMillis = 300,
                                     easing = LinearEasing,
                                 )
-                            ) + slideIntoContainer(
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = EaseIn,
-                                ),
-                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                            ),
-                            initialContentExit = fadeOut(
+                            ) togetherWith fadeOut(
                                 animationSpec = tween(
                                     durationMillis = 300,
                                     easing = LinearEasing,
                                 )
-                            ) + slideOutOfContainer(
-                                animationSpec = tween(
-                                    durationMillis = 300,
-                                    easing = EaseIn,
-                                ),
-                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
                             )
-                        )
+                        } else {
+                            ContentTransform(
+                                targetContentEnter = fadeIn(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = LinearEasing,
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = EaseIn,
+                                    ),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                ),
+                                initialContentExit = fadeOut(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = LinearEasing,
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = EaseIn,
+                                    ),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                )
+                            )
+                        }
                     },
                     popTransitionSpec = {
                         ContentTransform(

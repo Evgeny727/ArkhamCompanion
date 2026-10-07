@@ -5,8 +5,10 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.ui.campaigns.CampaignsScreen
 
-fun EntryProviderScope<NavKey>.campaignsGraph(navigator: Navigator) {
-    entry<TopLevelRoute.Campaigns> {
+fun EntryProviderScope<NavKey>.campaignsEntries(navigator: Navigator) {
+    entry<TopLevelRoute.Campaigns>(
+        clazzContentKey = { key -> key.toContentKey() }
+    ) {
         val topAppBarState = LocalTopAppBarState.current
 
         CampaignsScreen()
