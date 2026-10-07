@@ -100,6 +100,9 @@ interface CardsDao {
     @Delete
     suspend fun removeFavorite(favorite: FavoriteCardEntity)
 
+    @Query("DELETE FROM favorite_card")
+    suspend fun clearFavoriteCards()
+
     @RewriteQueriesToDropUnusedColumns
     @Query("""
         SELECT c.*, ts.name as tabooName, ts.date as tabooDate FROM card c 

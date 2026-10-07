@@ -49,24 +49,30 @@ fun DiagnosticsScreen(
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize(),
-    ) {
+    Column(modifier = modifier.fillMaxSize()) {
         CardSectionHeader(
             title = stringResource(R.string.caches),
             isSubTitle = false
         )
+
         DiagnosticButton(
             title = stringResource(R.string.clear_image_cache),
             isLoading = isLoading,
             onClick = settingsViewModel::clearImageCache,
         )
+
         DiagnosticButton(
             title = stringResource(R.string.clear_card_cache),
             isLoading = isLoading,
             onClick = recreateCache,
         )
+
+        DiagnosticButton(
+            title = stringResource(R.string.reset_favorite_cards),
+            isLoading = isLoading,
+            onClick = settingsViewModel::clearFavoriteCards,
+        )
+
         DiagnosticButton(
             title = stringResource(R.string.reset_card_database),
             isLoading = isLoading,
@@ -92,7 +98,7 @@ fun DiagnosticButton(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 8.dp)
             .clickable(enabled = !isLoading, onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -106,9 +112,11 @@ fun DiagnosticButton(
 
         Text(
             text = title,
-            style = CustomTheme.typography.text
+            style = CustomTheme.typography.text,
+            modifier = Modifier.padding(vertical = 16.dp)
         )
     }
+
     HorizontalDivider(color = CustomTheme.colors.divider)
 }
 
@@ -123,13 +131,14 @@ private fun DiagnosticsAlertDialog(
         title = stringResource(R.string.diagnostics),
         description = stringResource(
             when (event) {
-                is SettingsUiEvent.ImageCacheCleared -> R.string.image_cache_cleared
-                is SettingsUiEvent.CardsDatabaseCleared -> R.string.please_close_and_restart_the_app
+                SettingsUiEvent.ImageCacheCleared -> R.string.image_cache_cleared
+                SettingsUiEvent.FavoriteCardsCleared -> R.string.favorite_cards_cleared
+                SettingsUiEvent.CardsDatabaseCleared -> R.string.please_close_and_restart_the_app
             }
         )
     ) {
         when (event) {
-            is SettingsUiEvent.ImageCacheCleared -> {
+            SettingsUiEvent.ImageCacheCleared, SettingsUiEvent.FavoriteCardsCleared -> {
                 ArkhamAlertButton(
                     text = stringResource(R.string.okay),
                     style = ArkhamAlertButtonStyle.DEFAULT,
@@ -137,13 +146,11 @@ private fun DiagnosticsAlertDialog(
                 )
             }
 
-            is SettingsUiEvent.CardsDatabaseCleared -> {
+            SettingsUiEvent.CardsDatabaseCleared -> {
                 ArkhamAlertButton(
                     text = stringResource(R.string.close_app),
                     style = ArkhamAlertButtonStyle.DEFAULT,
-                    onClick = {
-                        activity?.finish()
-                    }
+                    onClick = { activity?.finish() }
                 )
             }
         }

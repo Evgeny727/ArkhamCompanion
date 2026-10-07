@@ -323,7 +323,6 @@ class CardsRepositoryImpl @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override suspend fun recreateCache(): Boolean = try {
         performanceRepository.trace("recreateCache") {
             withContext(Dispatchers.IO) {
@@ -338,10 +337,13 @@ class CardsRepositoryImpl @Inject constructor(
         false
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override suspend fun clearCardsDatabase() = runCatching {
         cardsDao.deleteAllCards()
         metaDao.deleteAll()
+    }
+
+    override suspend fun clearFavoriteCards() = runCatching {
+        cardsDao.clearFavoriteCards()
     }
 
     override fun searchPaginatedCardsFlow(

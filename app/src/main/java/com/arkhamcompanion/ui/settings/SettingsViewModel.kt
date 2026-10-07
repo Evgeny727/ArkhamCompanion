@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import com.arkhamcompanion.UiErrorState
 import com.arkhamcompanion.domain.exceptions.ClearCardsDatabaseException
+import com.arkhamcompanion.domain.exceptions.ClearFavoriteCardsException
 import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
@@ -31,6 +32,7 @@ sealed interface SettingsUiState {
 
 sealed interface SettingsUiEvent {
     object ImageCacheCleared : SettingsUiEvent
+    object FavoriteCardsCleared : SettingsUiEvent
     object CardsDatabaseCleared : SettingsUiEvent
 }
 
@@ -174,6 +176,18 @@ class SettingsViewModel @Inject constructor(
             }
 
             emitEvent(SettingsUiEvent.ImageCacheCleared)
+            _settingsUiState.value = SettingsUiState.Idle
+        }
+    }
+
+    fun clearFavoriteCards() {
+        viewModelScope.launch {
+            _settingsUiState.value = SettingsUiState.Loading
+
+            cardsRepository.clearFavoriteCards()
+                .onFailure { emitError(ClearFavoriteCardsException()) }
+                .onSuccess { emitEvent(SettingsUiEvent.FavoriteCardsCleared) }
+
             _settingsUiState.value = SettingsUiState.Idle
         }
     }

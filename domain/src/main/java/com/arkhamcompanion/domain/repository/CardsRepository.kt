@@ -26,6 +26,8 @@ interface CardsRepository {
 
     suspend fun clearCardsDatabase(): Result<Unit>
 
+    suspend fun clearFavoriteCards(): Result<Unit>
+
     fun searchPaginatedCardsFlow(
         ids: List<String>,
         searchConfig: CardSearchConfig

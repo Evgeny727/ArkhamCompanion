@@ -1958,6 +1958,7 @@
     <string name="load_cards_cache_error">Unable to load cards cache</string>
     <string name="create_cards_cache_error">Unable to create cards cache</string>
     <string name="clear_cards_database_error">Unable to clear cards database</string>
+    <string name="clear_favorite_cards_error">Unable to clear favorite cards</string>
     <string name="app_version">Version %s</string>
     <string name="about_app_text">The information presented in this app about Arkham Horror: The Card Game, both literal and graphical, is copyrighted by Fantasy Flight Games. This app is not produced, endorsed, supported, or affiliated with Fantasy Flight Games.\n\nThis application was created by Eugene Karelin as a fan project to help support the Arkham Horror: The Card Game community, with design from %s. If you find yourself browsing cards, managing lots of decks and campaigns, I\'m hoping it proves useful.\n\nFeedback and bug reports are welcome by email at arkhamcompanion@gmail.com\n\nMany thanks to ArkhamCards and arkham.build for providing the structured data, API access and access to card images. Without their continued support, this project wouldn\'t be possible.</string>
     <string name="app_translations_text">&lt;b&gt;Translation:&lt;/b&gt;\n• Spanish: %s\n• French: %s\n• German: %s\n• Korean: %s\n• Chinese (Simplified): %s</string>
@@ -2017,4 +2018,6 @@
     <string name="favorites">Favorites</string>
     <string name="who_can_take_this_card">Who can take this card?</string>
     <string name="card_access">Card access</string>
+    <string name="reset_favorite_cards">Reset favorite cards</string>
+    <string name="favorite_cards_cleared">Favorite cards cleared</string>
 </resources>

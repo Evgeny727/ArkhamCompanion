@@ -1960,6 +1960,7 @@
     <string name="load_cards_cache_error">Не удалось загрузить кэш карт</string>
     <string name="create_cards_cache_error">Не удалось создать кэш карт</string>
     <string name="clear_cards_database_error">Не удалось очистить базу карт</string>
+    <string name="clear_favorite_cards_error">Не удалось очистить избранное</string>
     <string name="app_version">Версия %s</string>
     <string name="about_app_text">Все права на представленную в этом приложении информацию о карточной игре «Ужас Аркхэма» — как текстовую, так и графическую — принадлежат компании Fantasy Flight Games. Создатели этого приложения не аффилированы и никоим образом не поддерживаются Fantasy Flight Games.\n\nПриложение создано Егением Карелиным в качестве фанатского проекта в поддержку сообщества игры «Ужас Аркхэма. Карточная игра». Дизайн приложения — %s. Если вам приходится искать карты, следить за множеством колод и кампаний одновременно, надеюсь, это приложение будет вам полезно.\n\nСообщения об ошибках и предложения присылайте на arkhamcompanion@gmail.com\n\nОгромная благодарность приложению ArkhamCards и сайту arkham.build за предоставление структурированных данных, изображений карт и доступ через API. Без их постоянной поддержки этот проект не был бы возможен.</string>
     <string name="app_translations_text">&lt;b&gt;Перевод:&lt;/b&gt;\n• Испанский: %s\n• Французский: %s\n• Немецкий: %s\n• Корейский: %s\n• Китайский (Упрощённый): %s</string>
@@ -1999,4 +2000,6 @@
     <string name="taboos">Табу</string>
     <string name="who_can_take_this_card">Кто может взять карту?</string>
     <string name="card_access">Доступ к карте</string>
+    <string name="reset_favorite_cards">Сбросить карты в избранном</string>
+    <string name="favorite_cards_cleared">Избранное очищено</string>
 </resources>
