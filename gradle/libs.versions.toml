@@ -15,7 +15,7 @@ nav3Core = "1.2.0"
 lifecycleViewmodelNav3 = "2.12.0-alpha04"
 
 datastore = "1.2.1"
-paging = "3.5.1"
+paging = "3.5.2"
 room = "3.0.3"
 sqlite = "2.7.1"
 
@@ -24,7 +24,7 @@ kotlinxSerialization = "1.11.0"
 collectionsImmutable = "0.5.2"
 coroutines = "1.11.0"
 
-firebaseBom = "34.19.0"
+firebaseBom = "35.0.0"
 crashlytics = "3.0.8"
 perf = "2.0.2"
 gms = "4.5.0"

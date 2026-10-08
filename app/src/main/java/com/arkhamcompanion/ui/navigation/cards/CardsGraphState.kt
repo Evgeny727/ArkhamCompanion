@@ -2,12 +2,17 @@ package com.arkhamcompanion.ui.navigation.cards
 
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface CardsGraphState {
+    @Serializable
     data object Main : CardsGraphState
 
+    @Serializable
     data class Investigator(val investigatorId: String, val parallelCode: String?) : CardsGraphState
 
+    @Serializable
     data class Card(val cardId: String) : CardsGraphState
 }
 

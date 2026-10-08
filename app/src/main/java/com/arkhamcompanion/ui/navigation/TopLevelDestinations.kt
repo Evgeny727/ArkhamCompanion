@@ -8,6 +8,7 @@ import com.arkhamcompanion.ui.icons.IconGlyph
 import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface TopLevelRoute : NavKey {
 
     val icon: IconGlyph
