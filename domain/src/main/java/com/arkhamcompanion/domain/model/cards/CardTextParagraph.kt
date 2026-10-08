@@ -22,6 +22,7 @@ sealed interface CardTextSegment {
         val start: Int,
         val end: Int,
         val styleFlags: CardTextStyleFlags = CardTextStyleFlags(0),
+        val link: String? = null,
     ) : CardTextSegment
 
     data class Icon(

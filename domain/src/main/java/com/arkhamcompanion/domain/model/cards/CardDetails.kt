@@ -81,7 +81,7 @@ data class CardDetails(
     val backImageUrl: String?,
 
     //Taboo fields
-    val tabooSetId: String?,
+    val tabooSetId: Int?,
     val tabooXp: Int?,
     val tabooPlaceholder: Boolean,
 
@@ -122,7 +122,7 @@ data class CardPackInfo(
 data class CardBackInfo(
     val code: String,
     val type: CardType,
-    val tabooSetId: String?,
+    val tabooSetId: Int?,
     val tabooPlaceholder: Boolean,
     val imageUrl: String?
 )

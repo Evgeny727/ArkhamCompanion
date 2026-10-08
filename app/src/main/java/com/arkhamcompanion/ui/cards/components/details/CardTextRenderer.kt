@@ -15,10 +15,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.domain.model.cards.CardText
@@ -37,7 +40,8 @@ fun ParsedCardText(
     styleResolver: CardTextStyleResolver,
     modifier: Modifier = Modifier,
     isFlavor: Boolean = false,
-    isCustomizationText: Boolean = false
+    isCustomizationText: Boolean = false,
+    onCardLink: (String) -> Unit = {},
 ) {
     Row(
         modifier = modifier.fillMaxWidth().height(IntrinsicSize.Min),
@@ -55,45 +59,61 @@ fun ParsedCardText(
             ),
         ) {
             text.paragraphs.forEach { paragraph ->
-                val paragraphText = remember(text.text, paragraph, styleResolver) {
-                    paragraph.toAnnotatedString(text.text, styleResolver)
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (paragraph.blockQuote) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            VerticalDivider(thickness = 1.dp, color = CustomTheme.colors.m)
-                            VerticalDivider(thickness = 1.dp, color = CustomTheme.colors.m)
-                        }
-                    }
-
-                    Text(
-                        text = paragraphText,
-                        fontSize = 16.appSp(CustomTheme.typography.scaleFactor),
-                        lineHeight = 20.appSp(CustomTheme.typography.scaleFactor),
-                        textAlign = when (paragraph.alignment) {
-                            ParagraphAlignment.Start -> TextAlign.Start
-                            ParagraphAlignment.Center -> TextAlign.Center
-                            ParagraphAlignment.End -> TextAlign.End
-                        },
-                        color = CustomTheme.colors.darkText,
-                        modifier = Modifier.padding(vertical = if (paragraph.blockQuote) 4.dp else 0.dp)
-                    )
-                }
-
-                if (paragraph.horizontalRule) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalDivider(thickness = 1.dp, color = CustomTheme.colors.m)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                ParsedParagraphText(
+                    text = text.text,
+                    paragraph = paragraph,
+                    styleResolver = styleResolver,
+                    onCardLink = onCardLink
+                )
             }
 
         }
+    }
+}
+
+@Composable
+fun ParsedParagraphText(
+    text: String,
+    paragraph: CardTextParagraph,
+    styleResolver: CardTextStyleResolver,
+    modifier: Modifier = Modifier,
+    onCardLink: (String) -> Unit,
+) {
+    val paragraphText = remember(text, paragraph, styleResolver) {
+        paragraph.toAnnotatedString(text, styleResolver, onCardLink)
+    }
+
+    Row(
+        modifier = modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (paragraph.blockQuote) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                VerticalDivider(thickness = 1.dp, color = CustomTheme.colors.m)
+                VerticalDivider(thickness = 1.dp, color = CustomTheme.colors.m)
+            }
+        }
+
+        Text(
+            text = paragraphText,
+            fontSize = 16.appSp(CustomTheme.typography.scaleFactor),
+            lineHeight = 20.appSp(CustomTheme.typography.scaleFactor),
+            textAlign = when (paragraph.alignment) {
+                ParagraphAlignment.Start -> TextAlign.Start
+                ParagraphAlignment.Center -> TextAlign.Center
+                ParagraphAlignment.End -> TextAlign.End
+            },
+            color = CustomTheme.colors.darkText,
+            modifier = Modifier.padding(vertical = if (paragraph.blockQuote) 4.dp else 0.dp)
+        )
+    }
+
+    if (paragraph.horizontalRule) {
+        Spacer(modifier = Modifier.height(8.dp))
+        HorizontalDivider(thickness = 1.dp, color = CustomTheme.colors.m)
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -126,14 +146,30 @@ internal fun rememberCardTextStyles(flavorText: Boolean): CardTextStyles {
 
 internal fun CardTextParagraph.toAnnotatedString(
     text: String,
-    styleResolver: CardTextStyleResolver
+    styleResolver: CardTextStyleResolver,
+    onCardLink: (String) -> Unit = {}
 ): AnnotatedString {
     return buildAnnotatedString {
         segments.forEach { segment ->
             when (segment) {
                 is CardTextSegment.Text -> {
-                    withStyle(styleResolver.resolve(segment.styleFlags)) {
-                        append(
+                    val styles = styleResolver.resolve(segment.styleFlags)
+
+                    withStyle(styles) {
+                        segment.link?.let { link ->
+                            withLink(
+                                LinkAnnotation.Clickable(
+                                    tag = link,
+                                    styles = TextLinkStyles(style = styles),
+                                ) { onCardLink(link) }
+                            ) {
+                                append(
+                                    text,
+                                    segment.start,
+                                    segment.end,
+                                )
+                            }
+                        } ?: append(
                             text,
                             segment.start,
                             segment.end,

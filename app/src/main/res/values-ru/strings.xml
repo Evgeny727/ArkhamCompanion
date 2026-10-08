@@ -2003,4 +2003,5 @@
     <string name="reset_favorite_cards">Сбросить карты в избранном</string>
     <string name="favorite_cards_cleared">Избранное очищено</string>
     <string name="show_preview_cards">Показывать невыпущенные карты</string>
+    <string name="card">Карта</string>
 </resources>

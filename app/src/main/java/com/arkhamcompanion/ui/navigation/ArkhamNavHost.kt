@@ -157,11 +157,14 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
 
         val entryProvider = entryProvider {
             settingsEntries(
-                viewModel = viewModel,
                 navigator = navigator,
+                viewModel = viewModel,
             )
 
-            cardsEntries(navigator = navigator)
+            cardsEntries(
+                navigator = navigator,
+                viewModel = viewModel,
+            )
 
             decksEntries(navigator = navigator)
 

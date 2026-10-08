@@ -146,7 +146,7 @@ data class CardDetailsEntity(
 
     //Taboo fields
     @ColumnInfo("taboo_set_id")
-    val tabooSetId: String?,
+    val tabooSetId: Int?,
     @ColumnInfo("taboo_xp")
     val tabooXp: Int?,
     @ColumnInfo("taboo_placeholder")

@@ -26,6 +26,7 @@ internal class ParagraphBuilder {
     fun appendText(
         start: Int,
         end: Int,
+        link: String? = null,
         styleFlags: CardTextStyleFlags,
     ) {
         if (start >= end) return
@@ -39,7 +40,8 @@ internal class ParagraphBuilder {
         if (
             previous is CardTextSegment.Text &&
             previous.end == start &&
-            previous.styleFlags == styleFlags
+            previous.styleFlags == styleFlags &&
+            previous.link == link
         ) {
             segments[segments.lastIndex] = previous.copy(
                 end = end,
@@ -48,6 +50,7 @@ internal class ParagraphBuilder {
             segments += CardTextSegment.Text(
                 start = start,
                 end = end,
+                link = link,
                 styleFlags = styleFlags,
             )
         }

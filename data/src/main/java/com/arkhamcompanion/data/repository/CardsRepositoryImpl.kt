@@ -37,6 +37,7 @@ import com.arkhamcompanion.data.utils.filterByInvestigatorAccess
 import com.arkhamcompanion.data.utils.filterInvestigatorsByCards
 import com.arkhamcompanion.data.utils.fuzzySearch
 import com.arkhamcompanion.data.utils.prepareWordsForFuzzySearch
+import com.arkhamcompanion.data.utils.preprocessCardText
 import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.QueryParseResult
 import com.arkhamcompanion.domain.arkhamql.evaluator.QueryEvaluationException
@@ -53,6 +54,8 @@ import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.domain.model.cards.CardTabooInfo
+import com.arkhamcompanion.domain.model.cards.CardText
+import com.arkhamcompanion.domain.objects.CardTextParser
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.getCurrentDateTime
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.isAtLeastTwoWeeksApart
@@ -67,6 +70,7 @@ import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -619,5 +623,28 @@ class CardsRepositoryImpl @Inject constructor(
 
     override suspend fun getInitialCardFields(cardId: String): CardInvestigatorAccessFields {
         return cardsDao.getInitialCardFieldsById(cardId).toDomain()
+    }
+
+    override fun getCardFaqByCodeFlow(code: String): Flow<Result<CardText?>> = flow {
+        val faqEntry = runCatching {
+            cardsRemoteDataSource.fetchCardFaqByCode(code).dataAssertNoErrors
+        }
+
+        val result = if (faqEntry.isSuccess) {
+            Result.success(
+                faqEntry.getOrNull()?.faq_by_pk?.let {
+                    val preprocessedText = it.text.preprocessCardText(
+                        processBullets = true,
+                        processWebFormat = true
+                    )
+
+                    CardTextParser.parse(preprocessedText)
+                }
+            )
+        } else {
+            Result.failure(faqEntry.exceptionOrNull()!!)
+        }
+
+        emit(result)
     }
 }

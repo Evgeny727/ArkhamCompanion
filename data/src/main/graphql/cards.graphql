@@ -72,3 +72,9 @@ query getEncounterCards($locale: String!, $version: Int!) {
     }
   }
 }
+
+query getCardFaq($code: String!) {
+  faq_by_pk(code: $code) {
+    text
+  }
+}

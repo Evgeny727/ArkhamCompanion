@@ -99,3 +99,16 @@ data class CardTabooHistoryScreen(
     val cardCode: String,
     val cardName: String
 ) : NavKey
+
+@Serializable
+data class CardFaqScreen(
+    val cardCode: String,
+    val cardName: String,
+    val tabooSetId: Int?
+) : NavKey
+
+@Serializable
+data class StandaloneCardDetailsScreen(
+    val cardCode: String,
+    val tabooSetId: Int?
+) : NavKey

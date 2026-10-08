@@ -53,7 +53,7 @@ object CardTextParser {
                     paragraphs = paragraphs,
                 )
 
-                '[' -> parseBracket(
+                '[' -> parseBracketOrLink(
                     text = text,
                     index = current,
                     styleFlags = styleFlags,
@@ -314,15 +314,15 @@ object CardTextParser {
         )
     }
 
-    private fun parseBracket(
+    private fun parseBracketOrLink(
         text: String,
         index: Int,
         styleFlags: CardTextStyleFlags,
         paragraphs: ParagraphBuilder,
     ): Int {
-        val end = text.indexOf(']', index)
+        val closeBracket = text.indexOf(']', index)
 
-        if (end == -1) {
+        if (closeBracket == -1) {
             paragraphs.appendText(
                 start = index,
                 end = index + 1,
@@ -332,9 +332,34 @@ object CardTextParser {
             return index + 1
         }
 
+        // [text](/card/code)
+        if (closeBracket + 1 < text.length && text[closeBracket + 1] == '(') {
+            val closeParenthesis = text.indexOf(')', closeBracket + 2)
+
+            if (closeParenthesis != -1) {
+                val labelStart = index + 1
+
+                val targetStart = closeBracket + 2
+
+                val target = text.substring(targetStart, closeParenthesis)
+
+                if (target.startsWith("/card/")) {
+                    paragraphs.appendText(
+                        start = labelStart,
+                        end = closeBracket,
+                        link = target.drop(6),
+                        styleFlags = styleFlags + CardTextStyleFlags.UNDERLINE,
+                    )
+
+                    return closeParenthesis + 1
+                }
+            }
+        }
+
+        // Normal [icon]
         val key = text.substring(
             index + 1,
-            end,
+            closeBracket,
         )
 
         val glyph = IconRegistry.glyph(key)
@@ -342,11 +367,11 @@ object CardTextParser {
         if (glyph != null) {
             paragraphs.appendIcon(
                 start = index,
-                end = end + 1,
+                end = closeBracket + 1,
                 glyph = glyph,
             )
 
-            return end + 1
+            return closeBracket + 1
         } else {
             paragraphs.appendText(
                 start = index,

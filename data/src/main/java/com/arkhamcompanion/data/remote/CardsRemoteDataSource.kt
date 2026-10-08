@@ -1,6 +1,7 @@
 package com.arkhamcompanion.data.remote
 
 import com.apollographql.apollo.ApolloClient
+import com.arkhamcompanion.GetCardFaqQuery
 import com.arkhamcompanion.GetCardsUpdatedAtQuery
 import com.arkhamcompanion.GetEncounterCardsQuery
 import com.arkhamcompanion.GetPlayerCardsQuery
@@ -26,5 +27,9 @@ class CardsRemoteDataSource @Inject constructor(
 
     suspend fun fetchCardsUpdatedAt(locale: String) = apolloClient
         .query(GetCardsUpdatedAtQuery(locale, CARDS_SCHEMA_VERSION))
+        .execute()
+
+    suspend fun fetchCardFaqByCode(code: String) = apolloClient
+        .query(GetCardFaqQuery(code))
         .execute()
 }

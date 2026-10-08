@@ -3,6 +3,7 @@ package com.arkhamcompanion.ui.navigation.cards
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -11,9 +12,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
+import com.arkhamcompanion.domain.model.cards.CardSearchResultItem
 import com.arkhamcompanion.ui.cards.CardDetailsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsViewModel
+import com.arkhamcompanion.ui.cards.CardFaqScreen
+import com.arkhamcompanion.ui.cards.CardFaqViewModel
 import com.arkhamcompanion.ui.cards.CardTabooHistoryScreen
 import com.arkhamcompanion.ui.cards.CardTabooHistoryViewModel
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
@@ -36,6 +41,7 @@ import com.arkhamcompanion.ui.cards.CardsScreen
 import com.arkhamcompanion.ui.cards.CardsSortScreen
 import com.arkhamcompanion.ui.cards.CardsSortViewModel
 import com.arkhamcompanion.ui.cards.CardsViewModel
+import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersAssetsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersCardsAccessScreen
@@ -66,8 +72,12 @@ import com.arkhamcompanion.ui.navigation.toContentKey
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.ARKHAM_BUILD_CARD_URL
 import com.arkhamcompanion.ui.utils.openLink
+import kotlinx.collections.immutable.persistentListOf
 
-fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
+fun EntryProviderScope<NavKey>.cardsEntries(
+    navigator: Navigator,
+    viewModel: AppViewModel
+) {
     entry<TopLevelRoute.Cards>(
         clazzContentKey = { key -> key.toContentKey() }
     ) { backStackEntry ->
@@ -911,6 +921,11 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
             cardCodes = cardsLazyCodes,
             cardDetailsViewModel = cardDetailsViewModel,
             onCurrentCardCodeChanged = { currentCardCode = it },
+            onFaqNavigation = { code, name, tabooSetId ->
+                navigator.navigateSingleTop(
+                    CardFaqScreen(code, name, tabooSetId)
+                )
+            },
             onTabooNavigation = { code, name ->
                 navigator.navigateSingleTop(
                     CardTabooHistoryScreen( code, name)
@@ -980,6 +995,107 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                 )
             },
             rightActions = null,
+        )
+    }
+
+    entry<CardFaqScreen> { backStackEntry ->
+        val topAppBarState = LocalTopAppBarState.current
+
+        val cardFaqViewModel: CardFaqViewModel = hiltViewModel()
+
+        CardFaqScreen(
+            cardCode = backStackEntry.cardCode,
+            cardFaqViewModel = cardFaqViewModel,
+            onCardLinkClick = { code ->
+                navigator.navigateSingleTop(
+                    StandaloneCardDetailsScreen(code, backStackEntry.tabooSetId)
+                )
+            },
+            emitError = viewModel::emitError
+        )
+
+        topAppBarState.update(
+            title = backStackEntry.cardName,
+            subtitle = stringResource(R.string.faq),
+            color = null,
+            contentColor = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+            rightActions = null,
+        )
+    }
+
+    entry<StandaloneCardDetailsScreen> { backStackEntry ->
+        val topAppBarState = LocalTopAppBarState.current
+
+        val cardDetailsViewModel: CardDetailsViewModel = hiltViewModel()
+        val codes = remember(backStackEntry.cardCode) {
+            persistentListOf(CardSearchResultItem(
+                backStackEntry.cardCode,
+                backStackEntry.cardCode,
+                backStackEntry.tabooSetId
+            ))
+        }
+        val context = LocalContext.current
+
+        CardDetailsScreen(
+            cardCode = backStackEntry.cardCode,
+            cardCodes = codes,
+            cardDetailsViewModel = cardDetailsViewModel,
+            onCurrentCardCodeChanged = {},
+            onFaqNavigation = { code, name, tabooSetId ->
+                navigator.navigateSingleTop(
+                    CardFaqScreen(code, name, tabooSetId)
+                )
+            },
+            onTabooNavigation = { code, name ->
+                navigator.navigateSingleTop(
+                    CardTabooHistoryScreen( code, name)
+                )
+            },
+            onShowInvestigatorCardpool = { investigatorId, parallelCode ->
+                navigator.navigateSingleTop(TopLevelRoute.Cards(
+                    CardsGraphState.Investigator(investigatorId, parallelCode)
+                ))
+            },
+            onShowWhoCanTakeCard = { id ->
+                id?.let {
+                    navigator.navigateSingleTop(TopLevelRoute.Cards(
+                        CardsGraphState.Card(it)
+                    ))
+                }
+            }
+        )
+
+        topAppBarState.update(
+            title = stringResource(R.string.card),
+            subtitle = null,
+            color = null,
+            contentColor = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+            rightActions = backStackEntry.cardCode.takeUnless {
+                //Hide button for fanmade cards and handle legacy investigator
+                it.startsWith("z") || it == "custom_001"
+            }?.let {
+                { code ->
+                    ArkhamAppBarAction(
+                        contentColor = CustomTheme.colors.m,
+                        onClick = { context.openLink(ARKHAM_BUILD_CARD_URL + code) },
+                        iconGlyph = AppIcon.World,
+                    )
+                }
+            },
         )
     }
 }

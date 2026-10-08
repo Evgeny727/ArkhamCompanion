@@ -19,6 +19,7 @@ fun LazyListScope.cardDetailsRelationSection(
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
+    onFaqNavigation: (String,  String, Int?) -> Unit,
 ) {
     var headerAdded = false
 
@@ -38,6 +39,7 @@ fun LazyListScope.cardDetailsRelationSection(
             flavorStyleResolver,
             toggleFavorite = toggleFavorite,
             onTabooNavigation = onTabooNavigation,
+            onFaqNavigation = onFaqNavigation
         )
     }
 }
@@ -53,6 +55,7 @@ fun LazyListScope.cardDetailsRelationSectionSingle(
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
+    onFaqNavigation: (String,  String, Int?) -> Unit,
 ) {
     if (!relatedCard.shouldShow(collection, ignoreCollection, showFanmade)) return
 
@@ -66,6 +69,7 @@ fun LazyListScope.cardDetailsRelationSectionSingle(
         flavorStyleResolver,
         toggleFavorite = toggleFavorite,
         onTabooNavigation = onTabooNavigation,
+        onFaqNavigation = onFaqNavigation
     )
 }
 
@@ -89,6 +93,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
+    onFaqNavigation: (String,  String, Int?) -> Unit,
 ) {
     relatedCard.details.run {
         doubleSidedCardDetails(
@@ -99,6 +104,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
             flavorStyleResolver = flavorStyleResolver,
             toggleFavorite = toggleFavorite,
             onTabooNavigation = onTabooNavigation,
+            onFaqNavigation = onFaqNavigation
         )
     }
 
@@ -112,6 +118,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
             flavorStyleResolver = flavorStyleResolver,
             toggleFavorite = toggleFavorite,
             onTabooNavigation = onTabooNavigation,
+            onFaqNavigation = onFaqNavigation
         )
     }
 }

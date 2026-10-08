@@ -29,6 +29,7 @@ fun LazyListScope.doubleSidedCardDetails(
     flavorStyleResolver: CardTextStyleResolver,
     toggleFavorite: (String, Boolean) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
+    onFaqNavigation: (String,  String, Int?) -> Unit,
 ) {
     cardDetailsWithPackInfo.run {
         val firstPackInCollection = firstPackIn(collection)
@@ -59,7 +60,13 @@ fun LazyListScope.doubleSidedCardDetails(
                         {
                             CardDetailsFooter(
                                 cardDetails.official,
-                                onFaq = { /*TODO:navigate to FAQ screen*/ },
+                                onFaq = {
+                                    onFaqNavigation(
+                                        cardDetails.code,
+                                        cardDetails.name,
+                                        cardDetails.tabooSetId
+                                    )
+                                },
                                 cardDetails.tabooSetId,
                                 cardDetails.tabooPlaceholder,
                                 onTaboo = {
@@ -106,7 +113,13 @@ fun LazyListScope.doubleSidedCardDetails(
                     {
                         CardDetailsFooter(
                             cardDetails.official,
-                            onFaq = { /*TODO:navigate to FAQ screen*/ },
+                            onFaq = {
+                                onFaqNavigation(
+                                    cardDetails.code,
+                                    cardDetails.name,
+                                    cardDetails.tabooSetId
+                                )
+                            },
                             cardDetails.tabooSetId,
                             cardDetails.tabooPlaceholder,
                             onTaboo = {
@@ -151,7 +164,11 @@ fun LazyListScope.doubleSidedCardDetails(
                         )
                     }
                 ) {
-                    ParsedCardText(customizationText, styleResolver, isCustomizationText = true)
+                    ParsedCardText(
+                        customizationText,
+                        styleResolver,
+                        isCustomizationText = true
+                    )
                 }
             }
         }

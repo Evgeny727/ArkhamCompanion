@@ -13,6 +13,7 @@ import com.arkhamcompanion.data.local.meta.PackEntity
 import com.arkhamcompanion.data.objects.CardSortOrder.sortByFactionOrder
 import com.arkhamcompanion.data.objects.CardSortOrder.sortBySlotOrder
 import com.arkhamcompanion.data.objects.CardSortOrder.sortByTypeOrder
+import com.arkhamcompanion.data.utils.preprocessCardText
 import com.arkhamcompanion.domain.model.cards.ARKHAM_BUILD_BASE_IMAGE_URL
 import com.arkhamcompanion.domain.objects.normalizeForSearch
 import com.arkhamcompanion.fragment.CoreCardText
@@ -281,37 +282,4 @@ fun GetTranslationDataQuery.Card_subtype_name.toEntity(): CardSubtypeEntity {
         code = code,
         name = name
     )
-}
-
-private val WEIRD_BULLET_REGEX = Regex("""\\u2022""")
-private val LINEBREAK_REGEX = Regex("""(\/n|<br\/?>)""")
-private val INDENTED_BULLET_REGEX = Regex("""(^\s?--|^-—\s+)([^0-9].+)$""", RegexOption.MULTILINE)
-private val BULLET_REGEX = Regex("""(^\s?-|^—\s+)([^0-9].+)$""", RegexOption.MULTILINE)
-private val GUIDE_BULLET_REGEX = Regex("""(^\s?=|^=\s+)([^0-9].+)$""", RegexOption.MULTILINE)
-private val PARAGRAPH_BULLET_REGEX = Regex("""(<p>- )|(<p>–)""", RegexOption.MULTILINE)
-private val DOUBLE_BRACKET_REGEX = Regex("""\[\[([^\]]+)\]\]""")
-
-internal fun String.preprocessCardText(processBullets: Boolean = false): String {
-    val result = this
-        .replace(WEIRD_BULLET_REGEX, "•")
-        .replace(LINEBREAK_REGEX, "\n")
-        .replace(DOUBLE_BRACKET_REGEX) { match ->
-            "<trait>${match.groupValues[1]}</trait>"
-        }
-
-    if (processBullets) {
-        return result
-            .replace(INDENTED_BULLET_REGEX) { match ->
-                "\t[bullet] ${match.groupValues[2]}"
-            }
-            .replace(BULLET_REGEX) { match ->
-                "[bullet] ${match.groupValues[2]}"
-            }
-            .replace(GUIDE_BULLET_REGEX) { match ->
-                "[guide_bullet] ${match.groupValues[2]}"
-            }
-            .replace(PARAGRAPH_BULLET_REGEX, "<p>[bullet]")
-    }
-
-    return result
 }

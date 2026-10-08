@@ -17,7 +17,7 @@ import kotlinx.collections.immutable.toImmutableList
 internal fun CardDetailsEntity.toDomain(
     backCode: String?,
     backCardType: CardType?,
-    backTabooSetId: String?,
+    backTabooSetId: Int?,
     backTabooPlaceholder: Boolean,
     backImageUrl: String?,
 ) = CardDetails(

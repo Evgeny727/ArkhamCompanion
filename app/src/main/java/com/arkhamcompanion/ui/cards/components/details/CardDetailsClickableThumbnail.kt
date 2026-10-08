@@ -54,8 +54,8 @@ fun CardDetailsClickableThumbnail(
     thumbnailUrl: String?,
     imageUrl: String?,
     backImageUrl: String?,
-    taboSetId: String?,
-    backTaboSetId: String?,
+    taboSetId: Int?,
+    backTaboSetId: Int?,
     code: String,
     backCode: String?,
     type: CardType,
@@ -153,8 +153,8 @@ private fun CardDetailsFullImageDialog(
     backCode: String?,
     cardType: CardType,
     backCardType: CardType?,
-    taboSetId: String?,
-    backTaboSetId: String?,
+    taboSetId: Int?,
+    backTaboSetId: Int?,
     imageUrl: String?,
     backImageUrl: String?,
     isDoubleSided: Boolean,
@@ -343,14 +343,14 @@ fun FlippableCard(
     }
 }
 
-private fun String?.applyTaboo(tabooSetId: String?): String? {
+private fun String?.applyTaboo(tabooSetId: Int?): String? {
     if (this == null) return null
     if (tabooSetId == null) return this
 
     return replaceFirst(".webp", "-$tabooSetId.webp")
 }
 
-private fun String?.removeTaboo(tabooSetId: String?): String? {
+private fun String?.removeTaboo(tabooSetId: Int?): String? {
     if (this == null) return null
     if (tabooSetId == null) return this
 

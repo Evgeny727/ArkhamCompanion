@@ -43,6 +43,7 @@ fun CardDetailsScreen(
     cardCodes: ImmutableList<CardSearchResultItem>,
     cardDetailsViewModel: CardDetailsViewModel,
     onCurrentCardCodeChanged: (String?) -> Unit,
+    onFaqNavigation: (String,  String, Int?) -> Unit,
     onTabooNavigation: (String,  String) -> Unit,
     onShowInvestigatorCardpool: (String, String?) -> Unit,
     onShowWhoCanTakeCard: (String?) -> Unit,
@@ -125,8 +126,7 @@ fun CardDetailsScreen(
     HorizontalPager(
         state = pagerState,
         key = { page -> cardCodes[page].code },
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         beyondViewportPageCount = 1
     ) { page ->
         val item = cardCodes[page]
@@ -135,9 +135,7 @@ fun CardDetailsScreen(
             item.tabooSetId
         ).collectAsState(null)
 
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             AnimatedVisibility(visible = !pagerReady || cardDetailsWithRelations == null) {
                 Column(
                     verticalArrangement = Arrangement.Center,
@@ -179,7 +177,8 @@ fun CardDetailsScreen(
                             styleResolver,
                             flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -196,7 +195,8 @@ fun CardDetailsScreen(
                                     styleResolver = styleResolver,
                                     flavorStyleResolver = flavorStyleResolver,
                                     toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                                    onTabooNavigation = onTabooNavigation
+                                    onTabooNavigation = onTabooNavigation,
+                                    onFaqNavigation = onFaqNavigation
                                 )
                             }
                         }
@@ -213,7 +213,8 @@ fun CardDetailsScreen(
                                     styleResolver = styleResolver,
                                     flavorStyleResolver = flavorStyleResolver,
                                     toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                                    onTabooNavigation = onTabooNavigation
+                                    onTabooNavigation = onTabooNavigation,
+                                    onFaqNavigation = onFaqNavigation
                                 )
                             }
                         }
@@ -231,7 +232,8 @@ fun CardDetailsScreen(
                                 styleResolver = styleResolver,
                                 flavorStyleResolver = flavorStyleResolver,
                                 toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                                onTabooNavigation = onTabooNavigation
+                                onTabooNavigation = onTabooNavigation,
+                                onFaqNavigation = onFaqNavigation
                             )
                         }
                     }
@@ -296,7 +298,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -313,7 +316,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -330,7 +334,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -347,7 +352,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -364,7 +370,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -381,7 +388,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -398,7 +406,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -415,7 +424,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -432,7 +442,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
 
@@ -449,7 +460,8 @@ fun CardDetailsScreen(
                             styleResolver = styleResolver,
                             flavorStyleResolver = flavorStyleResolver,
                             toggleFavorite = cardDetailsViewModel::toggleFavorite,
-                            onTabooNavigation = onTabooNavigation
+                            onTabooNavigation = onTabooNavigation,
+                            onFaqNavigation = onFaqNavigation
                         )
                     }
                 }
