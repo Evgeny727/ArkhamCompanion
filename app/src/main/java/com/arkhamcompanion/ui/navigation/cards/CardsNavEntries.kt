@@ -409,6 +409,11 @@ fun EntryProviderScope<NavKey>.cardsEntries(
             selectedCards = filters.whoCanTakeCard,
             cardsFiltersViewModel = cardsFiltersViewModel,
             onCardToggle = cardsViewModel::toggleWhoCanTakeCardFilter,
+            onCardClick = { code, tabooSetId ->
+                navigator.navigateSingleTop(
+                    StandaloneCardDetailsScreen(code, tabooSetId)
+                )
+            }
         )
 
         topAppBarState.update(

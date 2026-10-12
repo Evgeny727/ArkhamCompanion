@@ -2021,4 +2021,15 @@
     <string name="reset_favorite_cards">Reset favorite cards</string>
     <string name="favorite_cards_cleared">Favorite cards cleared</string>
     <string name="show_preview_cards">Show preview cards</string>
+    <string name="edit_unlocked_rewards">Edit unlocked rewards</string>
+    <string name="unlock_all_rewards">Unlock all rewards</string>
+    <string name="set_rewards_text">Use these controls to limit which rewards are visible while building decks or upgrading cards to those you\'ve unlocked.</string>
+    <string name="unlocked_rewards">Unlocked Rewards</string>
+    <string name="all_rewards">All Rewards</string>
+    <plurals name="count_reward">
+        <item quantity="one">%s Reward</item>
+        <item quantity="other">%s Rewards</item>
+    </plurals>
+    <string name="disable_to_choose_individual_rewards_to_show">Disable to choose individual rewards to show</string>
+    <string name="all_rewards_are_shown_throughout_the_decks">All rewards are shown throughout the decks</string>
 </resources>

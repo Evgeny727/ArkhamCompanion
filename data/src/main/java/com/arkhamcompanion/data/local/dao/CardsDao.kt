@@ -113,21 +113,7 @@ interface CardsDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
-        SELECT c.*,
-            t.name AS typeName,
-            st.name AS subTypeName,
-            f.name AS factionName,
-            p.name AS packName,
-            e.name AS encounterName,
-            cy.name AS cycleName,
-            cy.position as cyclePosition
-        FROM card c 
-        JOIN card_type t ON c.type_code = t.code
-        LEFT JOIN card_subtype st ON c.subtype_code = st.code
-        JOIN faction f ON c.faction_code = f.code
-        JOIN pack p ON c.pack_code = p.code
-        JOIN cycle cy ON c.cycle_code = cy.code
-        LEFT JOIN encounter_set e ON c.encounter_code = e.code
+        $BASE_CARD_LIST_QUERY 
         WHERE c.type_code = 'investigator' 
         AND c.encounter_code IS NULL 
         AND c.taboo_set_id IS NULL 
@@ -139,21 +125,7 @@ interface CardsDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
-        SELECT c.*,
-            t.name AS typeName,
-            st.name AS subTypeName,
-            f.name AS factionName,
-            p.name AS packName,
-            e.name AS encounterName,
-            cy.name AS cycleName,
-            cy.position as cyclePosition
-        FROM card c 
-        JOIN card_type t ON c.type_code = t.code
-        LEFT JOIN card_subtype st ON c.subtype_code = st.code
-        JOIN faction f ON c.faction_code = f.code
-        JOIN pack p ON c.pack_code = p.code
-        JOIN cycle cy ON c.cycle_code = cy.code
-        LEFT JOIN encounter_set e ON c.encounter_code = e.code
+        $BASE_CARD_LIST_QUERY 
         WHERE c.type_code != 'investigator' 
         AND c.taboo_set_id IS NULL 
         AND c.hidden = 0 
@@ -164,22 +136,41 @@ interface CardsDao {
     fun getAllPlayableCardsByNamePaged(name: String): PagingSource<Int, CardListItemEntity>
 
     @RewriteQueriesToDropUnusedColumns
-    @Query("""SELECT c.*,
-            t.name AS typeName,
-            st.name AS subTypeName,
-            f.name AS factionName,
-            p.name AS packName,
-            e.name AS encounterName,
-            cy.name AS cycleName,
-            cy.position as cyclePosition
-        FROM card c 
-        JOIN card_type t ON c.type_code = t.code
-        LEFT JOIN card_subtype st ON c.subtype_code = st.code
-        JOIN faction f ON c.faction_code = f.code
-        JOIN pack p ON c.pack_code = p.code
-        JOIN cycle cy ON c.cycle_code = cy.code
-        LEFT JOIN encounter_set e ON c.encounter_code = e.code 
+    @Query("""
+        $BASE_CARD_LIST_QUERY 
         WHERE id = :id
     """)
     suspend fun getInitialCardFieldsById(id: String): CardListItemEntity
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("""
+        $BASE_CARD_LIST_QUERY 
+        WHERE c.encounter_code IS NOT NULL
+            AND c.xp IS NOT NULL
+            AND (
+                :ignoreCollection = 1
+                OR c.pack_code IN (:collection)
+            )
+    """)
+    fun getRewardCardsFlow(ignoreCollection: Boolean, collection: Set<String>): Flow<List<CardListItemEntity>>
+
+    companion object {
+        const val BASE_CARD_LIST_QUERY = """
+            SELECT c.*,
+                t.name AS typeName,
+                st.name AS subTypeName,
+                f.name AS factionName,
+                p.name AS packName,
+                e.name AS encounterName,
+                cy.name AS cycleName,
+                cy.position as cyclePosition
+            FROM card c 
+            JOIN card_type t ON c.type_code = t.code
+            LEFT JOIN card_subtype st ON c.subtype_code = st.code
+            JOIN faction f ON c.faction_code = f.code
+            JOIN pack p ON c.pack_code = p.code
+            JOIN cycle cy ON c.cycle_code = cy.code
+            LEFT JOIN encounter_set e ON c.encounter_code = e.code 
+        """
+    }
 }

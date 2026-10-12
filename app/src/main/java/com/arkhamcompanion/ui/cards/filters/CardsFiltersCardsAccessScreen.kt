@@ -41,6 +41,7 @@ fun CardsFiltersCardsAccessScreen(
     cardsFiltersViewModel: CardsFiltersViewModel,
     selectedCards: ImmutableSet<CardInvestigatorAccessFields>,
     onCardToggle: (CardInvestigatorAccessFields) -> Unit,
+    onCardClick: (String, Int?) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val cards = cardsFiltersViewModel.cards.collectAsLazyPagingItems()
@@ -154,7 +155,7 @@ fun CardsFiltersCardsAccessScreen(
                                 cardListItem = item,
                                 rowHeight = rowHeight,
                                 isFavorite = false,
-                                onClick = { onCardToggle(item) },
+                                onClick = { onCardClick(item.code, item.tabooSetId) },
                                 modifier = Modifier.weight(1f)
                             )
 

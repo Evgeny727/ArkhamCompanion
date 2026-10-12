@@ -19,6 +19,7 @@ import com.arkhamcompanion.ui.settings.components.SocialsCard
 import com.arkhamcompanion.ui.settings.components.SupportCard
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
+import kotlin.String
 
 @Composable
 fun SettingsScreen(
@@ -26,6 +27,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onLanguageChange: (String) -> Unit,
     navigateToCollection: () -> Unit,
+    navigateToRewards: () -> Unit,
     updateCards: (String) -> Unit,
     navigateToAbout: () -> Unit,
     navigateToBackup: () -> Unit,
@@ -40,6 +42,8 @@ fun SettingsScreen(
     val allPacks by viewModel.allPacksState.collectAsState()
     val collection by viewModel.collectionState.collectAsState()
     val ignoreCollection by viewModel.ignoreCollectionState.collectAsState()
+    val rewards by viewModel.rewardsState.collectAsState()
+    val unlockAllRewards by viewModel.unlockAllRewardsState.collectAsState()
     val tabooSetId by viewModel.tabooSetIdState.collectAsState()
     val tabooSetsList by viewModel.tabooSetsListState.collectAsState()
 
@@ -77,6 +81,9 @@ fun SettingsScreen(
                 collection = collection,
                 ignoreCollection = ignoreCollection,
                 navigateToCollection = navigateToCollection,
+                rewards = rewards,
+                unlockAllRewards = unlockAllRewards,
+                navigateToRewards = navigateToRewards,
                 setTaboo = viewModel::setTaboo,
                 tabooSetId = tabooSetId,
                 tabooSetsList = tabooSetsList,

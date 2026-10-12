@@ -3,6 +3,7 @@ package com.arkhamcompanion.domain.repository
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
 import com.arkhamcompanion.domain.model.settings.Collection
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 
@@ -15,6 +16,8 @@ interface UserPreferencesRepository {
     val tabooSetId: Flow<Int>
     val collection: Flow<Collection>
     val ignoreCollection: Flow<Boolean>
+    val rewards: Flow<ImmutableSet<String>>
+    val unlockAllRewards: Flow<Boolean>
     val cardsUpdatedAt: Flow<String>
     val sortOrderPlayer: Flow<ImmutableList<String>>
     val sortOrderMythos: Flow<ImmutableList<String>>
@@ -28,6 +31,8 @@ interface UserPreferencesRepository {
     suspend fun saveTabooSetPreference(tabooSetId: Int)
     suspend fun saveCollectionPreference(collection: Collection)
     suspend fun saveIgnoreCollectionPreference(ignoreCollection: Boolean)
+    suspend fun saveRewardsPreference(rewards: Set<String>)
+    suspend fun saveUnlockAllRewardsPreference(unlockAllRewards: Boolean)
     suspend fun saveCardsUpdatedTimestamp(timestamp: String)
     suspend fun saveSortOrderPlayerPreference(sortOrder: List<String>)
     suspend fun saveSortOrderMythosPreference(sortOrder: List<String>)

@@ -57,4 +57,9 @@ interface CardsRepository {
     suspend fun getInitialCardFields(cardId: String): CardInvestigatorAccessFields
 
     fun getCardFaqByCodeFlow(code: String): Flow<Result<CardText?>>
+
+    fun getRewardCardsFlow(
+        ignoreCollection: Boolean,
+        collection: Set<String>
+    ): Flow<ImmutableList<CardListItem>>
 }

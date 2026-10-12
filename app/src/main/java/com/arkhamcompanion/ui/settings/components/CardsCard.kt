@@ -35,6 +35,7 @@ import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import java.util.Locale
 
 @Composable
@@ -44,6 +45,9 @@ fun CardsCard(
     collection: Collection,
     ignoreCollection: Boolean,
     navigateToCollection: () -> Unit,
+    rewards: ImmutableSet<String>,
+    unlockAllRewards: Boolean,
+    navigateToRewards: () -> Unit,
     setTaboo: (Int) -> Unit,
     tabooSetId: Int,
     tabooSetsList: ImmutableList<TabooSet>,
@@ -72,6 +76,14 @@ fun CardsCard(
                 collection = collection,
                 ignoreCollection = ignoreCollection,
                 navigateToCollection = navigateToCollection
+            )
+
+            HorizontalDivider(color = CustomTheme.colors.divider)
+
+            ArkhamRewardsSurfaceButton(
+                rewards = rewards,
+                unlockAllRewards = unlockAllRewards,
+                navigateToRewards = navigateToRewards
             )
 
             HorizontalDivider(color = CustomTheme.colors.divider)
@@ -208,5 +220,22 @@ private fun ArkhamCollectionSurfaceButton(
         icon = AppIcon.CardOutline,
         valueLabel = if (ignoreCollection) allCollection else collectionSummarized,
         onClick = navigateToCollection
+    )
+}
+
+@Composable
+private fun ArkhamRewardsSurfaceButton(
+    rewards: ImmutableSet<String>,
+    unlockAllRewards: Boolean,
+    navigateToRewards: () -> Unit
+) {
+    val rewardsSummarized = pluralStringResource(R.plurals.count_reward, rewards.size, rewards.size)
+    val allRewards = stringResource(R.string.all_rewards)
+
+    ArkhamSurfaceButton(
+        title = stringResource(R.string.unlocked_rewards),
+        icon = AppIcon.SpecialCards,
+        valueLabel = if (unlockAllRewards) allRewards else rewardsSummarized,
+        onClick = navigateToRewards
     )
 }

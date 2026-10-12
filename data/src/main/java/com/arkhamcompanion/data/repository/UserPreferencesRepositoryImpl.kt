@@ -16,8 +16,10 @@ import com.arkhamcompanion.domain.repository.DEFAULT_MYTHOS_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DEFAULT_PLAYER_SORT_ORDER
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -134,6 +136,33 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }.map { preferences ->
             preferences[IGNORE_COLLECTION] ?: true
         }
+    override val rewards: Flow<ImmutableSet<String>> = dataStore.data
+        .catch {
+            if (it is IOException) {
+                analyticsRepository.logMessage("Error reading unlocked rewards preferences.")
+                analyticsRepository.logError(it)
+
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            preferences[REWARDS]?.split(",")?.filter { it.isNotBlank() }
+                ?.toImmutableSet() ?: persistentSetOf()
+        }
+    override val unlockAllRewards: Flow<Boolean> = dataStore.data
+        .catch {
+            if (it is IOException) {
+                analyticsRepository.logMessage("Error reading unlock all rewards preferences.")
+                analyticsRepository.logError(it)
+
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            preferences[UNLOCK_ALL_REWARDS] ?: true
+        }
     override val cardsUpdatedAt: Flow<String> = dataStore.data
         .catch {
             if (it is IOException) {
@@ -215,6 +244,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val TABOO = intPreferencesKey("taboo")
         val COLLECTION = stringPreferencesKey("collection")
         val IGNORE_COLLECTION = booleanPreferencesKey("ignore_collection")
+        val REWARDS = stringPreferencesKey("rewards")
+        val UNLOCK_ALL_REWARDS = booleanPreferencesKey("unlock_all_rewards")
         val CARDS_UPDATED_AT = stringPreferencesKey("cards_updated_at")
         val CARDS_SORT_ORDER_PLAYER = stringPreferencesKey("cards_sort_order_player")
         val CARDS_SORT_ORDER_MYTHOS = stringPreferencesKey("cards_sort_order_mythos")
@@ -268,6 +299,18 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun saveRewardsPreference(rewards: Set<String>) {
+        dataStore.edit { preferences ->
+            preferences[REWARDS] = rewards.joinToString(",")
+        }
+    }
+
+    override suspend fun saveUnlockAllRewardsPreference(unlockAllRewards: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[UNLOCK_ALL_REWARDS] = unlockAllRewards
+        }
+    }
+
     override suspend fun saveCardsUpdatedTimestamp(timestamp: String) {
         dataStore.edit { preferences ->
             preferences[CARDS_UPDATED_AT] = timestamp
@@ -276,13 +319,17 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun saveSortOrderPlayerPreference(sortOrder: List<String>) {
         dataStore.edit { preferences ->
-            preferences[CARDS_SORT_ORDER_PLAYER] = sortOrder.ifEmpty { DEFAULT_PLAYER_SORT_ORDER }.joinToString(",")
+            preferences[CARDS_SORT_ORDER_PLAYER] = sortOrder.ifEmpty {
+                DEFAULT_PLAYER_SORT_ORDER
+            }.joinToString(",")
         }
     }
 
     override suspend fun saveSortOrderMythosPreference(sortOrder: List<String>) {
         dataStore.edit { preferences ->
-            preferences[CARDS_SORT_ORDER_MYTHOS] = sortOrder.ifEmpty { DEFAULT_MYTHOS_SORT_ORDER }.joinToString(",")
+            preferences[CARDS_SORT_ORDER_MYTHOS] = sortOrder.ifEmpty {
+                DEFAULT_MYTHOS_SORT_ORDER
+            }.joinToString(",")
         }
     }
 }

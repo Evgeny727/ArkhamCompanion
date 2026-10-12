@@ -2004,4 +2004,17 @@
     <string name="favorite_cards_cleared">Избранное очищено</string>
     <string name="show_preview_cards">Показывать невыпущенные карты</string>
     <string name="card">Карта</string>
+    <string name="edit_unlocked_rewards">Изменить полученные награды</string>
+    <string name="unlock_all_rewards">Получить все</string>
+    <string name="set_rewards_text">Укажите полученные вами награды, чтобы видеть в колодах эти награды.</string>
+    <string name="unlocked_rewards">Полученные награды</string>
+    <string name="all_rewards">Все награды</string>
+    <plurals name="count_reward">
+        <item quantity="one">%s награда</item>
+        <item quantity="few">%s награды</item>
+        <item quantity="many">%s наград</item>
+        <item quantity="other">%s наград</item>
+    </plurals>
+    <string name="disable_to_choose_individual_rewards_to_show">Отключите, чтобы видеть отдельные награды</string>
+    <string name="all_rewards_are_shown_throughout_the_decks">В колодах отображаются все награды</string>
 </resources>

@@ -11,15 +11,19 @@ import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -119,6 +123,29 @@ class SettingsViewModel @Inject constructor(
 //        }
 //    }
 
+    val rewardsState: StateFlow<ImmutableSet<String>> = userPreferencesRepository.rewards.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = persistentSetOf()
+    )
+
+    val unlockAllRewardsState: StateFlow<Boolean> = userPreferencesRepository.unlockAllRewards.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = false
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val rewardCards = combine(ignoreCollectionState, collectionState) { ignore, collection ->
+        ignore to collection
+    }.flatMapLatest { (ignoreCollection, collection) ->
+        cardsRepository.getRewardCardsFlow(ignoreCollection, collection.packs)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = persistentListOf()
+    )
+
     val tabooSetIdState: StateFlow<Int> = userPreferencesRepository.tabooSetId.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -158,6 +185,18 @@ class SettingsViewModel @Inject constructor(
     fun setIgnoreCollection(ignoreCollection: Boolean) {
         viewModelScope.launch {
             userPreferencesRepository.saveIgnoreCollectionPreference(ignoreCollection)
+        }
+    }
+
+    fun setRewards(rewards: Set<String>) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveRewardsPreference(rewards)
+        }
+    }
+
+    fun setUnlockAllRewards(unlockAllRewards: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveUnlockAllRewardsPreference(unlockAllRewards)
         }
     }
 

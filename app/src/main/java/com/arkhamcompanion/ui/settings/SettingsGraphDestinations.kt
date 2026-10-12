@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 object SettingsCollection : NavKey
 
 @Serializable
+object SettingsRewards : NavKey
+
+@Serializable
 object SettingsAbout : NavKey
 
 @Serializable

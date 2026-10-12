@@ -9,15 +9,18 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
+import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.settings.AboutScreen
 import com.arkhamcompanion.ui.settings.BackUpScreen
 import com.arkhamcompanion.ui.settings.CollectionScreen
 import com.arkhamcompanion.ui.settings.DiagnosticsScreen
+import com.arkhamcompanion.ui.settings.RewardsScreen
 import com.arkhamcompanion.ui.settings.SettingsAbout
 import com.arkhamcompanion.ui.settings.SettingsBackup
 import com.arkhamcompanion.ui.settings.SettingsCollection
 import com.arkhamcompanion.ui.settings.SettingsDiagnostics
+import com.arkhamcompanion.ui.settings.SettingsRewards
 import com.arkhamcompanion.ui.settings.SettingsScreen
 import com.arkhamcompanion.ui.settings.SettingsViewModel
 
@@ -38,6 +41,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             onLanguageChange = viewModel::updateLocale,
             updateCards = viewModel::updateCardsIfAvailable,
             navigateToCollection = { navigator.navigateSingleTop(SettingsCollection) },
+            navigateToRewards = { navigator.navigateSingleTop(SettingsRewards) },
             navigateToAbout = { navigator.navigateSingleTop(SettingsAbout) },
             navigateToBackup = { navigator.navigateSingleTop(SettingsBackup) },
             navigateToDiagnostics = { navigator.navigateSingleTop(SettingsDiagnostics) },
@@ -83,6 +87,55 @@ fun EntryProviderScope<NavKey>.settingsEntries(
 
         topAppBarState.update(
             title = stringResource(R.string.edit_collection),
+            subtitle = null,
+            color = null,
+            contentColor = null,
+            rightActions = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+        )
+    }
+
+    entry<SettingsRewards>(
+        metadata = { _ -> SharedViewModelStoreNavEntryDecorator.parent(
+            TopLevelRoute.Settings.toContentKey()
+        )}
+    ) {
+        val topAppBarState = LocalTopAppBarState.current
+        val settingsViewModel = hiltViewModel<SettingsViewModel>(
+            LocalSharedViewModelStoreOwner.current
+        )
+
+        val rewards by settingsViewModel.rewardsState.collectAsState()
+        val unlockAllRewards by settingsViewModel.unlockAllRewardsState.collectAsState()
+        val rewardCards by settingsViewModel.rewardCards.collectAsState()
+
+        LaunchedEffect(Unit) {
+            settingsViewModel.errors.collect {
+                viewModel.emitError(it.exception)
+            }
+        }
+
+        RewardsScreen(
+            rewards = rewards,
+            unlockAllRewards = unlockAllRewards,
+            rewardCards = rewardCards,
+            onUnlockAllChange = settingsViewModel::setUnlockAllRewards,
+            onRewardsChange = settingsViewModel::setRewards,
+            onCardClick = { code, tabooSetId ->
+                navigator.navigateSingleTop(
+                    StandaloneCardDetailsScreen(code, tabooSetId)
+                )
+            }
+        )
+
+        topAppBarState.update(
+            title = stringResource(R.string.edit_unlocked_rewards),
             subtitle = null,
             color = null,
             contentColor = null,

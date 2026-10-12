@@ -50,6 +50,7 @@ import com.arkhamcompanion.domain.arkhamql.parser.QueryParser
 import com.arkhamcompanion.domain.arkhamql.parser.QueryParserException
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
+import com.arkhamcompanion.domain.model.cards.CardListItem
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
@@ -65,12 +66,14 @@ import com.arkhamcompanion.domain.repository.PerformanceRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -646,5 +649,16 @@ class CardsRepositoryImpl @Inject constructor(
         }
 
         emit(result)
+    }
+
+    override fun getRewardCardsFlow(
+        ignoreCollection: Boolean,
+        collection: Set<String>
+    ): Flow<ImmutableList<CardListItem>> {
+        if (!ignoreCollection && collection.isEmpty()) return flowOf(persistentListOf())
+
+        return cardsDao.getRewardCardsFlow(ignoreCollection, collection).map {
+            it.map { card -> card.toDomain() }.toImmutableList()
+        }
     }
 }
