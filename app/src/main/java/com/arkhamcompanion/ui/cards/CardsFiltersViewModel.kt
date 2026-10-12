@@ -132,17 +132,17 @@ class CardsFiltersViewModel @Inject constructor(
         _dialogQuery.value = query
     }
 
-    fun clearSearchQuery() {
+    fun clearDialogSearchQuery() {
         _dialogQuery.value = ""
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val investigators = _dialogQuery.flatMapLatest { query ->
-        cardsRepository.getAllInvestigatorsByName(query)
+        cardsRepository.getAllInvestigatorsByName(query.trim().lowercase())
     }.cachedIn(viewModelScope)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val cards = _dialogQuery.flatMapLatest { query ->
-        cardsRepository.getAllPlayableCardsByName(query)
+        cardsRepository.getAllPlayableCardsByName(query.trim().lowercase())
     }.cachedIn(viewModelScope)
 }

@@ -132,7 +132,7 @@ interface CardsDao {
         AND c.encounter_code IS NULL 
         AND c.taboo_set_id IS NULL 
         AND c.hidden = 0 
-        AND c.name LIKE '%' || :name || '%' 
+        AND c.search_name LIKE '%' || :name || '%' 
         ORDER BY c.sort_by_faction, c.official DESC
     """)
     fun getAllInvestigatorsByNamePaged(name: String): PagingSource<Int, CardListItemEntity>
@@ -158,7 +158,7 @@ interface CardsDao {
         AND c.taboo_set_id IS NULL 
         AND c.hidden = 0 
         AND c.deck_limit > 0 
-        AND c.name LIKE '%' || :name || '%' 
+        AND c.search_name LIKE '%' || :name || '%' 
         ORDER BY c.sort_by_faction, c.official DESC
     """)
     fun getAllPlayableCardsByNamePaged(name: String): PagingSource<Int, CardListItemEntity>

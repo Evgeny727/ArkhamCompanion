@@ -353,6 +353,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(
                     sideDeckRequirements
                 )
 
+                cardsFiltersViewModel.clearDialogSearchQuery()
+
                 navigator.goBack()
             },
         )
@@ -374,7 +376,11 @@ fun EntryProviderScope<NavKey>.cardsEntries(
             leftAction = { color ->
                 ArkhamAppBarAction(
                     contentColor = color,
-                    onClick = navigator::goBack,
+                    onClick = {
+                        cardsFiltersViewModel.clearDialogSearchQuery()
+
+                        navigator.goBack()
+                    },
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
@@ -421,7 +427,11 @@ fun EntryProviderScope<NavKey>.cardsEntries(
             leftAction = { color ->
                 ArkhamAppBarAction(
                     contentColor = color,
-                    onClick = navigator::goBack,
+                    onClick = {
+                        cardsFiltersViewModel.clearDialogSearchQuery()
+
+                        navigator.goBack()
+                    },
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },

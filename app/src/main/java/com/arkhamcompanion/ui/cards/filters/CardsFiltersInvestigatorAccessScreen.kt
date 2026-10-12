@@ -61,7 +61,7 @@ fun CardsFiltersInvestigatorAccessScreen(
         ArkhamSearchBox(
             searchQuery = query,
             onQueryChange = cardsFiltersViewModel::updateSearchQuery,
-            onClearQuery = cardsFiltersViewModel::clearSearchQuery,
+            onClearQuery = cardsFiltersViewModel::clearDialogSearchQuery,
             searchPlaceholder = stringResource(R.string.search_for_a_card),
         )
 
