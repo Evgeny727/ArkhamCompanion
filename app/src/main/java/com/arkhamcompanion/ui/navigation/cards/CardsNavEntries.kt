@@ -15,6 +15,7 @@ import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardSearchResultItem
+import com.arkhamcompanion.domain.model.settings.isNotEmpty
 import com.arkhamcompanion.ui.cards.CardDetailsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsViewModel
 import com.arkhamcompanion.ui.cards.CardFaqScreen
@@ -920,6 +921,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(
         val cardDetailsViewModel: CardDetailsViewModel = hiltViewModel()
 
         val cardsLazyCodes by cardsViewModel.searchResultCodes.collectAsState()
+        val filters by cardsViewModel.cardFilters.collectAsState()
 
         var currentCardCode by rememberSaveable {
             mutableStateOf<String?>(backStackEntry.cardCode)
@@ -929,6 +931,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(
         CardDetailsScreen(
             cardCode = backStackEntry.cardCode,
             cardCodes = cardsLazyCodes,
+            filteredCollection = filters.packs.takeIf { it.isNotEmpty() },
             cardDetailsViewModel = cardDetailsViewModel,
             onCurrentCardCodeChanged = { currentCardCode = it },
             onFaqNavigation = { code, name, tabooSetId ->
@@ -1056,6 +1059,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(
         CardDetailsScreen(
             cardCode = backStackEntry.cardCode,
             cardCodes = codes,
+            filteredCollection = null,
             cardDetailsViewModel = cardDetailsViewModel,
             onCurrentCardCodeChanged = {},
             onFaqNavigation = { code, name, tabooSetId ->
