@@ -22,7 +22,7 @@ sealed interface CardTextSegment {
         val start: Int,
         val end: Int,
         val styleFlags: CardTextStyleFlags = CardTextStyleFlags(0),
-        val link: String? = null,
+        val link: CardTextLink? = null,
     ) : CardTextSegment
 
     data class Icon(
@@ -30,6 +30,12 @@ sealed interface CardTextSegment {
         val end: Int,
         val glyph: String,
     ) : CardTextSegment
+}
+
+sealed interface CardTextLink {
+    data class Card(val code: String) : CardTextLink
+
+    data class Rule(val id: String) : CardTextLink
 }
 
 enum class ParagraphAlignment {
@@ -57,5 +63,6 @@ value class CardTextStyleFlags(
         const val GAME = 1 shl 4
         const val CITE = 1 shl 5
         const val RED = 1 shl 6
+        const val BLUE = 1 shl 7
     }
 }

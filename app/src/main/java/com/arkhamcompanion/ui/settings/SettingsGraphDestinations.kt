@@ -10,6 +10,14 @@ object SettingsCollection : NavKey
 object SettingsRewards : NavKey
 
 @Serializable
+object SettingsRules : NavKey
+
+@Serializable
+data class RulesSection(
+    val id: String
+) : NavKey
+
+@Serializable
 object SettingsAbout : NavKey
 
 @Serializable

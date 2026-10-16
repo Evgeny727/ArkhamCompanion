@@ -52,6 +52,7 @@ fun CardsCard(
     tabooSetId: Int,
     tabooSetsList: ImmutableList<TabooSet>,
     updateCards: (String) -> Unit,
+    navigateToRules: () -> Unit,
     loading: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -119,12 +120,17 @@ fun CardsCard(
             }
         )
 
-        //TODO:Add rules button
-//    ArkhamSquareButton(
-//        title = stringResource(R.string.check_for_card_updates),
-//        onClick = { updateCards(languageTag) },
-//        icon = {}
-//    )
+        ArkhamSquareButton(
+            title = stringResource(R.string.rules),
+            onClick = navigateToRules,
+            icon = { color ->
+                ArkhamIconText(
+                    iconGlyph = AppIcon.Book,
+                    color = color,
+                    size = iconSize(AppIcon.Book)
+                )
+            }
+        )
     }
 }
 

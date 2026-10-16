@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardText
+import com.arkhamcompanion.domain.model.cards.CardTextLink
 import com.arkhamcompanion.ui.cards.components.details.ParsedParagraphText
 import com.arkhamcompanion.ui.cards.components.details.rememberCardTextStyles
 import com.arkhamcompanion.ui.theme.CustomTheme
@@ -95,7 +96,11 @@ fun CardFaqScreen(
                         text = faqText!!.text,
                         paragraph = item,
                         styleResolver = styleResolver,
-                        onCardLink = onCardLinkClick
+                        onLinkClick = { link ->
+                            if (link is CardTextLink.Card) {
+                                onCardLinkClick(link.code)
+                            }
+                        }
                     )
                 }
             }

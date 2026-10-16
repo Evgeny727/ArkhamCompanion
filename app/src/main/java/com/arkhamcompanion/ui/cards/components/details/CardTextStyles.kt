@@ -18,6 +18,8 @@ data class CardTextStyles(
 
     val red: SpanStyle,
 
+    val blue: SpanStyle,
+
     val game: SpanStyle,
 
     val cite: SpanStyle,

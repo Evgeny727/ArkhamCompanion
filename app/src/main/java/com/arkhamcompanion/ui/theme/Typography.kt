@@ -2,18 +2,16 @@ package com.arkhamcompanion.ui.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
-import com.arkhamcompanion.ui.utils.appSp
 import com.arkhamcompanion.R
+import com.arkhamcompanion.ui.utils.appSp
 
 @Immutable
 data class CustomTypography(
@@ -27,6 +25,7 @@ data class CustomTypography(
     val menuText: TextStyle,
     val cardName: TextStyle,
     val cardTraits: TextStyle,
+    val cardText: TextStyle,
     val counter: TextStyle,
     val large: TextStyle,
     val header: TextStyle,
@@ -42,9 +41,6 @@ data class CustomTypography(
     val mediumGameFont: TextStyle,
     val bigGameFont: TextStyle,
     val dialogLabel: TextStyle,
-    val left: ParagraphStyle,
-    val right: ParagraphStyle,
-    val center: ParagraphStyle,
     val strikethrough: SpanStyle,
     val underline: SpanStyle,
 )
@@ -155,6 +151,12 @@ internal fun typography(
             lineHeight = 18.appSp(scaleFactor),
             color = colorScheme.lightText
         ),
+        cardText = TextStyle(
+            fontFamily = Alegreya,
+            fontSize = 16.appSp(scaleFactor),
+            lineHeight = 20.appSp(scaleFactor),
+            color = colorScheme.darkText
+        ),
         counter = TextStyle(
             fontFamily = Alegreya,
             fontWeight = FontWeight.Medium,
@@ -196,20 +198,16 @@ internal fun typography(
             color = colorScheme.darkText,
         ),
         regular = TextStyle(
-            fontFamily = Alegreya,
             fontWeight = FontWeight.Normal,
             fontStyle = FontStyle.Normal
         ),
         bold = TextStyle(
-            fontFamily = Alegreya,
             fontWeight = FontWeight.Bold,
-            color = colorScheme.darkText
         ),
         boldItalic = TextStyle(
             fontFamily = italicFont,
             fontWeight = if (usePingFang) FontWeight.SemiBold else FontWeight.ExtraBold,
             fontStyle = FontStyle.Italic,
-            color = colorScheme.darkText
         ),
         italic = TextStyle(
             fontFamily = italicFont,
@@ -257,6 +255,7 @@ val typography = CustomTypography(
     menuText = TextStyle(),
     cardName = TextStyle(),
     cardTraits = TextStyle(),
+    cardText = TextStyle(),
     counter = TextStyle(),
     large = TextStyle(),
     header = TextStyle(),
@@ -272,9 +271,6 @@ val typography = CustomTypography(
     mediumGameFont = TextStyle(),
     bigGameFont = TextStyle(),
     dialogLabel = TextStyle(),
-    left = ParagraphStyle(textAlign = TextAlign.Start),
-    right = ParagraphStyle(textAlign = TextAlign.End),
-    center = ParagraphStyle(textAlign = TextAlign.Center),
     strikethrough = SpanStyle(textDecoration = TextDecoration.LineThrough),
     underline = SpanStyle(textDecoration = TextDecoration.Underline),
 )

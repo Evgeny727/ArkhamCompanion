@@ -29,6 +29,7 @@ fun SettingsScreen(
     navigateToCollection: () -> Unit,
     navigateToRewards: () -> Unit,
     updateCards: (String) -> Unit,
+    navigateToRules: () -> Unit,
     navigateToAbout: () -> Unit,
     navigateToBackup: () -> Unit,
     navigateToDiagnostics: () -> Unit,
@@ -88,6 +89,7 @@ fun SettingsScreen(
                 tabooSetId = tabooSetId,
                 tabooSetsList = tabooSetsList,
                 updateCards = updateCards,
+                navigateToRules = navigateToRules,
                 loading = settingsUiState is SettingsUiState.Loading
             )
         }

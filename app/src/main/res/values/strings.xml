@@ -2032,4 +2032,5 @@
     </plurals>
     <string name="disable_to_choose_individual_rewards_to_show">Disable to choose individual rewards to show</string>
     <string name="all_rewards_are_shown_throughout_the_decks">All rewards are shown throughout the decks</string>
+    <string name="introduction_to_rules">This page contains a replica of the Rules Reference found in any copy of the Core Set of Arkham Horror: The Card Game. It also includes updates to the Rules Reference: rules added in deluxe expansions &lt;red&gt;(marked in red)&lt;/red&gt; and rules added in the official FAQ for the game &lt;blue&gt;(marked in blue)&lt;/blue&gt;.</string>
 </resources>

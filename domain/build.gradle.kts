@@ -10,7 +10,7 @@ java {
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.paging.common)
-    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.core)
     api(libs.kotlinx.collections.immutable)
 
     testImplementation(libs.junit)

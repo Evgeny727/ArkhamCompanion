@@ -1,5 +1,6 @@
 package com.arkhamcompanion.domain.objects
 
+import com.arkhamcompanion.domain.model.cards.CardTextLink
 import com.arkhamcompanion.domain.model.cards.CardTextParagraph
 import com.arkhamcompanion.domain.model.cards.CardTextSegment
 import com.arkhamcompanion.domain.model.cards.CardTextStyleFlags
@@ -26,7 +27,7 @@ internal class ParagraphBuilder {
     fun appendText(
         start: Int,
         end: Int,
-        link: String? = null,
+        link: CardTextLink? = null,
         styleFlags: CardTextStyleFlags,
     ) {
         if (start >= end) return

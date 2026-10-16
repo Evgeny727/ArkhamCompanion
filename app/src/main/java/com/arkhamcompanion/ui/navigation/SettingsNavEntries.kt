@@ -16,13 +16,19 @@ import com.arkhamcompanion.ui.settings.BackUpScreen
 import com.arkhamcompanion.ui.settings.CollectionScreen
 import com.arkhamcompanion.ui.settings.DiagnosticsScreen
 import com.arkhamcompanion.ui.settings.RewardsScreen
+import com.arkhamcompanion.ui.settings.RulesSection
 import com.arkhamcompanion.ui.settings.SettingsAbout
 import com.arkhamcompanion.ui.settings.SettingsBackup
 import com.arkhamcompanion.ui.settings.SettingsCollection
 import com.arkhamcompanion.ui.settings.SettingsDiagnostics
 import com.arkhamcompanion.ui.settings.SettingsRewards
+import com.arkhamcompanion.ui.settings.SettingsRules
 import com.arkhamcompanion.ui.settings.SettingsScreen
 import com.arkhamcompanion.ui.settings.SettingsViewModel
+import com.arkhamcompanion.ui.settings.rules.RuleSectionScreen
+import com.arkhamcompanion.ui.settings.rules.RulesScreen
+import com.arkhamcompanion.ui.settings.rules.RulesViewModel
+import com.arkhamcompanion.ui.theme.LocalLanguage
 
 fun EntryProviderScope<NavKey>.settingsEntries(
     navigator: Navigator,
@@ -40,6 +46,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             viewModel = settingsViewModel,
             onLanguageChange = viewModel::updateLocale,
             updateCards = viewModel::updateCardsIfAvailable,
+            navigateToRules = { navigator.navigateSingleTop(SettingsRules) },
             navigateToCollection = { navigator.navigateSingleTop(SettingsCollection) },
             navigateToRewards = { navigator.navigateSingleTop(SettingsRewards) },
             navigateToAbout = { navigator.navigateSingleTop(SettingsAbout) },
@@ -136,6 +143,90 @@ fun EntryProviderScope<NavKey>.settingsEntries(
 
         topAppBarState.update(
             title = stringResource(R.string.edit_unlocked_rewards),
+            subtitle = null,
+            color = null,
+            contentColor = null,
+            rightActions = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+        )
+    }
+
+    entry<SettingsRules> {
+        val topAppBarState = LocalTopAppBarState.current
+
+        val locale = LocalLanguage.current.languageTag
+        val rulesViewModel = hiltAssistedViewModel<RulesViewModel, RulesViewModel.Factory, String>(
+            locale
+        ) { create(it) }
+
+        RulesScreen(
+            rulesViewModel = rulesViewModel,
+            navigateToSection = { id ->
+                navigator.navigateSingleTop(RulesSection(id))
+            }
+        )
+
+        topAppBarState.update(
+            title = stringResource(R.string.rules),
+            subtitle = null,
+            color = null,
+            contentColor = null,
+            rightActions = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+        )
+    }
+
+    entry<RulesSection>(
+        metadata = { _ -> SharedViewModelStoreNavEntryDecorator.parent(
+            SettingsRules.toContentKey()
+        )}
+    ) { backStackEntry ->
+        val topAppBarState = LocalTopAppBarState.current
+
+        val locale = LocalLanguage.current.languageTag
+        val rulesViewModel = hiltAssistedViewModel<RulesViewModel, RulesViewModel.Factory, String>(
+            locale,
+            LocalSharedViewModelStoreOwner.current
+        ) { create(it) }
+
+        val section by rulesViewModel.getTopLevelSectionById(backStackEntry.id).collectAsState(null)
+
+        section?.let {
+            RuleSectionScreen(
+                rulesViewModel = rulesViewModel,
+                section = it,
+                scrollToId = if (it.id == backStackEntry.id) null else backStackEntry.id,
+                navigateToSection = { id ->
+                    navigator.navigateSingleTop(RulesSection(id))
+                },
+                navigateToCard = { code ->
+                    navigator.navigateSingleTop(
+                        StandaloneCardDetailsScreen(code, null)
+                    )
+                }
+            )
+        }
+
+        val title = section?.let { section ->
+            val paragraph = section.title.paragraphs.first()
+
+            section.title.text.substring(paragraph.start, paragraph.end)
+        } ?: ""
+
+        topAppBarState.update(
+            title = title,
             subtitle = null,
             color = null,
             contentColor = null,

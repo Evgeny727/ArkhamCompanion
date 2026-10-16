@@ -1,6 +1,7 @@
 package com.arkhamcompanion.domain.objects
 
 import com.arkhamcompanion.domain.model.cards.CardText
+import com.arkhamcompanion.domain.model.cards.CardTextLink
 import com.arkhamcompanion.domain.model.cards.CardTextStyleFlags
 import com.arkhamcompanion.domain.model.cards.IconRegistry
 import com.arkhamcompanion.domain.model.cards.ParagraphAlignment
@@ -229,6 +230,14 @@ object CardTextParser {
                 paragraphs = paragraphs,
             )
 
+            "blue" -> parseStyledTag(
+                text = text,
+                start = end + 1,
+                closingTag = "</blue>",
+                styleFlags = styleFlags + CardTextStyleFlags.BLUE,
+                paragraphs = paragraphs,
+            )
+
             else -> {
                 // Unknown tag → literal text.
                 paragraphs.appendText(
@@ -343,15 +352,30 @@ object CardTextParser {
 
                 val target = text.substring(targetStart, closeParenthesis)
 
-                if (target.startsWith("/card/")) {
-                    paragraphs.appendText(
-                        start = labelStart,
-                        end = closeBracket,
-                        link = target.drop(6),
-                        styleFlags = styleFlags + CardTextStyleFlags.UNDERLINE,
-                    )
+                when {
+                    target.startsWith("/card/") -> {
+                        paragraphs.appendText(
+                            start = labelStart,
+                            end = closeBracket,
+                            link = CardTextLink.Card(target.drop(6)),
+                            styleFlags = styleFlags + CardTextStyleFlags.UNDERLINE,
+                        )
 
-                    return closeParenthesis + 1
+                        return closeParenthesis + 1
+                    }
+
+                    target.startsWith("/rule/") -> {
+                        paragraphs.appendText(
+                            start = labelStart,
+                            end = closeBracket,
+                            link = CardTextLink.Rule(target.drop(6)),
+                            styleFlags = styleFlags + CardTextStyleFlags.UNDERLINE,
+                        )
+
+                        return closeParenthesis + 1
+                    }
+
+                    else -> Unit
                 }
             }
         }

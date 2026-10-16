@@ -14,17 +14,19 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.domain.model.cards.CardText
+import com.arkhamcompanion.domain.model.cards.CardTextLink
 import com.arkhamcompanion.domain.model.cards.CardTextParagraph
 import com.arkhamcompanion.domain.model.cards.CardTextSegment
 import com.arkhamcompanion.domain.model.cards.ParagraphAlignment
@@ -32,7 +34,6 @@ import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.AppIconsFont
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.CardTextStyleResolver
-import com.arkhamcompanion.ui.utils.appSp
 
 @Composable
 fun ParsedCardText(
@@ -41,29 +42,31 @@ fun ParsedCardText(
     modifier: Modifier = Modifier,
     isFlavor: Boolean = false,
     isCustomizationText: Boolean = false,
-    onCardLink: (String) -> Unit = {},
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
     ) {
         if (!isFlavor && !isCustomizationText) {
             VerticalDivider(thickness = 2.dp, color = CustomTheme.colors.m)
         }
 
         Column(
-            modifier = Modifier.weight(1f).padding(
-                start = if (isFlavor || isCustomizationText) 0.dp else 8.dp,
-                end = 8.dp,
-                top = 4.dp,
-                bottom = 4.dp
-            ),
+            modifier = Modifier
+                .weight(1f)
+                .padding(
+                    start = if (isFlavor || isCustomizationText) 0.dp else 8.dp,
+                    end = 8.dp,
+                    top = 4.dp,
+                    bottom = 4.dp
+                ),
         ) {
             text.paragraphs.forEach { paragraph ->
                 ParsedParagraphText(
                     text = text.text,
                     paragraph = paragraph,
                     styleResolver = styleResolver,
-                    onCardLink = onCardLink
                 )
             }
 
@@ -77,14 +80,17 @@ fun ParsedParagraphText(
     paragraph: CardTextParagraph,
     styleResolver: CardTextStyleResolver,
     modifier: Modifier = Modifier,
-    onCardLink: (String) -> Unit,
+    baseTextStyleOverride: TextStyle? = null,
+    onLinkClick: (CardTextLink) -> Unit = {},
 ) {
     val paragraphText = remember(text, paragraph, styleResolver) {
-        paragraph.toAnnotatedString(text, styleResolver, onCardLink)
+        paragraph.toAnnotatedString(text, styleResolver, onLinkClick)
     }
 
     Row(
-        modifier = modifier.fillMaxWidth().height(IntrinsicSize.Min),
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (paragraph.blockQuote) {
@@ -96,16 +102,16 @@ fun ParsedParagraphText(
             }
         }
 
+        val baseTextStyle = baseTextStyleOverride ?: CustomTheme.typography.cardText
+
         Text(
             text = paragraphText,
-            fontSize = 16.appSp(CustomTheme.typography.scaleFactor),
-            lineHeight = 20.appSp(CustomTheme.typography.scaleFactor),
             textAlign = when (paragraph.alignment) {
                 ParagraphAlignment.Start -> TextAlign.Start
                 ParagraphAlignment.Center -> TextAlign.Center
                 ParagraphAlignment.End -> TextAlign.End
             },
-            color = CustomTheme.colors.darkText,
+            style = baseTextStyle,
             modifier = Modifier.padding(vertical = if (paragraph.blockQuote) 4.dp else 0.dp)
         )
     }
@@ -131,13 +137,10 @@ internal fun rememberCardTextStyles(flavorText: Boolean): CardTextStyles {
             boldItalic = typography.boldItalic.toSpanStyle(),
             underline = typography.underline,
             strike = typography.strikethrough,
-            red = typography.regular.toSpanStyle().copy(color = colors.campaign.text.resolution),
-            game = SpanStyle(
-                fontStyle = FontStyle.Normal,
-                fontFamily = typography.gameFont.fontFamily,
-                fontSize = 24.appSp(typography.scaleFactor)
-            ),
-            cite = typography.tiny.toSpanStyle(),
+            red = SpanStyle(color = colors.health),
+            blue = SpanStyle(color = colors.sanity),
+            game = typography.mediumGameFont.copy(color = Color.Unspecified).toSpanStyle(),
+            cite = typography.tiny.copy(color = Color.Unspecified).toSpanStyle(),
             icon = SpanStyle(fontFamily = AppIconsFont)
         )
 
@@ -147,7 +150,7 @@ internal fun rememberCardTextStyles(flavorText: Boolean): CardTextStyles {
 internal fun CardTextParagraph.toAnnotatedString(
     text: String,
     styleResolver: CardTextStyleResolver,
-    onCardLink: (String) -> Unit = {}
+    onLinkClick: (CardTextLink) -> Unit = {}
 ): AnnotatedString {
     return buildAnnotatedString {
         segments.forEach { segment ->
@@ -159,9 +162,12 @@ internal fun CardTextParagraph.toAnnotatedString(
                         segment.link?.let { link ->
                             withLink(
                                 LinkAnnotation.Clickable(
-                                    tag = link,
+                                    tag = when (link) {
+                                        is CardTextLink.Card -> "card/${link.code}"
+                                        is CardTextLink.Rule -> "rule/${link.id}"
+                                    },
                                     styles = TextLinkStyles(style = styles),
-                                ) { onCardLink(link) }
+                                ) { onLinkClick(link) }
                             ) {
                                 append(
                                     text,

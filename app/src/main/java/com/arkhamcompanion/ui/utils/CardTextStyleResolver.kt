@@ -9,7 +9,7 @@ import com.arkhamcompanion.ui.cards.components.details.CardTextStyles
 class CardTextStyleResolver(
     private val styles: CardTextStyles,
 ) {
-    private val cache = arrayOfNulls<SpanStyle>(128)
+    private val cache = arrayOfNulls<SpanStyle>(256)
 
     fun resolve(flags: CardTextStyleFlags): SpanStyle {
         val key = flags.value
@@ -56,6 +56,10 @@ class CardTextStyleResolver(
 
         if (flags has CardTextStyleFlags.RED) {
             result = result.merge(styles.red)
+        }
+
+        if (flags has CardTextStyleFlags.BLUE) {
+            result = result.merge(styles.blue)
         }
 
         return result
