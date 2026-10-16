@@ -32,7 +32,6 @@ import com.arkhamcompanion.domain.model.cards.CardTextSegment
 import com.arkhamcompanion.domain.model.cards.ParagraphAlignment
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.icons.PackIcon
-import com.arkhamcompanion.ui.theme.AppIconsFont
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.CardTextStyleResolver
 
@@ -142,7 +141,6 @@ internal fun rememberCardTextStyles(flavorText: Boolean): CardTextStyles {
             blue = SpanStyle(color = colors.sanity),
             game = typography.mediumGameFont.copy(color = Color.Unspecified).toSpanStyle(),
             cite = typography.tiny.copy(color = Color.Unspecified).toSpanStyle(),
-            icon = SpanStyle(fontFamily = AppIconsFont)
         )
 
     }
@@ -184,21 +182,34 @@ internal fun CardTextParagraph.toAnnotatedString(
                     }
                 }
 
-                is CardTextSegment.Icon -> {
-                    val icon = AppIcon.fromNameCode(
-                        when (segment.glyph) {
-                            "fast" -> "free"
-                            else -> segment.glyph
-                        }
-                    ) ?: PackIcon.fromPackCode(segment.glyph, returnDefaultCore = false)
-
-                    icon?.let {
-                        withStyle(styleResolver.getIconStyle()) {
-                            append(it.glyph)
-                        }
-                    } ?: append("[${segment.glyph}]")
-                }
+                is CardTextSegment.Icon -> resolveIconTextSegment(segment)
             }
         }
     }
+}
+
+internal fun AnnotatedString.Builder.resolveTextSegmentWithoutStyles(
+    text: String,
+    segment: CardTextSegment.Text
+) {
+    append(
+        text,
+        segment.start,
+        segment.end,
+    )
+}
+
+internal fun AnnotatedString.Builder.resolveIconTextSegment(segment: CardTextSegment.Icon) {
+    val icon = AppIcon.fromNameCode(
+        when (segment.glyph) {
+            "fast" -> "free"
+            else -> segment.glyph
+        }
+    ) ?: PackIcon.fromPackCode(segment.glyph, returnDefaultCore = false)
+
+    icon?.let {
+        withStyle(SpanStyle(fontFamily = it.fontFamily)) {
+            append(it.glyph)
+        }
+    } ?: append("[${segment.glyph}]")
 }

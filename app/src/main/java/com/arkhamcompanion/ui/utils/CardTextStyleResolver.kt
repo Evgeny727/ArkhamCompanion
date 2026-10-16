@@ -64,6 +64,4 @@ class CardTextStyleResolver(
 
         return result
     }
-
-    fun getIconStyle() = styles.icon
 }

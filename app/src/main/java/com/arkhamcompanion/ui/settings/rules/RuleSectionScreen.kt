@@ -10,15 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +57,7 @@ fun RuleSectionScreen(
         buildSectionTitleIndices(preparedSections.map { it.first })
     }
 
-    val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
+    val listState = rememberLazyListState()
 
     LaunchedEffect(scrollToId, sectionTitleIndices) {
         val index = scrollToId?.let(sectionTitleIndices::get)

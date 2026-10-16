@@ -23,6 +23,4 @@ data class CardTextStyles(
     val game: SpanStyle,
 
     val cite: SpanStyle,
-
-    val icon: SpanStyle,
 )

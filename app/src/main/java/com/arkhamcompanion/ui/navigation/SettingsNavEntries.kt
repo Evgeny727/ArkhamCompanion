@@ -4,12 +4,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
+import com.arkhamcompanion.domain.model.cards.CardTextSegment
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
+import com.arkhamcompanion.ui.cards.components.details.resolveTextSegmentWithoutStyles
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.settings.AboutScreen
 import com.arkhamcompanion.ui.settings.BackUpScreen
@@ -222,7 +225,13 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val title = section?.let { section ->
             val paragraph = section.title.paragraphs.first()
 
-            section.title.text.substring(paragraph.start, paragraph.end)
+            buildAnnotatedString {
+                paragraph.segments.forEach { segment ->
+                    if (segment is CardTextSegment.Text) {
+                        resolveTextSegmentWithoutStyles(section.title.text, segment)
+                    }
+                }
+            }.toString()
         } ?: ""
 
         topAppBarState.update(
