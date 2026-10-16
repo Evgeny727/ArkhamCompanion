@@ -2,13 +2,13 @@ package com.arkhamcompanion.domain.repository
 
 import androidx.paging.PagingData
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
+import com.arkhamcompanion.domain.model.cards.CardFaqEntry
 import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
 import com.arkhamcompanion.domain.model.cards.CardListItem
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.domain.model.cards.CardTabooInfo
-import com.arkhamcompanion.domain.model.cards.CardText
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.flow.Flow
@@ -56,7 +56,7 @@ interface CardsRepository {
     fun getAllPlayableCardsByName(name: String): Flow<PagingData<CardListItem>>
     suspend fun getInitialCardFields(cardId: String): CardInvestigatorAccessFields
 
-    fun getCardFaqByCodeFlow(code: String): Flow<Result<CardText?>>
+    fun getCardFaqByCodeFlow(code: String): Flow<ImmutableList<CardFaqEntry>?>
 
     fun getRewardCardsFlow(
         ignoreCollection: Boolean,

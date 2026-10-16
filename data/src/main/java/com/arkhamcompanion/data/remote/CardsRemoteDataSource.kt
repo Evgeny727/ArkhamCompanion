@@ -1,17 +1,18 @@
 package com.arkhamcompanion.data.remote
 
 import com.apollographql.apollo.ApolloClient
-import com.arkhamcompanion.GetCardFaqQuery
 import com.arkhamcompanion.GetCardsUpdatedAtQuery
 import com.arkhamcompanion.GetEncounterCardsQuery
 import com.arkhamcompanion.GetPlayerCardsQuery
 import com.arkhamcompanion.GetTranslationDataQuery
+import com.arkhamcompanion.data.remote.api.CardsFaqApi
 import javax.inject.Inject
 
 const val CARDS_SCHEMA_VERSION = 9
 
 class CardsRemoteDataSource @Inject constructor(
-    private val apolloClient: ApolloClient
+    private val apolloClient: ApolloClient,
+    private val cardsFaqApi: CardsFaqApi
 ) {
     suspend fun fetchAllTranslationData(locale: String) = apolloClient
         .query(GetTranslationDataQuery(locale))
@@ -29,7 +30,5 @@ class CardsRemoteDataSource @Inject constructor(
         .query(GetCardsUpdatedAtQuery(locale, CARDS_SCHEMA_VERSION))
         .execute()
 
-    suspend fun fetchCardFaqByCode(code: String) = apolloClient
-        .query(GetCardFaqQuery(code))
-        .execute()
+    suspend fun fetchCardFaqByCode(code: String) = cardsFaqApi.getFaqEntries(code)
 }

@@ -12,7 +12,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardSearchResultItem
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
@@ -75,10 +74,7 @@ import com.arkhamcompanion.ui.utils.ARKHAM_BUILD_CARD_URL
 import com.arkhamcompanion.ui.utils.openLink
 import kotlinx.collections.immutable.persistentListOf
 
-fun EntryProviderScope<NavKey>.cardsEntries(
-    navigator: Navigator,
-    viewModel: AppViewModel
-) {
+fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
     entry<TopLevelRoute.Cards>(
         clazzContentKey = { key -> key.toContentKey() }
     ) { backStackEntry ->
@@ -1029,7 +1025,6 @@ fun EntryProviderScope<NavKey>.cardsEntries(
                     StandaloneCardDetailsScreen(code, backStackEntry.tabooSetId)
                 )
             },
-            emitError = viewModel::emitError
         )
 
         topAppBarState.update(

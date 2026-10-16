@@ -10,6 +10,8 @@ private val DOUBLE_BRACKET_REGEX = Regex("""\[\[([^]]+)]]""")
 private val TRIPLE_STAR_REGEX = Regex("""\*\*\*([^*]+)\*\*\*""")
 private val DOUBLE_STAR_REGEX = Regex("""\*\*([^*]+)\*\*""")
 private val SINGLE_STAR_REGEX = Regex("""\*([^*]+)\*""")
+private val WEB_SMALL_REGEX = Regex("""<small>\((.*?)\)</small>""")
+private val WEB_ICON_REGEX = Regex("""<i data-icon='([^']+)'></i>\s*(\d+)""")
 
 internal fun String.preprocessCardText(
     processBullets: Boolean = false,
@@ -38,6 +40,11 @@ internal fun String.preprocessCardText(
 
     if (processWebFormat) {
         result = result
+            .replace(WEB_SMALL_REGEX) { match ->
+                "(" + match.groupValues[1].replace(WEB_ICON_REGEX) { item ->
+                        "[${item.groupValues[1]}] ${item.groupValues[2]}"
+                    } + ")"
+            }
             .replace(TRIPLE_STAR_REGEX) { match ->
                 "<trait>${match.groupValues[1]}</trait>"
             }

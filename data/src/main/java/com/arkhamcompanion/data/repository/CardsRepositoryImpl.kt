@@ -37,7 +37,6 @@ import com.arkhamcompanion.data.utils.filterByInvestigatorAccess
 import com.arkhamcompanion.data.utils.filterInvestigatorsByCards
 import com.arkhamcompanion.data.utils.fuzzySearch
 import com.arkhamcompanion.data.utils.prepareWordsForFuzzySearch
-import com.arkhamcompanion.data.utils.preprocessCardText
 import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.QueryParseResult
 import com.arkhamcompanion.domain.arkhamql.evaluator.QueryEvaluationException
@@ -49,14 +48,13 @@ import com.arkhamcompanion.domain.arkhamql.lexer.QueryLexerException
 import com.arkhamcompanion.domain.arkhamql.parser.QueryParser
 import com.arkhamcompanion.domain.arkhamql.parser.QueryParserException
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
+import com.arkhamcompanion.domain.model.cards.CardFaqEntry
 import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
 import com.arkhamcompanion.domain.model.cards.CardListItem
 import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.domain.model.cards.CardTabooInfo
-import com.arkhamcompanion.domain.model.cards.CardText
-import com.arkhamcompanion.domain.objects.CardTextParser
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.getCurrentDateTime
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.isAtLeastTwoWeeksApart
@@ -628,25 +626,16 @@ class CardsRepositoryImpl @Inject constructor(
         return cardsDao.getInitialCardFieldsById(cardId).toDomain()
     }
 
-    override fun getCardFaqByCodeFlow(code: String): Flow<Result<CardText?>> = flow {
+    override fun getCardFaqByCodeFlow(code: String): Flow<ImmutableList<CardFaqEntry>?> = flow {
         val faqEntry = runCatching {
-            cardsRemoteDataSource.fetchCardFaqByCode(code).dataAssertNoErrors
+            cardsRemoteDataSource.fetchCardFaqByCode(code)
         }
 
-        val result = if (faqEntry.isSuccess) {
-            Result.success(
-                faqEntry.getOrNull()?.faq_by_pk?.let {
-                    val preprocessedText = it.text.preprocessCardText(
-                        processBullets = true,
-                        processWebFormat = true
-                    )
-
-                    CardTextParser.parse(preprocessedText)
-                }
-            )
-        } else {
-            Result.failure(faqEntry.exceptionOrNull()!!)
-        }
+        val result = faqEntry
+            .getOrElse { persistentListOf() }
+            .map { it.toDomain() }
+            .sortedBy { it.position }
+            .toImmutableList()
 
         emit(result)
     }

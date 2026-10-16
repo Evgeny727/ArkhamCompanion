@@ -19,11 +19,9 @@ import javax.inject.Inject
 
 class SettingsRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val json: Json,
     private val analyticsRepository: AnalyticsRepository
 ) : SettingsRepository {
-    private val rulesJson = Json {
-        ignoreUnknownKeys = true
-    }
 
     @OptIn(ExperimentalSerializationApi::class)
     private suspend fun parseRules(languageTag: String): ChapterOneRulesDto = withContext(Dispatchers.IO) {
@@ -31,7 +29,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
         val data: ChapterOneRulesDto =
             file.buffered().use {
-                rulesJson.decodeFromStream<ChapterOneRulesDto>(it)
+                json.decodeFromStream<ChapterOneRulesDto>(it)
             }
 
         return@withContext data

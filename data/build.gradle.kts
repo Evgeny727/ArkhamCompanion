@@ -33,6 +33,10 @@ dependencies {
     // Apollo Kotlin
     implementation(libs.apollo.runtime)
 
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.paging)
