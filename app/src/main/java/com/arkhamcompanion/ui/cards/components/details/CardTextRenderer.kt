@@ -31,6 +31,7 @@ import com.arkhamcompanion.domain.model.cards.CardTextParagraph
 import com.arkhamcompanion.domain.model.cards.CardTextSegment
 import com.arkhamcompanion.domain.model.cards.ParagraphAlignment
 import com.arkhamcompanion.ui.icons.AppIcon
+import com.arkhamcompanion.ui.icons.PackIcon
 import com.arkhamcompanion.ui.theme.AppIconsFont
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.CardTextStyleResolver
@@ -184,15 +185,18 @@ internal fun CardTextParagraph.toAnnotatedString(
                 }
 
                 is CardTextSegment.Icon -> {
-                    withStyle(styleResolver.getIconStyle()) {
-                        val icon = AppIcon.fromNameCode(
-                            when (segment.glyph) {
-                                "fast" -> "free"
-                                else -> segment.glyph
-                            }
-                        )
-                        append(icon?.glyph ?: segment.glyph)
-                    }
+                    val icon = AppIcon.fromNameCode(
+                        when (segment.glyph) {
+                            "fast" -> "free"
+                            else -> segment.glyph
+                        }
+                    ) ?: PackIcon.fromPackCode(segment.glyph, returnDefaultCore = false)
+
+                    icon?.let {
+                        withStyle(styleResolver.getIconStyle()) {
+                            append(it.glyph)
+                        }
+                    } ?: append("[${segment.glyph}]")
                 }
             }
         }

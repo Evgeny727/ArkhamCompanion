@@ -83,7 +83,7 @@ fun CardDetailsClickableThumbnail(
                 contentAlignment = Alignment.Center
             ) {
                 val icon = if (encounterCode != null) {
-                    PackIcon.fromPackCode(encounterCode)
+                    PackIcon.fromPackCode(encounterCode)!!
                 } else {
                     factionIcon(faction, faction2, subType)
                 }

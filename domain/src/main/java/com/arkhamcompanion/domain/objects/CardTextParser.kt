@@ -3,7 +3,6 @@ package com.arkhamcompanion.domain.objects
 import com.arkhamcompanion.domain.model.cards.CardText
 import com.arkhamcompanion.domain.model.cards.CardTextLink
 import com.arkhamcompanion.domain.model.cards.CardTextStyleFlags
-import com.arkhamcompanion.domain.model.cards.IconRegistry
 import com.arkhamcompanion.domain.model.cards.ParagraphAlignment
 
 object CardTextParser {
@@ -386,24 +385,12 @@ object CardTextParser {
             closeBracket,
         )
 
-        val glyph = IconRegistry.glyph(key)
+        paragraphs.appendIcon(
+            start = index,
+            end = closeBracket + 1,
+            glyph = key,
+        )
 
-        if (glyph != null) {
-            paragraphs.appendIcon(
-                start = index,
-                end = closeBracket + 1,
-                glyph = glyph,
-            )
-
-            return closeBracket + 1
-        } else {
-            paragraphs.appendText(
-                start = index,
-                end = index + 1,
-                styleFlags = styleFlags,
-            )
-
-            return index + 1
-        }
+        return closeBracket + 1
     }
 }

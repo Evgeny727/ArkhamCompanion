@@ -202,7 +202,7 @@ fun CardListItemNameRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                val packIcon = PackIcon.fromPackCode(reprintPackCode ?: packCode)
+                val packIcon = PackIcon.fromPackCode(reprintPackCode ?: packCode)!!
                 ArkhamScalableIconText(
                     iconGlyph = packIcon,
                     size = 16.appSp(CustomTheme.typography.scaleFactor),

@@ -146,7 +146,7 @@ fun CardFactionIcon(
 
 @Composable
 fun EncounterIcon(iconCode: String, iconSize: TextUnit, iconColor: Color, isPack: Boolean = false) {
-    val icon = PackIcon.fromPackCode(iconCode, isPack)
+    val icon = PackIcon.fromPackCode(iconCode, isPack)!!
     ArkhamScalableIconText(
         iconGlyph = icon,
         size = iconSize,

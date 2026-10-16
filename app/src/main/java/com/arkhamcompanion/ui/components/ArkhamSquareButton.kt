@@ -207,8 +207,8 @@ internal fun iconSize(icon: Any): Dp = when (icon) {
     AppIcon.CheckThin -> 30
     AppIcon.Weakness -> 24
     AppIcon.CardOutline -> 28
-    PackIcon.fromPackCode("tdea") -> 28
-    PackIcon.fromPackCode("tdeb") -> 28
+    PackIcon.DreamersCurse -> 28
+    PackIcon.AgentsOfAtlachNacha -> 28
     AppIcon.Book -> 22
     AppIcon.Draw -> 24
     AppIcon.Arkhamdb -> 24

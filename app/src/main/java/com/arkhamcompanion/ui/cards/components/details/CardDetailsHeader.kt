@@ -266,7 +266,7 @@ private fun RowScope.CardDetailsNameRow(
                 append(name.iconize(iconSize = 16.sp, color = Color.White))
 
                 if (packPosition != 1000) {
-                    val packIcon = PackIcon.fromPackCode(packCode)
+                    val packIcon = PackIcon.fromPackCode(packCode)!!
 
                     append(" ")
 

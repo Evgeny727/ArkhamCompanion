@@ -705,7 +705,11 @@ enum class PackIcon(
     companion object {
         private val byPackCode = entries.associateBy { it.stringCode }
 
-        fun fromPackCode(packCode: String, isPack: Boolean = true): IconGlyph = when(packCode) {
+        fun fromPackCode(
+            packCode: String,
+            isPack: Boolean = true,
+            returnDefaultCore: Boolean = true
+        ): IconGlyph? = when(packCode) {
             "nat" -> Nate
             "har" -> Harvey
             "win" -> Winifred
@@ -946,6 +950,6 @@ enum class PackIcon(
             "zgoo" -> Onigawa
             "zdh" -> Darkham
             else -> byPackCode[packCode]
-        } ?: Core
+        } ?: (if (returnDefaultCore) Core else null)
     }
 }

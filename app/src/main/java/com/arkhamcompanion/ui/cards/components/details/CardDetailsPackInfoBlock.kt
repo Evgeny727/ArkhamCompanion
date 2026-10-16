@@ -59,7 +59,7 @@ fun CardDetailsPackInfoBlock(
                     horizontalAlignment = Alignment.End
                 ) {
                     encounterCode?.let {
-                        val icon = PackIcon.fromPackCode(it)
+                        val icon = PackIcon.fromPackCode(it)!!
                         val quantityText = encounterPosition?.let { position ->
                             if (quantity > 1) "$encounterPosition - ${position + quantity - 1}"
                             else position.toString()
@@ -92,7 +92,7 @@ fun CardDetailsPackInfoBlock(
                     }
 
                     cardDetailsWithPackInfo.allPacks.forEach { pack ->
-                        val icon = PackIcon.fromPackCode(pack.code)
+                        val icon = PackIcon.fromPackCode(pack.code)!!
                         val firstPack = firstPackInCollection == pack.code
 
                         Row(
