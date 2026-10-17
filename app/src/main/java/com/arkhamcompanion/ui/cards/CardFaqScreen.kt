@@ -1,5 +1,6 @@
 package com.arkhamcompanion.ui.cards
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -111,11 +112,19 @@ fun CardFaqScreen(
                     }
 
                     item("citation_${entry.id}", contentType = "text") {
-                        Text(
-                            text = entry.citation,
-                            style = CustomTheme.typography.cardText,
-                            modifier = Modifier.fillMaxWidth().padding(start = 32.dp)
-                        )
+                        Row(
+                            modifier = Modifier.padding(start = 32.dp)
+                                .background(
+                                    color = CustomTheme.colors.l15,
+                                    shape = CustomTheme.shapes.medium
+                                ),
+                        ) {
+                            Text(
+                                text = entry.citation,
+                                style = CustomTheme.typography.cardText,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
                     }
                 }
             }
