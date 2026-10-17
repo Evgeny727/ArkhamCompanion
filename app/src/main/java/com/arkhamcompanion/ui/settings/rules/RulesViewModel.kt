@@ -1,5 +1,6 @@
 package com.arkhamcompanion.ui.settings.rules
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arkhamcompanion.domain.model.settings.RulesSections
@@ -38,6 +39,10 @@ class RulesViewModel @AssistedInject constructor(
     @Assisted private val locale: String,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
+
+    init {
+        Log.e("RulesViewModel", "Created: locale=$locale, instance=${hashCode()}")
+    }
 
     private val _rulesUiState = MutableStateFlow<RulesUiState>(RulesUiState.Idle)
     val rulesUiState = _rulesUiState.asStateFlow()

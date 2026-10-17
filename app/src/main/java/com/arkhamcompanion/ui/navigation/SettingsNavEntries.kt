@@ -160,7 +160,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
     }
 
-    entry<SettingsRules> {
+    entry<SettingsRules>(
+        clazzContentKey = { key -> key.toContentKey() },
+    ) {
         val topAppBarState = LocalTopAppBarState.current
 
         val locale = LocalLanguage.current.languageTag
