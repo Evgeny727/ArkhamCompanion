@@ -52,6 +52,7 @@ data class CardpoolFilter(
 
 data class InvestigatorAccessConfig(
     val investigatorId: String,
+    val alternateFrontCode: String?,
     val investigatorName: String,
     val investigatorFaction: Faction,
     val investigatorTraits: Set<String>,

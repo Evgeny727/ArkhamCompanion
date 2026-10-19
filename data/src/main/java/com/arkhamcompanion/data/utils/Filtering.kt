@@ -13,7 +13,11 @@ import com.arkhamcompanion.domain.model.cards.InvestigatorAccessConfig
 import com.arkhamcompanion.domain.model.decks.Selection
 import com.arkhamcompanion.domain.model.decks.Selections
 import com.arkhamcompanion.domain.utils.Filter
-import com.arkhamcompanion.domain.utils.SPECIAL_CARD_CODES.GENERIC_CUSTOM_INVESTIGATORS
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.DIRECTIVES
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.GENERIC_CUSTOM_INVESTIGATORS
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.PARALLEL_ROLAND
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.PARALLEL_WENDY
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.TIDAL_MEMENTO
 import com.arkhamcompanion.domain.utils.and
 import com.arkhamcompanion.domain.utils.not
 import com.arkhamcompanion.domain.utils.notUnless
@@ -35,6 +39,7 @@ internal fun List<CardSearchResultEntity>.filterInvestigatorsByCards(
                 investigatorId = investigator.alternateOfCode
                     ?: investigator.duplicateOfCode
                     ?: investigator.code,
+                alternateFrontCode = if (investigator.alternateOfCode != null) investigator.code else null,
                 investigatorName = investigator.name,
                 investigatorFaction = investigator.faction,
                 investigatorTraits = investigator.realTraits,
@@ -64,7 +69,11 @@ internal fun List<CardSearchResultEntity>.filterByInvestigatorAccess(
     return filter {
         val fields = it.front.toAccessFields()
 
-        fields.type == CardType.Investigator || filter(fields)
+        val showInvestigator = if (cardpoolFilter.target == CardpoolTarget.Both) {
+            fields.type == CardType.Investigator
+        } else false
+
+        showInvestigator || filter(fields)
     }
 }
 
@@ -73,6 +82,14 @@ private fun investigatorCardFilter(
     logMessage: (String) -> Unit,
 ): Filter<CardInvestigatorAccessFields> {
     val playerCardsFilter = playerCardsFilter(cardpoolFilter, logMessage)
+
+    val canAccessParallelSignatures: Filter<CardInvestigatorAccessFields> = { card ->
+        cardpoolFilter.investigatorConfig.run {
+            card.canAccessParallelSignatures(
+                canonicalCode = alternateFrontCode ?: investigatorId
+            )
+        }
+    }
 
     val requiredCardsFilter: Filter<CardInvestigatorAccessFields> = or(
         if (cardpoolFilter.target != CardpoolTarget.ExtraSlots) {
@@ -91,7 +108,10 @@ private fun investigatorCardFilter(
         },
     )
 
-    return or(requiredCardsFilter, playerCardsFilter)
+    return and(
+        canAccessParallelSignatures,
+        or(requiredCardsFilter, playerCardsFilter)
+    )
 }
 
 private fun playerCardsFilter(
@@ -196,6 +216,16 @@ private fun filterRestrictions(
 
         else -> true
     }
+}
+
+private fun CardInvestigatorAccessFields.canAccessParallelSignatures(
+    canonicalCode: String?
+): Boolean = when (code) {
+    TIDAL_MEMENTO -> canonicalCode == PARALLEL_WENDY
+
+    in DIRECTIVES -> canonicalCode == PARALLEL_ROLAND
+
+    else -> true
 }
 
 private fun optionFilter(

@@ -8,7 +8,7 @@ import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
-import com.arkhamcompanion.domain.utils.SPECIAL_CARD_CODES.RANDOM_BASIC_WEAKNESS
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.RANDOM_BASIC_WEAKNESS
 
 internal fun buildCardsListItemsQuery(requested: String) =
     """

@@ -154,6 +154,7 @@ class CardsViewModel @AssistedInject constructor(
                             sideDeckRequiredCardCodes = fields.sideDeckRequirements?.card?.flatten().orEmpty().toSet(),
                             investigatorConfig = InvestigatorAccessConfig(
                                 investigatorId = fields.alternateOfCode ?: fields.duplicateOfCode ?: fields.code,
+                                alternateFrontCode = parallelCode,
                                 investigatorName = fields.name,
                                 investigatorFaction = fields.faction,
                                 investigatorTraits = fields.realTraits,

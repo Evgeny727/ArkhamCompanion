@@ -157,6 +157,7 @@ fun CardsFiltersInvestigatorAccessScreen(
                                     onInvestigatorSelect(
                                         InvestigatorAccessConfig(
                                             investigatorId = alternateOfCode ?: duplicateOfCode ?: code,
+                                            alternateFrontCode = if (alternateOfCode != null) code else null,
                                             investigatorName = name,
                                             investigatorFaction = faction,
                                             investigatorTraits = realTraits,
