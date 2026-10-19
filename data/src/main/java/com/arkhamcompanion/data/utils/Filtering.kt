@@ -13,7 +13,7 @@ import com.arkhamcompanion.domain.model.cards.InvestigatorAccessConfig
 import com.arkhamcompanion.domain.model.decks.Selection
 import com.arkhamcompanion.domain.model.decks.Selections
 import com.arkhamcompanion.domain.utils.Filter
-import com.arkhamcompanion.domain.utils.GENERIC_CUSTOM_INVESTIGATORS
+import com.arkhamcompanion.domain.utils.SPECIAL_CARD_CODES.GENERIC_CUSTOM_INVESTIGATORS
 import com.arkhamcompanion.domain.utils.and
 import com.arkhamcompanion.domain.utils.not
 import com.arkhamcompanion.domain.utils.notUnless

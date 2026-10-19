@@ -8,6 +8,7 @@ import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
+import com.arkhamcompanion.domain.utils.SPECIAL_CARD_CODES.RANDOM_BASIC_WEAKNESS
 
 internal fun buildCardsListItemsQuery(requested: String) =
     """
@@ -228,7 +229,8 @@ internal fun buildSearchCardsQuery(searchConfig: CardSearchConfig): RoomRawQuery
                                     || searchConfig.preferences.ignoreCollection) ""
                                 else """ AND (
                                     c.pack_code IN ($packsQuery) 
-                                    OR c.reprint_pack_code IN ($reprintsQuery)
+                                    OR c.reprint_pack_code IN ($reprintsQuery) 
+                                    OR c.code = '${RANDOM_BASIC_WEAKNESS}'
                                 )""".trimIndent()
                             }
             
