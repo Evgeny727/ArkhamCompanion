@@ -9,6 +9,7 @@ class Navigator(val state: NavigationState) {
     fun navigate(route: NavKey, launchSingleTop: Boolean = false) {
         if (route in state.backStacks.keys) {
             state.topLevelRoute = route
+            state.navigationType = NavigationType.TopLevel
             return
         }
 
@@ -19,6 +20,7 @@ class Navigator(val state: NavigationState) {
             return
         }
 
+        state.navigationType = NavigationType.WithinStack
         currentStack.add(route)
     }
 

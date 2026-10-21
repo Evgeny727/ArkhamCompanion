@@ -176,12 +176,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                     entries = navigationState.toEntries(entryProvider),
                     onBack = navigator::goBack,
                     transitionSpec = {
-                        val targetKey = targetState.entries.lastOrNull()?.contentKey
-
-                        val isTopLevelNavigation =
-                            targetKey in topLevelRoutes.map { it.toContentKey() }
-
-                        if (isTopLevelNavigation) {
+                        if (navigationState.navigationType == NavigationType.TopLevel) {
                             fadeIn(
                                 animationSpec = tween(
                                     durationMillis = 300,

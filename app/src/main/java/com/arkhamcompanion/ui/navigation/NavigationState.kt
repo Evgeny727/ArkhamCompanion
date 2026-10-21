@@ -58,12 +58,20 @@ class NavigationState(
     val backStacks: Map<NavKey, NavBackStack<NavKey>>
 ) {
     var topLevelRoute: NavKey by topLevelRoute
+
+    var navigationType: NavigationType by mutableStateOf(NavigationType.TopLevel)
+
     val stacksInUse: List<NavKey>
         get() = if (topLevelRoute == startRoute) {
             listOf(startRoute)
         } else {
             listOf(topLevelRoute)
         }
+}
+
+enum class NavigationType {
+    TopLevel,
+    WithinStack
 }
 
 /**
@@ -91,3 +99,8 @@ fun NavigationState.toEntries(
         .flatMap { decoratedEntries[it] ?: emptyList() }
         .toMutableStateList()
 }
+
+fun NavigationState.stackFor(key: Any): NavKey? =
+    backStacks.entries.firstOrNull { (_, stack) ->
+        key in stack
+    }?.key
