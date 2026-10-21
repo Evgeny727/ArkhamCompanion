@@ -226,12 +226,11 @@ internal fun buildSearchCardsQuery(searchConfig: CardSearchConfig): RoomRawQuery
             
                             Ownership.Unavailable -> {
                                 if (searchConfig.preferences.ignoreCollection) " AND NULL "
-                                else """ AND (
-                                    c.pack_code NOT IN ($packsQuery) 
-                                    AND (
-                                        c.reprint_pack_code IS NULL
-                                        OR c.reprint_pack_code NOT IN ($reprintsQuery)
-                                    )
+                                else """ AND COALESCE(c.duplicate_of_code, c.code) NOT IN (
+                                    SELECT DISTINCT COALESCE(owned.duplicate_of_code, owned.code)
+                                    FROM card owned
+                                    WHERE owned.pack_code IN ($packsQuery)
+                                       OR owned.reprint_pack_code IN ($reprintsQuery)
                                 )""".trimIndent()
                             }
                         }
