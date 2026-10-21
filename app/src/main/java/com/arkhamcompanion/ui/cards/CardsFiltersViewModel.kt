@@ -3,8 +3,10 @@ package com.arkhamcompanion.ui.cards
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
+import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
@@ -14,6 +16,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -32,8 +36,9 @@ data class FiltersUiState(
 
 @HiltViewModel
 class CardsFiltersViewModel @Inject constructor(
-    private val metaRepository: MetaRepository,
-    private val cardsRepository: CardsRepository
+    metaRepository: MetaRepository,
+    private val cardsRepository: CardsRepository,
+    preferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FiltersUiState())
@@ -136,13 +141,27 @@ class CardsFiltersViewModel @Inject constructor(
         _dialogQuery.value = ""
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val investigators = _dialogQuery.flatMapLatest { query ->
-        cardsRepository.getAllInvestigatorsByName(query.trim().lowercase())
-    }.cachedIn(viewModelScope)
+    private val collection = preferencesRepository.collection.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = Collection()
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val cards = _dialogQuery.flatMapLatest { query ->
-        cardsRepository.getAllPlayableCardsByName(query.trim().lowercase())
-    }.cachedIn(viewModelScope)
+    val investigators = combine(_dialogQuery, collection) { dialogQuery, collection ->
+        dialogQuery.trim().lowercase() to collection
+    }
+        .distinctUntilChanged()
+        .flatMapLatest { (query, collection) ->
+            cardsRepository.getAllInvestigatorsByName(query, collection)
+        }.cachedIn(viewModelScope)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val cards = combine(_dialogQuery, collection) { dialogQuery, collection ->
+        dialogQuery.trim().lowercase() to collection
+    }
+        .distinctUntilChanged()
+        .flatMapLatest { (query, collection) ->
+            cardsRepository.getAllPlayableCardsByName(query, collection)
+        }.cachedIn(viewModelScope)
 }

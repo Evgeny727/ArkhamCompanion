@@ -95,7 +95,7 @@ class SettingsViewModel @Inject constructor(
     val collectionState: StateFlow<Collection> = userPreferencesRepository.collection.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = Collection(persistentSetOf(), persistentSetOf())
+        initialValue = Collection()
     )
 
     val ignoreCollectionState: StateFlow<Boolean> = userPreferencesRepository.ignoreCollection.stateIn(

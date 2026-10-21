@@ -615,7 +615,7 @@ class CardsViewModel @AssistedInject constructor(
 
     fun clearPacksFilter() {
         updateCardFilters {
-            it.copy(packs = Collection(persistentSetOf(), persistentSetOf()))
+            it.copy(packs = Collection())
         }
     }
 

@@ -6,7 +6,6 @@ import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -21,7 +20,7 @@ class CardDetailsViewModel @Inject constructor(
     val collectionFlow = userPreferencesRepository.collection.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),
-        initialValue = Collection(persistentSetOf(), persistentSetOf())
+        initialValue = Collection()
     )
 
     val ignoreCollectionFlow = userPreferencesRepository.ignoreCollection.stateIn(

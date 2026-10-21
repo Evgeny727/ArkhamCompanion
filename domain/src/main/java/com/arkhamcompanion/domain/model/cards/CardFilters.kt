@@ -28,7 +28,7 @@ data class CardFilters(
     val encounterSets: ImmutableSet<String> = persistentSetOf(),
     val ownershipFilter: Ownership = Ownership.Collection,
     val officialFilter: Boolean? = null,
-    val packs: Collection = Collection(persistentSetOf(), persistentSetOf()),
+    val packs: Collection = Collection(),
     val tabooSetId: Int? = null,
     val illustrators: ImmutableSet<String> = persistentSetOf(),
 )

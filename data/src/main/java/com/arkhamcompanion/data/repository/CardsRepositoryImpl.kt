@@ -55,6 +55,7 @@ import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.domain.model.cards.CardTabooInfo
+import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.getCurrentDateTime
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.isAtLeastTwoWeeksApart
@@ -588,7 +589,7 @@ class CardsRepositoryImpl @Inject constructor(
             it.map { item -> item.toDomain() }.toImmutableList()
         }
 
-    override fun getAllInvestigatorsByName(name: String) = Pager(
+    override fun getAllInvestigatorsByName(name: String, collection: Collection) = Pager(
         config = PagingConfig(
             pageSize = 70,
             prefetchDistance = 140,
@@ -597,7 +598,11 @@ class CardsRepositoryImpl @Inject constructor(
         ),
         pagingSourceFactory = {
             LoggingPagingSource(
-                delegate = cardsDao.getAllInvestigatorsByNamePaged(name),
+                delegate = cardsDao.getAllInvestigatorsByNamePaged(
+                    name,
+                    collection.packs,
+                    collection.reprintPacks
+                ),
                 analyticsRepository = analyticsRepository
             )
         }
@@ -605,7 +610,7 @@ class CardsRepositoryImpl @Inject constructor(
         data.map { it.toDomain() }
     }
 
-    override fun getAllPlayableCardsByName(name: String) = Pager(
+    override fun getAllPlayableCardsByName(name: String, collection: Collection) = Pager(
         config = PagingConfig(
             pageSize = 70,
             prefetchDistance = 140,
@@ -614,7 +619,11 @@ class CardsRepositoryImpl @Inject constructor(
         ),
         pagingSourceFactory = {
             LoggingPagingSource(
-                delegate = cardsDao.getAllPlayableCardsByNamePaged(name),
+                delegate = cardsDao.getAllPlayableCardsByNamePaged(
+                    name,
+                    collection.packs,
+                    collection.reprintPacks
+                ),
                 analyticsRepository = analyticsRepository
             )
         }

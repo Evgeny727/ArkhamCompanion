@@ -113,27 +113,51 @@ interface CardsDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
-        $BASE_CARD_LIST_QUERY 
-        WHERE c.type_code = 'investigator' 
-        AND c.encounter_code IS NULL 
-        AND c.taboo_set_id IS NULL 
-        AND c.hidden = 0 
-        AND c.search_name LIKE '%' || :name || '%' 
-        ORDER BY c.sort_by_faction, c.official DESC
+        SELECT * FROM (
+            WITH filtered_cards AS (
+                $BASE_CARD_LIST_QUERY 
+                WHERE c.type_code = 'investigator' 
+                AND c.encounter_code IS NULL 
+                AND (c.pack_code IN (:packs) OR c.reprint_pack_code IN (:reprintPacks)) 
+                AND c.taboo_set_id IS NULL 
+                AND c.hidden = 0 
+                AND c.search_name LIKE '%' || :name || '%'
+            )
+            
+            $RANKED_CARDS_QUERY
+        ) 
+        WHERE duplicate_rank = 1 
+        ORDER BY sort_by_faction, official DESC
     """)
-    fun getAllInvestigatorsByNamePaged(name: String): PagingSource<Int, CardListItemEntity>
+    fun getAllInvestigatorsByNamePaged(
+        name: String,
+        packs: Collection<String>,
+        reprintPacks: Collection<String>
+    ): PagingSource<Int, CardListItemEntity>
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
-        $BASE_CARD_LIST_QUERY 
-        WHERE c.type_code != 'investigator' 
-        AND c.taboo_set_id IS NULL 
-        AND c.hidden = 0 
-        AND c.deck_limit > 0 
-        AND c.search_name LIKE '%' || :name || '%' 
-        ORDER BY c.sort_by_faction, c.official DESC
+        SELECT * FROM (
+            WITH filtered_cards AS (
+                $BASE_CARD_LIST_QUERY 
+                WHERE c.type_code != 'investigator' 
+                AND (c.pack_code IN (:packs) OR c.reprint_pack_code IN (:reprintPacks)) 
+                AND c.taboo_set_id IS NULL 
+                AND c.hidden = 0 
+                AND c.deck_limit > 0 
+                AND c.search_name LIKE '%' || :name || '%'
+            )
+            
+            $RANKED_CARDS_QUERY
+        ) 
+        WHERE duplicate_rank = 1 
+        ORDER BY sort_by_faction, official DESC
     """)
-    fun getAllPlayableCardsByNamePaged(name: String): PagingSource<Int, CardListItemEntity>
+    fun getAllPlayableCardsByNamePaged(
+        name: String,
+        packs: Collection<String>,
+        reprintPacks: Collection<String>
+    ): PagingSource<Int, CardListItemEntity>
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
@@ -171,6 +195,19 @@ interface CardsDao {
             JOIN pack p ON c.pack_code = p.code
             JOIN cycle cy ON c.cycle_code = cy.code
             LEFT JOIN encounter_set e ON c.encounter_code = e.code 
+        """
+
+        const val RANKED_CARDS_QUERY = """
+            SELECT *, ROW_NUMBER() OVER (
+                PARTITION BY
+                    COALESCE(duplicate_of_code, code)
+                ORDER BY
+                    CASE
+                        WHEN duplicate_of_code IS NULL THEN 0
+                        ELSE 1
+                    END,
+                    code
+            ) AS duplicate_rank FROM filtered_cards
         """
     }
 }

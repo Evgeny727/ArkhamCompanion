@@ -1,6 +1,7 @@
 package com.arkhamcompanion.data.utils
 
 import androidx.room3.RoomRawQuery
+import com.arkhamcompanion.data.local.dao.CardsDao
 import com.arkhamcompanion.data.objects.CardCache
 import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
 import com.arkhamcompanion.domain.model.cards.CardFilters
@@ -112,18 +113,7 @@ internal fun buildSearchCardsQuery(searchConfig: CardSearchConfig): RoomRawQuery
         packs to reprints
     }
 
-    val rankedQueryPart = """
-            SELECT *, ROW_NUMBER() OVER (
-                PARTITION BY
-                    COALESCE(duplicate_of_code, code)
-                ORDER BY
-                    CASE
-                        WHEN duplicate_of_code IS NULL THEN 0
-                        ELSE 1
-                    END,
-                    code
-            ) AS duplicate_rank FROM filtered_cards
-        """.trimIndent()
+    val rankedQueryPart = CardsDao.RANKED_CARDS_QUERY.trimIndent()
 
     val spoilerQueryPart = if (searchConfig.spoiler) {
         "SELECT *, MIN(pack_position) OVER (" +

@@ -121,7 +121,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }.map { preferences ->
             preferences[COLLECTION]?.let {
                 json.decodeFromString<Collection>(it)
-            } ?: Collection(persistentSetOf(), persistentSetOf())
+            } ?: Collection()
         }
     override val ignoreCollection: Flow<Boolean> = dataStore.data
         .catch {
@@ -226,7 +226,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                     ?.filter { it.isNotBlank() } ?: DEFAULT_MYTHOS_SORT_ORDER,
                 ignoreCollection = preferences[IGNORE_COLLECTION] ?: true,
                 collection = preferences[COLLECTION]?.let { json.decodeFromString<Collection>(it) }
-                    ?: Collection( persistentSetOf(), persistentSetOf())
+                    ?: Collection()
             )
         }
 

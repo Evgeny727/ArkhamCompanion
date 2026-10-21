@@ -9,6 +9,7 @@ import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.CardSearchResult
 import com.arkhamcompanion.domain.model.cards.CardTabooInfo
+import com.arkhamcompanion.domain.model.settings.Collection
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.coroutines.flow.Flow
@@ -51,9 +52,9 @@ interface CardsRepository {
 
     fun getCardTabooHistoryByCodeFlow(code: String): Flow<ImmutableList<CardTabooInfo>>
 
-    fun getAllInvestigatorsByName(name: String): Flow<PagingData<CardListItem>>
+    fun getAllInvestigatorsByName(name: String, collection: Collection): Flow<PagingData<CardListItem>>
 
-    fun getAllPlayableCardsByName(name: String): Flow<PagingData<CardListItem>>
+    fun getAllPlayableCardsByName(name: String, collection: Collection): Flow<PagingData<CardListItem>>
     suspend fun getInitialCardFields(cardId: String): CardInvestigatorAccessFields
 
     fun getCardFaqByCodeFlow(code: String): Flow<ImmutableList<CardFaqEntry>?>
