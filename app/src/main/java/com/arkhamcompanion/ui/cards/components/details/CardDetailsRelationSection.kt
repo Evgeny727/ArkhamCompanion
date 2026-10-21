@@ -116,9 +116,7 @@ fun LazyListScope.cardDetailsWithLinkedBack(
             suffix = "_back",
             styleResolver = styleResolver,
             flavorStyleResolver = flavorStyleResolver,
-            toggleFavorite = toggleFavorite,
-            onTabooNavigation = onTabooNavigation,
-            onFaqNavigation = onFaqNavigation
+            showFooter = false,
         )
     }
 }

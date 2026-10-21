@@ -27,39 +27,42 @@ fun LazyListScope.doubleSidedCardDetails(
     suffix: String = "",
     styleResolver: CardTextStyleResolver,
     flavorStyleResolver: CardTextStyleResolver,
-    toggleFavorite: (String, Boolean) -> Unit,
-    onTabooNavigation: (String,  String) -> Unit,
-    onFaqNavigation: (String,  String, Int?) -> Unit,
+    showFooter: Boolean = true,
+    toggleFavorite: (String, Boolean) -> Unit = { _, _ -> },
+    onTabooNavigation: (String,  String) -> Unit = { _, _ -> },
+    onFaqNavigation: (String,  String, Int?) -> Unit = { _, _, _ -> },
 ) {
     cardDetailsWithPackInfo.run {
         val firstPackInCollection = firstPackIn(collection)
         val isBackFirst = cardDetails.isBackFirst()
         val noBackHeader = cardDetails.type == CardType.Investigator
 
-        val footer: @Composable () -> Unit = {
-            CardDetailsFooter(
-                cardDetails.official,
-                onFaq = {
-                    onFaqNavigation(
-                        cardDetails.code,
-                        cardDetails.name,
-                        cardDetails.tabooSetId
-                    )
-                },
-                cardDetails.tabooSetId,
-                cardDetails.tabooPlaceholder,
-                onTaboo = {
-                    onTabooNavigation(cardDetails.code, cardDetails.name)
-                },
-                cardDetails.isFavorite,
-                onFavorite = {
-                    toggleFavorite(
-                        cardDetails.code,
-                        !cardDetails.isFavorite
-                    )
-                }
-            )
-        }
+        val footer: (@Composable () -> Unit)? = if (showFooter) {
+            {
+                CardDetailsFooter(
+                    cardDetails.official,
+                    onFaq = {
+                        onFaqNavigation(
+                            cardDetails.code,
+                            cardDetails.name,
+                            cardDetails.tabooSetId
+                        )
+                    },
+                    cardDetails.tabooSetId,
+                    cardDetails.tabooPlaceholder,
+                    onTaboo = {
+                        onTabooNavigation(cardDetails.code, cardDetails.name)
+                    },
+                    cardDetails.isFavorite,
+                    onFavorite = {
+                        toggleFavorite(
+                            cardDetails.code,
+                            !cardDetails.isFavorite
+                        )
+                    }
+                )
+            }
+        } else null
 
         if (isBackFirst) {
             //Back
