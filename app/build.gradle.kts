@@ -17,8 +17,8 @@ android {
         applicationId = "com.arkhamcompanion"
         minSdk = 24
         targetSdk = 37
-        versionCode = 22
-        versionName = "0.3.8-beta"
+        versionCode = 23
+        versionName = "0.3.9-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
