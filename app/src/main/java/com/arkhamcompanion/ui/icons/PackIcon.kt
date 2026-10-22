@@ -694,7 +694,12 @@ enum class PackIcon(
     RiverOfBlood("river_of_blood", 0xEB96),
     SanguineSecrets("sanguine_secrets", 0xEB97),
     Stalked("stalked", 0xEB98),
-    Vermin("vermin", 0xEB99);
+    Vermin("vermin", 0xEB99),
+    TheTurningGear("the_turning_gear", 0xEB9A),
+    ZtgMilitaryManeuvers("ztg_military_maneuvers", 0xEB9B),
+    ZtgRedGuard("ztg_red_guard", 0xEB9C),
+    ZtgFlood("ztg_flood", 0xEB9D),
+    ZtgUnboundDimensions("ztg_unbound_dimensions", 0xEB9E);
 
     override val glyph: String
         get() = code.toChar().toString()
@@ -770,8 +775,8 @@ enum class PackIcon(
             "blob", "blob_that_ate_everything" -> TheBlobThatAteEverything
             "blbe" -> BlobThatAteEverythingElse
             "migo_incursion" -> Migo
-            "machinations_epic_multiplayer", "blob_epic_multiplayer" -> EpicMultiplayer
-            "blob_single_group", "machinations_single_group" -> SingleGroup
+            "machinations_epic_multiplayer", "blob_epic_multiplayer", "ztg_epic" -> EpicMultiplayer
+            "blob_single_group", "machinations_single_group", "ztg_single_group" -> SingleGroup
             "gob" -> Guardians
             "hotel" -> Excelsior
             "the_eternal_slumber" -> EternalSlumber
@@ -949,6 +954,7 @@ enum class PackIcon(
             "zcx", "zcxc", "zcem" -> ZcxCircusExMortis
             "zgoo" -> Onigawa
             "zdh" -> Darkham
+            "ztg", "the_turning_gear", "ztg_turning_gear" -> TheTurningGear
             else -> byPackCode[packCode]
         } ?: (if (returnDefaultCore) Core else null)
     }
