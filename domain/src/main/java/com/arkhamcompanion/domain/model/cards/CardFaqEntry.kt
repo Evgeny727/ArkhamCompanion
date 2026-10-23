@@ -6,4 +6,5 @@ data class CardFaqEntry(
     val ruling: CardText,
     val citation: String,
     val position: Int,
+    val date: String?
 )

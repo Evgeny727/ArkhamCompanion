@@ -24,11 +24,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+        isCoreLibraryDesugaringEnabled = true
     }
 }
 
 dependencies {
     implementation(project(":domain"))
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // Apollo Kotlin
     implementation(libs.apollo.runtime)

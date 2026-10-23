@@ -120,7 +120,7 @@ fun CardFaqScreen(
                                 ),
                         ) {
                             Text(
-                                text = entry.citation,
+                                text = entry.citation + entry.date?.let { " — $it" }.orEmpty(),
                                 style = CustomTheme.typography.cardText,
                                 modifier = Modifier.padding(8.dp)
                             )

@@ -1,6 +1,7 @@
 [versions]
 agp = "9.2.1"
 appUpdate = "2.1.0"
+desugar_jdk_libs = "2.1.5"
 kotlin = "2.4.21"
 ksp = "2.3.10"
 
@@ -44,6 +45,7 @@ espresso = "3.7.0"
 
 [libraries]
 # Core / AndroidX
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

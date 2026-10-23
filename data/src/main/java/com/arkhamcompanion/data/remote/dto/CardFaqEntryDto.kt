@@ -9,4 +9,5 @@ data class CardFaqEntryDto(
     val ruling: String,
     val citation: String,
     val position: Int,
+    val date: String?,
 )

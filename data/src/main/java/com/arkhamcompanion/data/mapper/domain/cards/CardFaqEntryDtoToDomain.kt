@@ -4,6 +4,10 @@ import com.arkhamcompanion.data.remote.dto.CardFaqEntryDto
 import com.arkhamcompanion.data.utils.preprocessCardText
 import com.arkhamcompanion.domain.model.cards.CardFaqEntry
 import com.arkhamcompanion.domain.objects.CardTextParser
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 internal fun CardFaqEntryDto.toDomain(): CardFaqEntry = CardFaqEntry(
     id = id,
@@ -14,5 +18,16 @@ internal fun CardFaqEntryDto.toDomain(): CardFaqEntry = CardFaqEntry(
         ruling.preprocessCardText(processWebFormat = true)
     ),
     citation = citation,
-    position = position
+    position = position,
+    date = date?.formatRulesFormDate()
 )
+
+private fun String.formatRulesFormDate(): String {
+    val date = LocalDate.parse(this)
+
+    val formatter = DateTimeFormatter
+        .ofLocalizedDate(FormatStyle.MEDIUM)
+        .withLocale(Locale.getDefault())
+
+    return date.format(formatter)
+}
