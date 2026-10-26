@@ -11,6 +11,7 @@ data class ChapterGroup(
     val cycles: ImmutableList<CycleGroup>,
     val reprintPackCodes: ImmutableSet<String>,
     val packCodes: ImmutableSet<String>,
+    val removablePackCodes: ImmutableSet<String>,
 )
 
 data class CycleGroup(
@@ -25,12 +26,15 @@ internal class ChapterBuilder(val chapter: Int?) {
     val cycles = mutableListOf<CycleBuilder>()
     val reprintPackCodes = mutableListOf<String>()
     val packCodes = mutableListOf<String>()
+    val removablePackCodes = mutableListOf<String>()
 
     fun build() = ChapterGroup(
         chapter = chapter,
         cycles = cycles.map { it.build() }.toImmutableList(),
         reprintPackCodes = reprintPackCodes.toImmutableSet(),
-        packCodes = packCodes.toImmutableSet()
+        packCodes = packCodes.toImmutableSet(),
+        removablePackCodes = removablePackCodes.toImmutableSet()
+
     )
 }
 
@@ -48,3 +52,5 @@ internal class CycleBuilder(val cycleName: String) {
         packCodes = packCodes.toImmutableSet()
     )
 }
+
+internal val coreCodes = setOf("core", "core2")

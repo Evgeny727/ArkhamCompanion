@@ -27,6 +27,7 @@ import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.icons.PackIcon
 import com.arkhamcompanion.ui.settings.components.ChapterBuilder
 import com.arkhamcompanion.ui.settings.components.CycleBuilder
+import com.arkhamcompanion.ui.settings.components.coreCodes
 import com.arkhamcompanion.ui.theme.CustomTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -64,9 +65,12 @@ fun CollectionScreen(
                     currentChapter!!.reprintPackCodes += pack.code
                     currentCycle.reprintPacks += pack
                     currentCycle.reprintPackCodes += pack.code
-                }
-                else {
-                    currentChapter!!.packCodes += pack.code
+                } else {
+                    if (currentCycle.reprintPacks.isEmpty() && pack.code !in coreCodes) {
+                        currentChapter!!.packCodes += pack.code
+                    } else {
+                        currentChapter!!.removablePackCodes += pack.code
+                    }
                     currentCycle.packs += pack
                     currentCycle.packCodes += pack.code
                 }
@@ -99,7 +103,7 @@ fun CollectionScreen(
             )
         }
         if (!ignoreCollection) {
-            groupedPacks.forEach { (chapter, cycles, reprintCodes, packCodes) ->
+            groupedPacks.forEach { (chapter, cycles, reprintCodes, packCodes, removablePackCodes) ->
                 stickyHeader(key = "chapter_$chapter", contentType = "chapter_header") {
                     CardSectionHeader(
                         title = stringResource(when (chapter) {
@@ -123,7 +127,7 @@ fun CollectionScreen(
                         ) {
                             val newCollection = collection.copy(
                                 reprintPacks = (collection.reprintPacks - reprintCodes).toImmutableSet(),
-                                packs = (collection.packs - packCodes).toImmutableSet()
+                                packs = (collection.packs - removablePackCodes).toImmutableSet()
                             )
                             onCollectionChange(newCollection)
                         }

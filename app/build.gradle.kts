@@ -49,6 +49,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+        isCoreLibraryDesugaringEnabled = true
     }
 
     buildFeatures {
@@ -60,6 +61,8 @@ android {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":di"))
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     //Import In-app updates
     implementation(libs.app.update.ktx)
