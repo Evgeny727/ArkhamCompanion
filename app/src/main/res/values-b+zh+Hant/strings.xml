@@ -61,7 +61,6 @@
     <string name="caches">暫存</string>
     <string name="clear_cache">清除暫存區</string>
     <string name="you_sure_to_sign_out">你確定要登出？</string>
-    <string name="reconnect_account">重新連接帳戶</string>
     <string name="diagnostics">診斷</string>
     <string name="about_arkham_companion">關於Arkham Companion</string>
     <string name="done">完成</string>

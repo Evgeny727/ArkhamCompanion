@@ -22,6 +22,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        manifestPlaceholders["appAuthRedirectScheme"] = "arkhamcompanion"
+
         androidResources.localeFilters += setOf("es", "ru", "en", "de", "fr", "pl", "ko", "b+zh+Hant", "b+zh+Hans", "it", "pt", "vi", "uk", "cs")
     }
 
@@ -63,6 +65,9 @@ dependencies {
     implementation(project(":di"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    //OAuth
+    implementation(libs.oauth)
 
     //Import In-app updates
     implementation(libs.app.update.ktx)

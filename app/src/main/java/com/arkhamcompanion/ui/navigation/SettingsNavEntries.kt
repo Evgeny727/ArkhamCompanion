@@ -43,10 +43,16 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val topAppBarState = LocalTopAppBarState.current
         val settingsViewModel = hiltViewModel<SettingsViewModel>()
         val theme by viewModel.themeState.collectAsState()
+        val appUiState by viewModel.appState.collectAsState()
+        val userState by viewModel.userState.collectAsState()
 
         SettingsScreen(
             theme = theme ?: 2,
             viewModel = settingsViewModel,
+            appUiState = appUiState,
+            userState = userState,
+            onLogIn = viewModel::oAuthLogIn,
+            onLogOut = viewModel::oAuthLogOut,
             onLanguageChange = viewModel::updateLocale,
             updateCards = viewModel::updateCardsIfAvailable,
             navigateToRules = { navigator.navigateSingleTop(SettingsRules) },
@@ -65,6 +71,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             contentColor = null,
             rightActions = null,
             leftAction = null,
+            ignoreErrorState = true
         )
     }
 

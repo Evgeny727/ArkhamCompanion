@@ -25,6 +25,7 @@ kotlinxSerialization = "1.12.0"
 collectionsImmutable = "0.5.2"
 coroutines = "1.11.0"
 
+oauth = "0.11.1"
 firebaseBom = "35.1.0"
 crashlytics = "3.0.8"
 perf = "2.0.2"
@@ -80,6 +81,7 @@ androidx-room-compiler = { group = "androidx.room3", name = "room3-compiler", ve
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 # Network / image / misc
+oauth = { module = "net.openid:appauth", version.ref = "oauth" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }

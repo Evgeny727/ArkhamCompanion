@@ -85,7 +85,6 @@
     <string name="clear_cache">캐시 지우기</string>
     <string name="note_not_all_cards_have_translations_available">참고: 모든 카드의 번역이 제공되는 것은 아닙니다.</string>
     <string name="you_sure_to_sign_out">정말로 로그아웃 하시겠습니까?</string>
-    <string name="reconnect_account">계정 재연결</string>
     <string name="diagnostics">진단</string>
     <string name="about_arkham_companion">아캄 컴패니언 대하여</string>
     <string name="done">완료</string>

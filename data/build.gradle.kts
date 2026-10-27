@@ -1,6 +1,7 @@
 @file:OptIn(ApolloExperimental::class)
 
 import com.apollographql.apollo.annotations.ApolloExperimental
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.library)
@@ -10,15 +11,60 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val secretsFile = rootProject.file("secrets.properties")
+
+val secrets = Properties().apply {
+    if (secretsFile.exists()) {
+        secretsFile.inputStream().use { load(it) }
+    }
+}
+
+fun secret(name: String): String =
+    secrets.getProperty(name).orEmpty()
+
+fun buildConfigString(value: String): String =
+    "\"" + value
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\n", "")
+        .replace("\r", "") + "\""
+
 android {
     namespace = "com.arkhamcompanion.data"
     compileSdk = 37
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField(
+            "String",
+            "ARKHAM_CLIENT_ID",
+            buildConfigString(secret("ARKHAM_CLIENT_ID")),
+        )
+
+        buildConfigField(
+            "String",
+            "ARKHAM_CLIENT_SECRET",
+            buildConfigString(secret("ARKHAM_CLIENT_SECRET")),
+        )
+
+        buildConfigField(
+            "String",
+            "ARKHAM_REDIRECT_URI",
+            buildConfigString(
+                secrets.getProperty(
+                    "ARKHAM_REDIRECT_URI",
+                    "arkhamcompanion://arkhambuild/redirect",
+                )
+            ),
+        )
     }
 
     compileOptions {
@@ -32,6 +78,9 @@ dependencies {
     implementation(project(":domain"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    //OAuth
+    implementation(libs.oauth)
 
     // Apollo Kotlin
     implementation(libs.apollo.runtime)

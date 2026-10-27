@@ -13,18 +13,24 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.arkhamcompanion.AppUiState
+import com.arkhamcompanion.AppUserState
+import com.arkhamcompanion.ui.settings.components.ArkhamBuildAccountCard
 import com.arkhamcompanion.ui.settings.components.CardsCard
 import com.arkhamcompanion.ui.settings.components.SettingsCard
 import com.arkhamcompanion.ui.settings.components.SocialsCard
 import com.arkhamcompanion.ui.settings.components.SupportCard
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
-import kotlin.String
 
 @Composable
 fun SettingsScreen(
     theme: Int,
     viewModel: SettingsViewModel,
+    appUiState: AppUiState,
+    userState: AppUserState,
+    onLogIn: () -> Unit,
+    onLogOut: () -> Unit,
     onLanguageChange: (String) -> Unit,
     navigateToCollection: () -> Unit,
     navigateToRewards: () -> Unit,
@@ -62,7 +68,8 @@ fun SettingsScreen(
     val languageTag = LocalLanguage.current.languageTag
 
     LazyColumn(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .background(CustomTheme.colors.l10),
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -71,10 +78,16 @@ fun SettingsScreen(
 //        item("account_card") {
 //            Text(text = "Settings", style = CustomTheme.typography.header)
 //        }
-        //TODO: add arkham.build account card
-//        item("arkhambuild_account_card") {
-//            Text(text = "Settings", style = CustomTheme.typography.header)
-//        }
+
+        item("arkhambuild_account_card") {
+            ArkhamBuildAccountCard(
+                appUiState = appUiState,
+                userState = userState,
+                onLogIn = onLogIn,
+                onLogOut = onLogOut
+            )
+        }
+
         item("cards_card") {
             CardsCard(
                 onLanguageChange = onLanguageChange,

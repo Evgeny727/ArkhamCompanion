@@ -217,7 +217,6 @@
     <string name="sign_in_to_app">Entrar no app</string>
     <string name="you_sure_to_sign_out">Você tem certeza que quer sair?</string>
     <string name="sign_out">Sair</string>
-    <string name="reconnect_account">Reconectar Conta</string>
     <string name="authorization_issues">Problemas de autorização</string>
     <string name="reconnect">Reconectar</string>
     <string name="logged_in">Conectado</string>

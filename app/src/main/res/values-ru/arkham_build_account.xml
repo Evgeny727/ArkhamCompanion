@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="arkham_build_account">Аккаунт Arkham.Build</string>
+    <string name="account_error">Не удалось подключиться к вашей учетной записи Arkham.Build. Обычно это означает, что возникла проблема с локальным зашифрованным хранилищем или вы не пользовались какими-либо функциями Arkham.Build в приложении в течение 180 или более дней.</string>
+    <string name="reconnect_account">При возникновении ошибки с аккаунтом, попробуйте переподключиться.</string>
+</resources>

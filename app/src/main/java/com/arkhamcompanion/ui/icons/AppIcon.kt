@@ -240,7 +240,6 @@ enum class AppIcon(
     Multiclass("multiclass", 0xE9B6),
     ClassNeutral("class_neutral", 0xE9B7),
     SpecialCards("special_cards", 0xE9B8),
-    BuildLogo("build-logo", 0xE9B9),
     Addcard("addcard", 0xE9BA),
     Draft("draft", 0xE9BB),
     Draw("draw", 0xE9BC),
@@ -407,7 +406,8 @@ enum class AppIcon(
     TokenBloodOverlay("token_blood_overlay", 0xEA5E),
     TokenBloodHighlight("token_blood_highlight", 0xEA5F),
     FavoriteOutline("favorite_outline", 0xEA60),
-    FavoriteFill("favorite_fill", 0xEA61);
+    FavoriteFill("favorite_fill", 0xEA61),
+    BuildLogo("build-logo", 0xEA62);
 
     override val glyph: String
         get() = code.toChar().toString()

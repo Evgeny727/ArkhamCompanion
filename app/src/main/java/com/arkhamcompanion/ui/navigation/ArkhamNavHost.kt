@@ -76,13 +76,14 @@ val LocalTopAppBarState = compositionLocalOf { TopAppBarState() }
 @Composable
 fun ArkhamNavHost(viewModel: AppViewModel) {
     val navigationState = rememberNavigationState(
-        startRoute = TopLevelRoute.Cards(),
+        startRoute = TopLevelRoute.Decks,
         topLevelRoutes = topLevelRoutes,
     )
     val navigator = remember { Navigator(navigationState) }
 
     val cardsState by viewModel.cardsSyncState.collectAsState()
     val cardsCacheState by viewModel.cardsCacheState.collectAsState()
+    val userState by viewModel.userState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -109,6 +110,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                 contentColor = topAppBarState.contentColor ?: baseContentColor,
                 leftAction = topAppBarState.leftAction,
                 rightActions = topAppBarState.rightActions,
+                exception = !topAppBarState.ignoreErrorState && userState.exception != null
             )
         },
         bottomBar = {

@@ -103,7 +103,6 @@
     <string name="clear_cache">Очистить кэш</string>
     <string name="note_not_all_cards_have_translations_available">Обратите внимание: перевод есть не для всех карт.</string>
     <string name="you_sure_to_sign_out">Вы уверены, что хотите выйти из аккаунта?</string>
-    <string name="reconnect_account">Переподключить аккаунт</string>
     <string name="taboo_list">Список табу</string>
     <string name="diagnostics">Диагностика</string>
     <string name="about_arkham_companion">О приложении</string>

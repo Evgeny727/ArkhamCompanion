@@ -22,8 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.icons.IconGlyph
 import com.arkhamcompanion.ui.theme.CustomTheme
@@ -36,6 +38,7 @@ fun ArkhamTopAppBar(
     contentColor: Color,
     leftAction: @Composable ((Color) -> Unit)?,
     rightActions: @Composable (RowScope.(Color) -> Unit)?,
+    exception: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -45,37 +48,53 @@ fun ArkhamTopAppBar(
         color = color,
         shadowElevation = 4.dp
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth()
-        ) {
-            leftAction?.invoke(contentColor)
-            Column(
-                modifier = Modifier.weight(1f)
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
             ) {
-                Text(
-                    text = title,
-                    color = contentColor,
-                    style = CustomTheme.typography.header,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                subtitle?.let {
+                leftAction?.invoke(contentColor)
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(
-                        text = subtitle,
+                        text = title,
                         color = contentColor,
-                        style = CustomTheme.typography.run { small + italic },
+                        style = CustomTheme.typography.header,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    subtitle?.let {
+                        Text(
+                            text = subtitle,
+                            color = contentColor,
+                            style = CustomTheme.typography.run { small + italic },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                if (rightActions != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        rightActions(contentColor)
+                    }
                 }
             }
-            if (rightActions != null) {
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    rightActions(contentColor)
+
+            if (exception) {
+                Surface(
+                    modifier = modifier.fillMaxWidth(),
+                    color = CustomTheme.colors.warn
+                ) {
+                    Text(
+                        text = stringResource(R.string.reconnect_account),
+                        style = CustomTheme.typography.small,
+                        color = CustomTheme.colors.l30,
+                        modifier = Modifier.padding(8.dp),
+                    )
                 }
             }
         }
@@ -155,6 +174,9 @@ class TopAppBarState {
     var leftAction: (@Composable ((Color) -> Unit))? by mutableStateOf(null)
         private set
 
+    var ignoreErrorState: Boolean by mutableStateOf(false)
+        private set
+
     fun update(
         title: String = this.title,
         subtitle: String? = this.subtitle,
@@ -162,6 +184,7 @@ class TopAppBarState {
         contentColor: Color? = this.contentColor,
         rightActions: (@Composable RowScope.(Color) -> Unit)? = this.rightActions,
         leftAction: (@Composable ((Color) -> Unit))? = this.leftAction,
+        ignoreErrorState: Boolean = false
     ) {
         this.title = title
         this.subtitle = subtitle
@@ -169,5 +192,6 @@ class TopAppBarState {
         this.contentColor = contentColor
         this.rightActions = rightActions
         this.leftAction = leftAction
+        this.ignoreErrorState = ignoreErrorState
     }
 }

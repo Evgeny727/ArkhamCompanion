@@ -1,5 +1,7 @@
 package com.arkhamcompanion.di
 
+import com.arkhamcompanion.auth.MainActivityOAuthCallbackTarget
+import com.arkhamcompanion.domain.model.auth.OAuthCallbackTargetProvider
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.PerformanceRepository
 import com.arkhamcompanion.firebase.AnalyticsRepositoryImpl
@@ -12,7 +14,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface FirebaseBindingModule {
+interface AppBindingModule {
     @Binds
     @Singleton
     fun bindAnalyticsRepository(impl: AnalyticsRepositoryImpl): AnalyticsRepository
@@ -20,4 +22,8 @@ interface FirebaseBindingModule {
     @Binds
     @Singleton
     fun bindPerformanceRepository(impl: PerformanceRepositoryImpl): PerformanceRepository
+
+    @Binds
+    @Singleton
+    fun bindOAuthCallbackTargetProvider(impl: MainActivityOAuthCallbackTarget): OAuthCallbackTargetProvider
 }

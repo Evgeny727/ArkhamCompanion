@@ -64,7 +64,6 @@
     <string name="clear_cache">Vider le cache</string>
     <string name="you_sure_to_sign_out">Êtes-vous sûr de vouloir vous déconnecter ?</string>
     <string name="sign_out">Déconnexion</string>
-    <string name="reconnect_account">Reconnecter le compte</string>
     <string name="diagnostics">Diagnostics</string>
     <string name="about_arkham_companion">À propos d\'Arkham Companion</string>
     <string name="done">Effectué</string>

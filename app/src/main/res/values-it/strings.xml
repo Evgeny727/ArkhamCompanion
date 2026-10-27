@@ -65,7 +65,6 @@
     <string name="caches">Cache</string>
     <string name="clear_cache">Pulisci la cache</string>
     <string name="you_sure_to_sign_out">Sei sicuro di volerti disconnettere?</string>
-    <string name="reconnect_account">Riconnetti Account</string>
     <string name="diagnostics">Diagnostica</string>
     <string name="about_arkham_companion">Informazioni su Arkham Companion</string>
     <string name="done">Fatto</string>

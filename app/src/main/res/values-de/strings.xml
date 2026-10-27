@@ -62,7 +62,6 @@
     <string name="caches">Zwischenspeicher</string>
     <string name="clear_cache">Zwischenspeicher leeren</string>
     <string name="you_sure_to_sign_out">Möchtest du dich wirklich abmelden?</string>
-    <string name="reconnect_account">Account erneut verbinden</string>
     <string name="diagnostics">Diagnose</string>
     <string name="about_arkham_companion">Über Arkham Companion</string>
     <string name="done">Erledigt</string>

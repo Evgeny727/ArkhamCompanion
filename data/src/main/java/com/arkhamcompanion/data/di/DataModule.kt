@@ -1,6 +1,7 @@
 package com.arkhamcompanion.data.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -26,6 +27,14 @@ object DataModule {
             context.preferencesDataStoreFile("arkhamv2_preferences")
         }
     }
+
+    @Provides
+    @Singleton
+    fun proviePrivateSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
+        context.getSharedPreferences(
+            "arkham_secure_store",
+            Context.MODE_PRIVATE,
+        )
 
     @Provides
     @Singleton

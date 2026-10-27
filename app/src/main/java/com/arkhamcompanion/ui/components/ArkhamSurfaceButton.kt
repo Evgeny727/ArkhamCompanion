@@ -25,13 +25,13 @@ import com.arkhamcompanion.ui.theme.CustomTheme
 fun ArkhamSurfaceButton(
     title: String,
     valueLabel: String,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     loading: Boolean = false,
     editable: Boolean = true,
     icon: IconGlyph? = null,
     valueLabelDescription: String? = null,
     noLabelDivider: Boolean = false,
+    onClick: () -> Unit = {},
 ) {
     val iconSize = if (icon == AppIcon.PerInvestigator) 26.dp else 32.dp
 

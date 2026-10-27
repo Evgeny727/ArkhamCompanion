@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="arkham_build_account">Arkham.Build Account</string>
+    <string name="account_error">Unable to connect to your Arkham.Build account. Usually it means that there is problem with local encrypted storage or you didn\'t use any Arkham.Build features in app for 180 days or more.</string>
+    <string name="reconnect_account">If you are having trouble with your account you should try to reconnect.</string>
+</resources>

@@ -67,7 +67,6 @@
     <string name="clear_cache">Wyczyść pamięć podręczną</string>
     <string name="you_sure_to_sign_out">Czy na pewno chcesz się wylogować?</string>
     <string name="sign_out">Wyloguj</string>
-    <string name="reconnect_account">Połącz ponownie konto</string>
     <string name="diagnostics">Diagnostyka</string>
     <string name="about_arkham_companion">O Arkham Companion</string>
     <string name="done">Gotowe</string>

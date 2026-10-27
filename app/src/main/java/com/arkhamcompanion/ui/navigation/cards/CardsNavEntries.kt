@@ -141,7 +141,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                         iconGlyph = AppIcon.ArrowBack,
                     )
                 }
-            }
+            },
+            ignoreErrorState = true,
         )
     }
 
@@ -179,6 +180,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -226,6 +228,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -273,6 +276,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -320,6 +324,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -381,6 +386,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -437,6 +443,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -484,6 +491,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -531,6 +539,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -575,6 +584,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -622,6 +632,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -669,6 +680,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -716,6 +728,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -763,6 +776,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -810,6 +824,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -858,6 +873,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -905,6 +921,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     iconGlyph = AppIcon.ArrowBack,
                 )
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -983,6 +1000,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     )
                 }
             },
+            ignoreErrorState = true,
         )
     }
 
@@ -1009,6 +1027,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                 )
             },
             rightActions = null,
+            ignoreErrorState = true,
         )
     }
 
@@ -1040,6 +1059,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                 )
             },
             rightActions = null,
+            ignoreErrorState = true,
         )
     }
 
@@ -1110,6 +1130,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     )
                 }
             },
+            ignoreErrorState = true,
         )
     }
 }

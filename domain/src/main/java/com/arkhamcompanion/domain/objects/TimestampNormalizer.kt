@@ -5,8 +5,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.abs
-
-private const val WEEK_MILLIS = 7L * 24 * 60 * 60 * 1000
+import kotlin.time.Duration.Companion.days
 
 object TimestampNormalizer {
 
@@ -48,6 +47,7 @@ object TimestampNormalizer {
         if (timestamp1.isNullOrBlank() || timestamp2.isNullOrBlank()) return true
         val timestamp1Fixed = fixFraction(timestamp1)
         val timestamp2Fixed = fixFraction(timestamp2)
+
         // Define the date format
         val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
@@ -72,6 +72,6 @@ object TimestampNormalizer {
         val date1 = format.parse(fixFraction(timestamp1) ?: return false) ?: return false
         val date2 = format.parse(fixFraction(timestamp2) ?: return false) ?: return false
 
-        return abs(date2.time - date1.time) >= WEEK_MILLIS * 2
+        return abs(date2.time - date1.time).days >= 14.days
     }
 }
