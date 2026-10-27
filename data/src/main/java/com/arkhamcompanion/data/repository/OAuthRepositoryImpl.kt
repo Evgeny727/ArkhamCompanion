@@ -4,6 +4,7 @@ import com.arkhamcompanion.data.local.auth.ArkhamAuthorizationFlow
 import com.arkhamcompanion.data.local.auth.OAuthTokenStore
 import com.arkhamcompanion.data.local.auth.PendingAuthorizationStore
 import com.arkhamcompanion.data.local.auth.TokenStoreException
+import com.arkhamcompanion.data.remote.oauth.AccessTokenProvider
 import com.arkhamcompanion.data.remote.oauth.ArkhamBuildOAuthApi
 import com.arkhamcompanion.domain.exceptions.OAuthException
 import com.arkhamcompanion.domain.model.auth.ArkhamBuildUser
@@ -13,16 +14,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.openid.appauth.AuthorizationRequest
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 class OAuthRepositoryImpl @Inject internal constructor(
     private val authorizationFlow: ArkhamAuthorizationFlow,
     private val api: ArkhamBuildOAuthApi,
     private val tokenStore: OAuthTokenStore,
+    private val accessTokenProvider: AccessTokenProvider,
     private val pendingAuthorizationStore: PendingAuthorizationStore,
 ) : OAuthRepository {
-    private val refreshMutex = Mutex()
     private val authorizationMutex = Mutex()
 
     override suspend fun startAuthorization() {
@@ -81,7 +80,7 @@ class OAuthRepositoryImpl @Inject internal constructor(
 
     override suspend fun getCurrentUser(): Result<ArkhamBuildUser?> = runCatching {
         val accessToken = try {
-            getValidAccessToken() ?: return@runCatching null
+            accessTokenProvider.getValidAccessToken() ?: return@runCatching null
         } catch (e: TokenStoreException) {
             throw OAuthException.InvalidTokensStoreData(
                 message = e.message.toString(),
@@ -100,28 +99,4 @@ class OAuthRepositoryImpl @Inject internal constructor(
             tokenStore.clear()
         }
     }
-
-    private suspend fun getValidAccessToken(): String? =
-        refreshMutex.withLock {
-            val tokens = tokenStore.read()
-                ?: return@withLock null
-
-            val now = System.currentTimeMillis().seconds
-
-            if (tokens.expiresAtEpochSeconds.seconds > now + 2.minutes) {
-                tokens.accessToken
-            } else {
-                val refreshed = try {
-                    api.refreshToken(tokens.refreshToken)
-                } catch (e: OAuthException) {
-                    if (e is OAuthException.InvalidGrant) {
-                        tokenStore.clear()
-                    }
-                    throw e
-                }
-
-                tokenStore.save(refreshed)
-                refreshed.accessToken
-            }
-        }
 }

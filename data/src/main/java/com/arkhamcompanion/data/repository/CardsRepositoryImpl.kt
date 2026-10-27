@@ -30,7 +30,7 @@ import com.arkhamcompanion.data.objects.CardCache
 import com.arkhamcompanion.data.objects.CardCache.createCache
 import com.arkhamcompanion.data.objects.CardRelationResolver.buildCardWithRelations
 import com.arkhamcompanion.data.objects.CardRelationResolver.resolveCardCodesWithRelations
-import com.arkhamcompanion.data.remote.CardsRemoteDataSource
+import com.arkhamcompanion.data.remote.datasources.CardsRemoteDataSource
 import com.arkhamcompanion.data.utils.buildCardsListItemsQuery
 import com.arkhamcompanion.data.utils.buildSearchCardsQuery
 import com.arkhamcompanion.data.utils.filterByInvestigatorAccess

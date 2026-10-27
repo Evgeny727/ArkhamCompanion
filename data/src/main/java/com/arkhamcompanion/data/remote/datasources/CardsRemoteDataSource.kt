@@ -1,4 +1,4 @@
-package com.arkhamcompanion.data.remote
+package com.arkhamcompanion.data.remote.datasources
 
 import com.apollographql.apollo.ApolloClient
 import com.arkhamcompanion.GetCardsUpdatedAtQuery
@@ -7,9 +7,11 @@ import com.arkhamcompanion.GetPlayerCardsQuery
 import com.arkhamcompanion.GetTranslationDataQuery
 import com.arkhamcompanion.data.remote.api.CardsFaqApi
 import javax.inject.Inject
+import javax.inject.Singleton
 
 const val CARDS_SCHEMA_VERSION = 9
 
+@Singleton
 class CardsRemoteDataSource @Inject constructor(
     private val apolloClient: ApolloClient,
     private val cardsFaqApi: CardsFaqApi
