@@ -699,7 +699,10 @@ enum class PackIcon(
     ZtgMilitaryManeuvers("ztg_military_maneuvers", 0xEB9B),
     ZtgRedGuard("ztg_red_guard", 0xEB9C),
     ZtgFlood("ztg_flood", 0xEB9D),
-    ZtgUnboundDimensions("ztg_unbound_dimensions", 0xEB9E);
+    ZtgUnboundDimensions("ztg_unbound_dimensions", 0xEB9E),
+    TracesToNowherePack("traces_to_nowhere_pack", 0xEB9F),
+    TracesToNowhere("traces_to_nowhere", 0xEBA0),
+    DimensionalMadness("dimensional_madness", 0xEBA1);
 
     override val glyph: String
         get() = code.toChar().toString()
@@ -847,7 +850,7 @@ enum class PackIcon(
             "zbt" -> Beta
             "zaw" -> AliceInWonderland
             "zwtws" -> WhenTheWorldScreamed
-            "film_fatale" -> if(isPack) FilmFatale else FilmFataleEncounter
+            "film_fatale" -> if (isPack) FilmFatale else FilmFataleEncounter
             "legendry" -> Legendary
             "zbs" -> TheBlackStone
             "zcc" -> ConsternationOnTheConstellation
