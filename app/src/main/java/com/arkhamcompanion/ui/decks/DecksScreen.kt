@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -43,6 +44,8 @@ import com.arkhamcompanion.ui.decks.components.PlaceholderDeckListItem
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.appSp
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun DecksScreen(
@@ -66,6 +69,18 @@ fun DecksScreen(
             decksViewModel.syncAllRemoteDecks(userId)
             savedUserId = userId
         }
+    }
+
+    LaunchedEffect(searchResults) {
+        snapshotFlow {
+            searchResults.loadState.refresh
+        }
+            .distinctUntilChanged()
+            .collectLatest { refresh ->
+                if (refresh is LoadState.Loading) {
+                    listState.scrollToItem(0)
+                }
+            }
     }
 
     Column(
