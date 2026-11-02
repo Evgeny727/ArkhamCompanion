@@ -4,7 +4,7 @@ import com.arkhamcompanion.data.local.cards.CardSearchResultEntity
 import com.arkhamcompanion.domain.model.cards.CardSearchOptions
 import com.arkhamcompanion.domain.objects.FuzzyMatcher.matchesFuzzy
 import com.arkhamcompanion.domain.objects.normalizeForSearch
-import com.arkhamcompanion.domain.objects.splitQueryToWords
+import com.arkhamcompanion.domain.objects.splitToWords
 import java.util.Locale
 
 internal data class PreparedFuzzySearch(
@@ -18,7 +18,7 @@ internal fun prepareWordsForFuzzySearch(
 ): PreparedFuzzySearch {
     val words = searchOptions.searchQuery
         .normalizeForSearch()
-        .splitQueryToWords()
+        .splitToWords()
 
     val language = Locale.getDefault().toLanguageTag().substringBefore("-")
     val realFields = language != "en" && includeEnglish

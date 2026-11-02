@@ -1,7 +1,5 @@
 package com.arkhamcompanion.ui.campaigns
 
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -14,11 +12,6 @@ import com.arkhamcompanion.ui.theme.CustomTheme
 
 @Composable
 fun CampaignsScreen(modifier: Modifier = Modifier) {
-    val activity = LocalActivity.current
-    BackHandler {
-        activity?.finish()
-    }
-
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,

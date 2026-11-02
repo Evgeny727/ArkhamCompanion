@@ -6,7 +6,7 @@ import com.arkhamcompanion.domain.arkhamql.ast.QueryExpression
 import com.arkhamcompanion.domain.arkhamql.ast.QueryFieldType
 import com.arkhamcompanion.domain.arkhamql.ast.QueryValue
 import com.arkhamcompanion.domain.objects.FuzzyMatcher.matchesFuzzy
-import com.arkhamcompanion.domain.objects.splitQueryToWords
+import com.arkhamcompanion.domain.objects.splitToWords
 
 class QueryEvaluator<T>(
     private val fieldResolver: QueryFieldResolver<T>,
@@ -511,7 +511,7 @@ class QueryEvaluator<T>(
          * The RHS is the query and the LHS is the text being searched.
          */
         if (!strict) {
-            val queryWords = normalizedRight.splitQueryToWords()
+            val queryWords = normalizedRight.splitToWords()
 
             return matchesFuzzy(
                 text = normalizedLeft,

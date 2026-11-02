@@ -14,7 +14,7 @@ fun String.normalizeForSearch(): String {
         .lowercase()
 }
 
-fun String.splitQueryToWords(): List<String> {
+fun String.splitToWords(): List<String> {
     return this.split(WHITESPACE)
         .filter(String::isNotBlank)
 }

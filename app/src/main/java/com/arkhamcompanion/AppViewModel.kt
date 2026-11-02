@@ -34,6 +34,8 @@ sealed interface AppUiState {
     object Idle: AppUiState
     object OAuthFlowInProcess: AppUiState
     object ArkhamBuildLoading: AppUiState
+
+    fun isUserLoading(): Boolean = this is OAuthFlowInProcess || this is ArkhamBuildLoading
 }
 
 val SUPPORTED_LANGUAGES = setOf("es", "ru", "en", "de", "fr", "pl", "ko", "zh", "zh-cn", "it", "pt", "vi", "uk", "cs")
@@ -212,6 +214,8 @@ class AppViewModel @Inject constructor(
         if (cardsCacheState != CardsCacheState.Loading) {
             viewModelScope.launch {
                 cardsSyncManager.loadCache()
+
+                cardsSyncManager.setCardsStateReady()
             }
         }
     }

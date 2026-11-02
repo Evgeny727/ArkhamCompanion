@@ -44,7 +44,7 @@ fun ArkhamRoundedCardFooter(
 fun RowScope.ArkhamRoundedCardFooterItem(
     iconGlyph: IconGlyph,
     iconSize: TextUnit,
-    text: String,
+    text: String?,
     onClick: () -> Unit,
 ) {
     Row(
@@ -60,12 +60,14 @@ fun RowScope.ArkhamRoundedCardFooterItem(
             size = iconSize
         )
 
-        Text(
-            text = text,
-            color = CustomTheme.colors.d20,
-            style = CustomTheme.typography.button,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        text?.let {
+            Text(
+                text = text,
+                color = CustomTheme.colors.d20,
+                style = CustomTheme.typography.button,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }

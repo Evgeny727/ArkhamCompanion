@@ -32,9 +32,6 @@ fun ArkhamBuildAccountCard(
     onLogOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val loading = appUiState is AppUiState.ArkhamBuildLoading
-            || appUiState is AppUiState.OAuthFlowInProcess
-
     ArkhamRoundedFactionCard(
         faction = Faction.Neutral,
         header = {
@@ -90,7 +87,7 @@ fun ArkhamBuildAccountCard(
                 if (userState.exception != null || userState.arkhamBuildUser == null) onLogIn()
                 else onLogOut()
             },
-            loading = loading
+            loading = appUiState.isUserLoading()
         ) { color ->
             ArkhamIconText(
                 iconGlyph = AppIcon.BuildLogo,

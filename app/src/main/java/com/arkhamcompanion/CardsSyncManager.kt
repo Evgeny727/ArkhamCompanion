@@ -119,6 +119,10 @@ class CardsSyncManager @Inject constructor(
             }
     }
 
+    fun setCardsStateReady() {
+        _state.value = CardsSyncState.Ready
+    }
+
     suspend fun loadCache() {
         _cacheState.value = CardsCacheState.Loading
 

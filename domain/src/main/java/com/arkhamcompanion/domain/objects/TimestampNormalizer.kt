@@ -3,8 +3,10 @@ package com.arkhamcompanion.domain.objects
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import kotlin.time.Clock
 
 object TimestampNormalizer {
@@ -16,12 +18,24 @@ object TimestampNormalizer {
         return Clock.System.now().toString()
     }
 
+    private val formatter = DateTimeFormatter
+        .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+        .withZone(ZoneOffset.UTC)
+
+    fun normalizeTimestamp(value: String): String {
+        return runCatching {
+            val instant = parseTimestamp(value)!!
+
+            formatter.format(instant.truncatedTo(ChronoUnit.MILLIS))
+        }.getOrDefault("")
+    }
+
     private fun parseTimestamp(value: String?): Instant? {
         if (value.isNullOrBlank()) return null
 
         return runCatching {
             runCatching {
-                Instant.parse(value)
+                OffsetDateTime.parse(value).toInstant()
             }.getOrElse {
                 LocalDateTime.parse(
                     value,
