@@ -165,7 +165,10 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
 
             cardsEntries(navigator = navigator)
 
-            decksEntries(navigator = navigator)
+            decksEntries(
+                navigator = navigator,
+                viewModel = viewModel,
+            )
 
             campaignsEntries(navigator = navigator)
         }

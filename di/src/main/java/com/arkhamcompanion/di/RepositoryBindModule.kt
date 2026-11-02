@@ -1,11 +1,13 @@
 package com.arkhamcompanion.di
 
 import com.arkhamcompanion.data.repository.CardsRepositoryImpl
+import com.arkhamcompanion.data.repository.DecksRepositoryImpl
 import com.arkhamcompanion.data.repository.MetaRepositoryImpl
 import com.arkhamcompanion.data.repository.OAuthRepositoryImpl
 import com.arkhamcompanion.data.repository.SettingsRepositoryImpl
 import com.arkhamcompanion.data.repository.UserPreferencesRepositoryImpl
 import com.arkhamcompanion.domain.repository.CardsRepository
+import com.arkhamcompanion.domain.repository.DecksRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
 import com.arkhamcompanion.domain.repository.OAuthRepository
 import com.arkhamcompanion.domain.repository.SettingsRepository
@@ -38,4 +40,8 @@ interface RepositoryBindModule {
     @Binds
     @Singleton
     fun bindOAuthRepository(impl: OAuthRepositoryImpl): OAuthRepository
+
+    @Binds
+    @Singleton
+    fun bindDecksRepository(impl: DecksRepositoryImpl): DecksRepository
 }

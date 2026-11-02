@@ -155,7 +155,7 @@ fun EncounterIcon(iconCode: String, iconSize: TextUnit, iconColor: Color, isPack
 }
 
 internal fun factionIcon(faction: Faction, faction2: Faction? = null, subType: CardSubType? = null): IconGlyph = when {
-    faction2 != null -> AppIcon.Multiclass
+    faction2 != null || faction == Faction.Dual -> AppIcon.Multiclass
     subType == CardSubType.BasicWeakness -> AppIcon.Weakness
     subType == CardSubType.Weakness -> AppIcon.Weakness
     else -> when (faction) {

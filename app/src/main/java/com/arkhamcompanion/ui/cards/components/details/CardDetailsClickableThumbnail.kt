@@ -144,7 +144,7 @@ fun CardDetailsClickableThumbnail(
     }
 }
 
-private fun Pair<Float, Float>.toAlignment(): Alignment =
+internal fun Pair<Float, Float>.toAlignment(): Alignment =
     BiasAbsoluteAlignment(first, second)
 
 @Composable

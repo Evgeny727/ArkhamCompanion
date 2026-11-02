@@ -3,4 +3,5 @@
     <string name="arkham_build_account">Arkham.Build Account</string>
     <string name="account_error">Unable to connect to your Arkham.Build account. Usually it means that there is problem with local encrypted storage or you didn\'t use any Arkham.Build features in app for 180 days or more.</string>
     <string name="reconnect_account">If you are having trouble with your account you should try to reconnect.</string>
+    <string name="log_in_suggestion">Arkham.Build is a popular deck building site where you can manage and share decks with others.\n\nSign in to access your decks or share decks you have created with others.</string>
 </resources>

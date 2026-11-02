@@ -6,8 +6,11 @@ import coil3.ImageLoader
 import com.arkhamcompanion.UiErrorState
 import com.arkhamcompanion.domain.exceptions.ClearCardsDatabaseException
 import com.arkhamcompanion.domain.exceptions.ClearFavoriteCardsException
+import com.arkhamcompanion.domain.exceptions.ClearLocalDecksException
+import com.arkhamcompanion.domain.exceptions.ClearRemoteDecksException
 import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
+import com.arkhamcompanion.domain.repository.DecksRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,6 +41,8 @@ sealed interface SettingsUiEvent {
     object ImageCacheCleared : SettingsUiEvent
     object FavoriteCardsCleared : SettingsUiEvent
     object CardsDatabaseCleared : SettingsUiEvent
+    object LocalDecksCleared : SettingsUiEvent
+    object RemoteDecksCleared : SettingsUiEvent
 }
 
 @HiltViewModel
@@ -45,6 +50,7 @@ class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val metaRepository: MetaRepository,
     private val cardsRepository: CardsRepository,
+    private val decksRepository: DecksRepository,
     private val imageLoader: ImageLoader
 ) : ViewModel() {
 
@@ -251,6 +257,30 @@ class SettingsViewModel @Inject constructor(
             cardsRepository.clearCardsDatabase()
                 .onFailure { emitError(ClearCardsDatabaseException()) }
                 .onSuccess { emitEvent(SettingsUiEvent.CardsDatabaseCleared) }
+
+            _settingsUiState.value = SettingsUiState.Idle
+        }
+    }
+
+    fun clearAllLocalDecks() {
+        viewModelScope.launch {
+            _settingsUiState.value = SettingsUiState.Loading
+
+            decksRepository.deleteAllLocalDecks()
+                .onFailure { emitError(ClearLocalDecksException()) }
+                .onSuccess { emitEvent(SettingsUiEvent.LocalDecksCleared) }
+
+            _settingsUiState.value = SettingsUiState.Idle
+        }
+    }
+
+    fun clearAllRemoteDecks() {
+        viewModelScope.launch {
+            _settingsUiState.value = SettingsUiState.Loading
+
+            decksRepository.deleteAllRemoteDecks()
+                .onFailure { emitError(ClearRemoteDecksException()) }
+                .onSuccess { emitEvent(SettingsUiEvent.RemoteDecksCleared) }
 
             _settingsUiState.value = SettingsUiState.Idle
         }

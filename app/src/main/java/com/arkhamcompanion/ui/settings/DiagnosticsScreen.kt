@@ -78,6 +78,18 @@ fun DiagnosticsScreen(
             isLoading = isLoading,
             onClick = settingsViewModel::clearCardsDatabase,
         )
+
+        DiagnosticButton(
+            title = stringResource(R.string.clear_local_decks),
+            isLoading = isLoading,
+            onClick = settingsViewModel::clearAllLocalDecks,
+        )
+
+        DiagnosticButton(
+            title = stringResource(R.string.clear_remote_decks),
+            isLoading = isLoading,
+            onClick = settingsViewModel::clearAllRemoteDecks,
+        )
     }
 
     if (showDialog && event != null) {
@@ -134,23 +146,24 @@ private fun DiagnosticsAlertDialog(
                 SettingsUiEvent.ImageCacheCleared -> R.string.image_cache_cleared
                 SettingsUiEvent.FavoriteCardsCleared -> R.string.favorite_cards_cleared
                 SettingsUiEvent.CardsDatabaseCleared -> R.string.please_close_and_restart_the_app
+                SettingsUiEvent.LocalDecksCleared, SettingsUiEvent.RemoteDecksCleared -> R.string.decks_cleared
             }
         )
     ) {
         when (event) {
-            SettingsUiEvent.ImageCacheCleared, SettingsUiEvent.FavoriteCardsCleared -> {
-                ArkhamAlertButton(
-                    text = stringResource(R.string.okay),
-                    style = ArkhamAlertButtonStyle.DEFAULT,
-                    onClick = onDismiss
-                )
-            }
-
             SettingsUiEvent.CardsDatabaseCleared -> {
                 ArkhamAlertButton(
                     text = stringResource(R.string.close_app),
                     style = ArkhamAlertButtonStyle.DEFAULT,
                     onClick = { activity?.finish() }
+                )
+            }
+
+            else -> {
+                ArkhamAlertButton(
+                    text = stringResource(R.string.okay),
+                    style = ArkhamAlertButtonStyle.DEFAULT,
+                    onClick = onDismiss
                 )
             }
         }

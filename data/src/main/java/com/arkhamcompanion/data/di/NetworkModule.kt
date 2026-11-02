@@ -9,10 +9,11 @@ import com.apollographql.apollo.interceptor.RetryOnErrorInterceptor
 import com.apollographql.apollo.network.NetworkMonitor
 import com.apollographql.apollo.network.http.HttpInterceptor
 import com.apollographql.apollo.network.http.HttpInterceptorChain
+import com.arkhamcompanion.data.objects.ArkhamBuildOAuthConfig.API_BASE_URL
 import com.arkhamcompanion.data.objects.JsonElementAdapter
 import com.arkhamcompanion.data.remote.api.CardsFaqApi
+import com.arkhamcompanion.data.remote.api.DecksApi
 import com.arkhamcompanion.data.remote.api.OAuthApi
-import com.arkhamcompanion.data.objects.ArkhamBuildOAuthConfig.API_BASE_URL
 import com.arkhamcompanion.type.Jsonb
 import dagger.Module
 import dagger.Provides
@@ -93,5 +94,10 @@ object NetworkModule {
     @Singleton
     fun provideOAuthApi(retrofit: Retrofit): OAuthApi =
         retrofit.create<OAuthApi>()
+
+    @Provides
+    @Singleton
+    fun provideDecksApi(retrofit: Retrofit): DecksApi =
+        retrofit.create<DecksApi>()
 
 }
