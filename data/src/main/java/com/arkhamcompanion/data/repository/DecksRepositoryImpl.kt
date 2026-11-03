@@ -50,9 +50,10 @@ class DecksRepositoryImpl @Inject constructor(
         val accessToken = accessTokenProvider.getValidAccessToken() ?: return@runCatching
 
         val remoteManifest = decksRemoteDataSource.fetchDecksManifest(accessToken)
+        val localManifest = decksDao.getDecksManifest(userId)
 
         // No changes in the remote manifest.
-        if (decksDao.getDecksManifest(remoteManifest.version, userId) != null) {
+        if (localManifest != null && localManifest.version == remoteManifest.version) {
             return@runCatching
         }
 
@@ -85,9 +86,13 @@ class DecksRepositoryImpl @Inject constructor(
                 }
         }
 
+        //Mark Arkhamdb decks for deletion if user changed or remote sync token is existing.
+        val clearArkhamdbDecks = localManifest == null ||
+                remoteManifest.arkhamdbSyncToken != null
+
         // Apply the entire synchronization atomically.
         db.withWriteTransaction {
-            decksDao.syncRemoteDecks(remoteDecksById.keys)
+            decksDao.syncRemoteDecks(remoteDecksById.keys, clearArkhamdbDecks)
             decksDao.upsertRemoteDecks(fetchedDecks.toEntity())
             decksDao.replaceDecksManifest(remoteManifest.toEntity(userId))
         }

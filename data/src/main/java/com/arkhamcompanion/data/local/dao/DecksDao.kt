@@ -15,18 +15,18 @@ import com.arkhamcompanion.data.local.decks.DecksManifestEntity
 @Dao
 interface DecksDao {
 
-    @Query("SELECT * FROM decks_manifest where version = :version AND user_id = :userId")
-    suspend fun getDecksManifest(version: String, userId: String): DecksManifestEntity?
+    @Query("SELECT * FROM decks_manifest where user_id = :userId")
+    suspend fun getDecksManifest(userId: String): DecksManifestEntity?
 
     @Query("DELETE FROM decks_manifest")
-    suspend fun deleteAllDecksManifest()
+    suspend fun deleteAllDecksManifests()
 
     @Insert
     suspend fun insertDecksManifest(manifest: DecksManifestEntity)
 
     @Transaction
     suspend fun replaceDecksManifest(manifest: DecksManifestEntity) {
-        deleteAllDecksManifest()
+        deleteAllDecksManifests()
         insertDecksManifest(manifest)
     }
 
@@ -38,7 +38,7 @@ interface DecksDao {
 
     @Transaction
     suspend fun deleteAllRemoteInfo() {
-        deleteAllDecksManifest()
+        deleteAllDecksManifests()
         deleteAllRemoteDecks()
     }
 
@@ -54,12 +54,15 @@ interface DecksDao {
     @Upsert
     suspend fun upsertRemoteDecks(decks: List<DeckEntity>)
 
-    @Query("SELECT id FROM deck WHERE source IS NOT NULL")
-    suspend fun getAllRemoteDeckIds(): List<String>
+    @Query("""
+        SELECT id FROM deck WHERE source IS NOT NULL 
+        AND (:clearArkhamdbDecks OR source != 'arkhamdb')
+    """)
+    suspend fun getAllRemoteDeckIds(clearArkhamdbDecks: Boolean): List<String>
 
     @Transaction
-    suspend fun syncRemoteDecks(remoteIds: Set<String>) {
-        val localDecksIds = getAllRemoteDeckIds()
+    suspend fun syncRemoteDecks(remoteIds: Set<String>, clearArkhamdbDecks: Boolean) {
+        val localDecksIds = getAllRemoteDeckIds(clearArkhamdbDecks)
 
         val idsToDelete = localDecksIds - remoteIds
         deleteDecksByIds(idsToDelete)
