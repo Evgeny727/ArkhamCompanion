@@ -204,6 +204,58 @@ interface DecksDao {
             FROM ranked_cards
             GROUP BY deckId
         ),
+        
+        -- Split customisable card entries from meta
+        custom_xp_parts AS (
+            SELECT
+                d.id AS deckId,
+                TRIM(
+                    SUBSTR(
+                        CAST(j.value AS TEXT) || ',',
+                        1,
+                        INSTR(CAST(j.value AS TEXT) || ',', ',') - 1
+                    )
+                ) AS entry,
+                SUBSTR(
+                    CAST(j.value AS TEXT) || ',',
+                    INSTR(CAST(j.value AS TEXT) || ',', ',') + 1
+                ) AS remaining
+            FROM current_decks d,
+                 json_each(COALESCE(d.meta, '{}')) j
+            WHERE SUBSTR(j.key, 1, 4) = 'cus_'
+              AND j.value IS NOT NULL
+              AND TRIM(CAST(j.value AS TEXT)) != ''
+
+            UNION ALL
+
+            SELECT
+                deckId,
+                TRIM(SUBSTR(remaining, 1, INSTR(remaining, ',') - 1)),
+                SUBSTR(remaining, INSTR(remaining, ',') + 1)
+            FROM custom_xp_parts
+            WHERE remaining != ''
+        ),
+
+        -- Calculate XP spent on customisable cards
+        custom_deck_xp AS (
+            SELECT
+                deckId,
+                SUM(
+                    CAST(
+                        SUBSTR(
+                            entry,
+                            INSTR(entry, '|') + 1,
+                            INSTR(
+                                SUBSTR(entry, INSTR(entry, '|') + 1) || '|',
+                                '|'
+                            ) - 1
+                        ) AS INTEGER
+                    )
+                ) AS totalCustomXp
+            FROM custom_xp_parts
+            WHERE INSTR(entry, '|') > 0
+            GROUP BY deckId
+        ),
     
         -- Find the appropriate investigator card
         investigator_candidates AS (
@@ -249,16 +301,17 @@ interface DecksDao {
             i.thumbnailurl AS investigatorThumbnailUrl,
             i.imageurl AS investigatorImageUrl,
     
-            COALESCE(dx.totalXp, 0) AS totalXp
+            COALESCE(dx.totalXp, 0) + 
+            COALESCE(cx.totalCustomXp, 0) AS totalXp
     
         FROM current_decks d
     
-        LEFT JOIN investigator_candidates i
-            ON i.deckId = d.id
+        LEFT JOIN investigator_candidates i ON i.deckId = d.id
             AND i.investigatorRank = 1
     
-        LEFT JOIN deck_xp dx
-            ON dx.deckId = d.id
+        LEFT JOIN deck_xp dx ON dx.deckId = d.id
+            
+        LEFT JOIN custom_deck_xp cx ON cx.deckId = d.id
     
         ORDER BY d.date_update DESC, d.date_creation DESC
     """)
