@@ -110,15 +110,11 @@ fun DecksScreen(
         ) {
             LazyColumn(
                 modifier = modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 16.dp, horizontal = 8.dp),
+                contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 state = listState
             ) {
-                if (
-                    searchQuery.isNotBlank() &&
-                    searchResults.itemCount == 0 &&
-                    searchResults.loadState.isIdle
-                ) {
+                if (searchResults.itemCount == 0 && searchResults.loadState.isIdle) {
                     item("no_results", contentType = "text") {
                         Column(
                             verticalArrangement = Arrangement.Center,
@@ -129,10 +125,14 @@ fun DecksScreen(
                                 .animateItem()
                         ) {
                             Text(
-                                text = stringResource(
-                                    id = R.string.no_matching_decks_for_query,
-                                    searchQuery
-                                ),
+                                text = if (searchQuery.isBlank()) {
+                                    stringResource(R.string.no_decks_yet)
+                                } else {
+                                    stringResource(
+                                        id = R.string.no_matching_decks_for_query,
+                                        searchQuery
+                                    )
+                                },
                                 style = CustomTheme.typography.text,
                             )
                         }
