@@ -15,3 +15,5 @@ data class Collection(
 
 fun Collection.isEmpty(): Boolean = packs.isEmpty() && reprintPacks.isEmpty()
 fun Collection.isNotEmpty(): Boolean = !isEmpty()
+operator fun Collection.contains(other: Collection): Boolean =
+    packs.containsAll(other.packs) && reprintPacks.containsAll(other.reprintPacks)

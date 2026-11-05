@@ -59,7 +59,7 @@ interface MetaDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query("""
-        SELECT p.*, c.position as cyclePosition, c.name AS cycleName 
+        SELECT p.*, c.code as cycleCode, c.position as cyclePosition, c.name AS cycleName 
         FROM pack p JOIN cycle c ON p.cycle_code = c.code 
         ORDER BY p.chapter DESC, c.position, p.reprint DESC, p.position
     """)

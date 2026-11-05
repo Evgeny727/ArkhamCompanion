@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -43,6 +44,7 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.CardType
+import com.arkhamcompanion.domain.enums.DeckEnvironment
 import com.arkhamcompanion.domain.enums.DeckSource
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.decks.DeckListItem
@@ -54,6 +56,7 @@ import com.arkhamcompanion.ui.components.ArkhamScalableIconText
 import com.arkhamcompanion.ui.components.factionColor
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.icons.IconGlyph
+import com.arkhamcompanion.ui.icons.PackIcon
 import com.arkhamcompanion.ui.theme.AppIconsFont
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.appSp
@@ -344,6 +347,32 @@ fun DeckListItem(
                 }
             }
 
+            when (deckListItem.cardPool.type) {
+                DeckEnvironment.Current -> DeckListTagItem(text = stringResource(R.string.current))
+                DeckEnvironment.Limited -> {
+                    val annotatedString = buildAnnotatedString {
+                        append(stringResource(R.string.limited))
+                        append(" ")
+
+                        deckListItem.cardPool.expansionCodes.forEach { code ->
+                            val icon = PackIcon.fromPackCode(code) ?: return@forEach
+                            withStyle(
+                                style = SpanStyle(
+                                    fontFamily = icon.fontFamily,
+                                    letterSpacing = 2.sp
+                                )
+                            ) {
+                                append(icon.glyph)
+                            }
+                        }
+                    }
+
+                    DeckListTagItem(text = annotatedString)
+                }
+                DeckEnvironment.Legacy -> DeckListTagItem(text = stringResource(R.string.legacy))
+                DeckEnvironment.Custom -> DeckListTagItem(text = stringResource(R.string.custom))
+            }
+
             deckListItem.tags.forEach { tag ->
                 DeckListTagItem(text = resolveFactionTag(tag))
             }
@@ -378,6 +407,20 @@ private fun DeckListTagItem(
                 style = CustomTheme.typography.small,
             )
         }
+    }
+}
+
+@Composable
+private fun DeckListTagItem(text: AnnotatedString) {
+    Surface(
+        shape = CustomTheme.shapes.small,
+        color = CustomTheme.colors.l20,
+    ) {
+        Text(
+            text = text,
+            style = CustomTheme.typography.small,
+            modifier = Modifier.padding(4.dp),
+        )
     }
 }
 

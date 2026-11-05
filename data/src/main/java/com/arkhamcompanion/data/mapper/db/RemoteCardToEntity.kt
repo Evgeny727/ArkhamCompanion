@@ -16,11 +16,10 @@ import com.arkhamcompanion.data.objects.CardSortOrder.sortByTypeOrder
 import com.arkhamcompanion.data.utils.preprocessCardText
 import com.arkhamcompanion.domain.model.cards.ARKHAM_BUILD_BASE_IMAGE_URL
 import com.arkhamcompanion.domain.objects.normalizeForSearch
+import com.arkhamcompanion.domain.utils.REPRINT_CYCLE_CODES
 import com.arkhamcompanion.fragment.CoreCardText
 import com.arkhamcompanion.fragment.SingleCard
 import kotlinx.serialization.json.JsonArray
-
-val REPRINT_PACKS = setOf("dwl", "ptc", "tfa", "tcu", "tde", "tic")
 
 /**
  * Extension function to convert [SingleCard] with [CoreCardText] to [CardEntity]
@@ -43,7 +42,7 @@ fun SingleCard.toEntity(
         else -> "player"
     }
 
-    val reprintPackCode = if (cycle.code in REPRINT_PACKS) {
+    val reprintPackCode = if (cycle.code in REPRINT_CYCLE_CODES) {
         cycle.code + if (encounter_code == null) "p" else "c"
     } else null
 

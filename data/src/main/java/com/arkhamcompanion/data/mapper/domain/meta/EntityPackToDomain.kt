@@ -5,6 +5,7 @@ import com.arkhamcompanion.domain.model.meta.Pack
 
 internal fun FullPackEntity.toDomain(): Pack = Pack(
     code = code,
+    cycleCode = cycleCode,
     name = name,
     cycleName = cycleName,
     position = position,

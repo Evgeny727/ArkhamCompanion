@@ -9,6 +9,7 @@ data class DeckListItem(
     val name: String,
     val problem: String?,
     val source: DeckSource,
+    val cardPool: ResolvedEnvironment,
     val tags: ImmutableList<String>,
     val xpSpent: Int?,
     val xp: Int?,

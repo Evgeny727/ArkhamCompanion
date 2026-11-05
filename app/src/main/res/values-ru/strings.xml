@@ -1908,9 +1908,9 @@
     <string name="cycles">Циклы</string>
     <string name="starter_decks">Колоды сыщиков</string>
     <string name="fanmade_cycles">Фанатские циклы</string>
-    <string name="legacy">Легаси-среда</string>
-    <string name="current">Текущая среда</string>
-    <string name="limited">Ограниченная среда</string>
+    <string name="legacy">Неограниченная</string>
+    <string name="current">Актуальная</string>
+    <string name="limited">Ограниченная</string>
     <string name="custom">По своим правилам</string>
     <string name="use_all_cards_from_any_product">Все вышедшие карты</string>
     <string name="use_only_cards_from_recent_expansions">Только карты из нескольких последних выпусков</string>

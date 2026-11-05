@@ -169,7 +169,9 @@ fun DecksScreen(
                         is DeckListItem -> {
                             DeckListItem(
                                 deckListItem = item,
-                                resolveFactionTag = { tag -> localizedFactions[tag.lowercase()] ?: tag },
+                                resolveFactionTag = { tag ->
+                                    localizedFactions[tag.lowercase()] ?: tag
+                                },
                             ) {
                                 navigateToDeck(item.id)
                             }

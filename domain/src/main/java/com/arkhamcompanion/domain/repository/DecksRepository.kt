@@ -2,6 +2,7 @@ package com.arkhamcompanion.domain.repository
 
 import androidx.paging.PagingData
 import com.arkhamcompanion.domain.model.decks.DeckListItem
+import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import kotlinx.coroutines.flow.Flow
 
 interface DecksRepository {
@@ -11,5 +12,8 @@ interface DecksRepository {
 
     suspend fun syncRemoteDecks(userId: String): Result<Unit>
 
-    fun searchPaginatedDecks(query: String): Flow<PagingData<DeckListItem>>
+    fun searchPaginatedDecks(
+        query: String,
+        environmentClassifier: EnvironmentClassifier
+    ): Flow<PagingData<DeckListItem>>
 }

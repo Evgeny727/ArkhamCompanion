@@ -22,6 +22,7 @@ import com.arkhamcompanion.domain.objects.splitToWords
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.DecksRepository
 import com.arkhamcompanion.domain.repository.PerformanceRepository
+import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -98,7 +99,10 @@ class DecksRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun searchPaginatedDecks(query: String): Flow<PagingData<DeckListItem>> {
+    override fun searchPaginatedDecks(
+        query: String,
+        environmentClassifier: EnvironmentClassifier
+    ): Flow<PagingData<DeckListItem>> {
         val queryWords = query.normalizeForSearch().splitToWords()
 
         return Pager(
@@ -115,12 +119,12 @@ class DecksRepositoryImpl @Inject constructor(
                 )
             }
         ).flow.map { data ->
-            if (query.isBlank()) return@map data.map { it.toDomain() }
+            if (query.isBlank()) return@map data.map { it.toDomain(environmentClassifier) }
 
             data.filter { item ->
                 matchesFuzzy(item.name.normalizeForSearch(), queryWords) ||
                         matchesFuzzy(item.investigatorName.orEmpty().normalizeForSearch(), queryWords)
-            }.map { it.toDomain() }
+            }.map { it.toDomain(environmentClassifier) }
         }
     }
 

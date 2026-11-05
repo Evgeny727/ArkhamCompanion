@@ -6,7 +6,9 @@ import androidx.paging.cachedIn
 import com.arkhamcompanion.UiErrorState
 import com.arkhamcompanion.domain.repository.DecksRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
+import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -16,8 +18,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -70,9 +74,24 @@ class DecksViewModel @Inject constructor(
         .debounce(200.milliseconds)
         .distinctUntilChanged()
 
+    private val allPacks = metaRepository.getAllPacks().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = persistentListOf()
+    )
+
+    private val environmentClassifier = allPacks
+        .filter { it.isNotEmpty() }
+        .map(::EnvironmentClassifier)
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    val searchResults = debouncedSearchQuery.flatMapLatest { query ->
-        decksRepository.searchPaginatedDecks(query)
+    val searchResults = combine(
+        debouncedSearchQuery,
+        environmentClassifier
+    ) { query, environmentClassifier ->
+        query to environmentClassifier
+    }.flatMapLatest { (query, environmentClassifier) ->
+        decksRepository.searchPaginatedDecks(query, environmentClassifier)
     }.cachedIn(viewModelScope)
 
 
