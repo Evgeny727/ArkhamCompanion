@@ -126,12 +126,13 @@ fun PacksSelectorScreen(
                         ) {
                             val newCollection = selectedPacks.copy(
                                 reprintPacks = (selectedPacks.reprintPacks - reprintCodes).toImmutableSet(),
-                                packs = (selectedPacks.packs - removablePackCodes).toImmutableSet()
+                                packs = (selectedPacks.packs - packCodes - removablePackCodes).toImmutableSet()
                             )
                             onPacksChange(newCollection)
                         }
                     }
                 }
+
                 cycles.forEach { (cycleName, reprintPacks, reprintCodes, packs, packCodes) ->
                     val isReprint = reprintPacks.isNotEmpty()
 
