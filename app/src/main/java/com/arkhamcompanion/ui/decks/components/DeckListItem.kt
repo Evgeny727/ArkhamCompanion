@@ -165,7 +165,8 @@ fun DeckListItem(
                                     style = CustomTheme.typography.run { smallLabel + italic },
                                     color = Color.White,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
 
