@@ -1,4 +1,4 @@
-package com.arkhamcompanion.ui.settings
+package com.arkhamcompanion.ui.components
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,9 +20,6 @@ import com.arkhamcompanion.domain.model.meta.Pack
 import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.ui.cards.components.CardSectionHeader
 import com.arkhamcompanion.ui.cards.components.CardSectionHeaderIconButton
-import com.arkhamcompanion.ui.components.ArkhamButton
-import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
-import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.icons.PackIcon
 import com.arkhamcompanion.ui.settings.components.ChapterBuilder
@@ -32,17 +29,15 @@ import com.arkhamcompanion.ui.theme.CustomTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
-import kotlinx.coroutines.FlowPreview
 
-@OptIn(FlowPreview::class)
 @Composable
-fun CollectionScreen(
-    ignoreCollection: Boolean,
-    collection: Collection,
+fun PacksSelectorScreen(
+    selectedPacks: Collection,
     allPacks: ImmutableList<Pack>,
-    onIgnoreChange: (Boolean) -> Unit,
-    onCollectionChange: (Collection) -> Unit,
-    modifier: Modifier = Modifier
+    onPacksChange: (Collection) -> Unit,
+    modifier: Modifier = Modifier,
+    ignorePacks: Boolean? = null,
+    onIgnoreChange: (Boolean) -> Unit = {},
 ) {
     val groupedPacks = remember(allPacks) {
         buildList {
@@ -82,27 +77,31 @@ fun CollectionScreen(
     }
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
-        item("text", contentType = "text") {
-            Text(
-                text = stringResource(R.string.set_collection_to_limit_cards),
-                style = CustomTheme.typography.small,
-                modifier = Modifier.padding(8.dp)
-            )
+        ignorePacks?.let {
+            item("text", contentType = "text") {
+                Text(
+                    text = stringResource(R.string.set_collection_to_limit_cards),
+                    style = CustomTheme.typography.small,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+
+            item("ignore_button", contentType = "button") {
+                ArkhamCheckboxButton(
+                    title = stringResource(R.string.show_all_cards),
+                    description = stringResource(
+                        if (it) R.string.disable_to_choose_individual_packs_to_show
+                        else R.string.all_cards_are_shown_throughout_the_app
+                    ),
+                    isSelected = it,
+                    iconGlyph = AppIcon.Show,
+                    onValueChange = onIgnoreChange,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
         }
-        item("ignore_button", contentType = "button") {
-            ArkhamCheckboxButton(
-                title = stringResource(R.string.show_all_cards),
-                description = stringResource(
-                    if (ignoreCollection) R.string.disable_to_choose_individual_packs_to_show
-                    else R.string.all_cards_are_shown_throughout_the_app
-                ),
-                isSelected = ignoreCollection,
-                iconGlyph = AppIcon.Show,
-                onValueChange = onIgnoreChange,
-                modifier = Modifier.padding(8.dp)
-            )
-        }
-        if (!ignoreCollection) {
+
+        if (ignorePacks != true) {
             groupedPacks.forEach { (chapter, cycles, reprintCodes, packCodes, removablePackCodes) ->
                 stickyHeader(key = "chapter_$chapter", contentType = "chapter_header") {
                     CardSectionHeader(
@@ -116,20 +115,20 @@ fun CollectionScreen(
                         CardSectionHeaderIconButton(
                             iconGlyph = AppIcon.PlusButton,
                         ) {
-                            val newCollection = collection.copy(
-                                reprintPacks = (collection.reprintPacks + reprintCodes).toImmutableSet(),
-                                packs = (collection.packs + packCodes).toImmutableSet()
+                            val newCollection = selectedPacks.copy(
+                                reprintPacks = (selectedPacks.reprintPacks + reprintCodes).toImmutableSet(),
+                                packs = (selectedPacks.packs + packCodes).toImmutableSet()
                             )
-                            onCollectionChange(newCollection)
+                            onPacksChange(newCollection)
                         }
                         CardSectionHeaderIconButton(
                             iconGlyph = AppIcon.MinusButton,
                         ) {
-                            val newCollection = collection.copy(
-                                reprintPacks = (collection.reprintPacks - reprintCodes).toImmutableSet(),
-                                packs = (collection.packs - removablePackCodes).toImmutableSet()
+                            val newCollection = selectedPacks.copy(
+                                reprintPacks = (selectedPacks.reprintPacks - reprintCodes).toImmutableSet(),
+                                packs = (selectedPacks.packs - removablePackCodes).toImmutableSet()
                             )
-                            onCollectionChange(newCollection)
+                            onPacksChange(newCollection)
                         }
                     }
                 }
@@ -138,7 +137,7 @@ fun CollectionScreen(
 
                     val isCommonPacksExpanded =
                         !isReprint || cycleName in expandedReprintCycles
-                                || packs.any { it.code in collection.packs }
+                                || packs.any { it.code in selectedPacks.packs }
 
                     if (isReprint) {
                         item(key = "cycle_${cycleName}_new", contentType = "cycle_header") {
@@ -148,18 +147,18 @@ fun CollectionScreen(
                                 CardSectionHeaderIconButton(
                                     iconGlyph = AppIcon.PlusButton,
                                 ) {
-                                    val newCollection = collection.copy(
-                                        reprintPacks = (collection.reprintPacks + reprintCodes).toImmutableSet()
+                                    val newCollection = selectedPacks.copy(
+                                        reprintPacks = (selectedPacks.reprintPacks + reprintCodes).toImmutableSet()
                                     )
-                                    onCollectionChange(newCollection)
+                                    onPacksChange(newCollection)
                                 }
                                 CardSectionHeaderIconButton(
                                     iconGlyph = AppIcon.MinusButton,
                                 ) {
-                                    val newCollection = collection.copy(
-                                        reprintPacks = (collection.reprintPacks - reprintCodes).toImmutableSet()
+                                    val newCollection = selectedPacks.copy(
+                                        reprintPacks = (selectedPacks.reprintPacks - reprintCodes).toImmutableSet()
                                     )
-                                    onCollectionChange(newCollection)
+                                    onPacksChange(newCollection)
                                 }
                             }
                         }
@@ -167,7 +166,7 @@ fun CollectionScreen(
 
                     items(reprintPacks, key = { it.code }) { pack ->
                         val packIcon = PackIcon.fromPackCode(pack.code)
-                        val selected = collection.reprintPacks.contains(pack.code)
+                        val selected = selectedPacks.reprintPacks.contains(pack.code)
 
                         ArkhamCheckboxButton(
                             title = pack.name,
@@ -177,16 +176,16 @@ fun CollectionScreen(
                             modifier = Modifier.padding(8.dp)
                         ) { value ->
                             val newCollection = if (value) {
-                                collection.copy(
-                                    reprintPacks = (collection.reprintPacks + pack.code).toImmutableSet()
+                                selectedPacks.copy(
+                                    reprintPacks = (selectedPacks.reprintPacks + pack.code).toImmutableSet()
                                 )
                             } else {
-                                collection.copy(
-                                    reprintPacks = (collection.reprintPacks - pack.code).toImmutableSet()
+                                selectedPacks.copy(
+                                    reprintPacks = (selectedPacks.reprintPacks - pack.code).toImmutableSet()
                                 )
                             }
 
-                            onCollectionChange(newCollection)
+                            onPacksChange(newCollection)
                         }
                         HorizontalDivider(color = CustomTheme.colors.divider)
                     }
@@ -217,25 +216,25 @@ fun CollectionScreen(
                                 CardSectionHeaderIconButton(
                                     iconGlyph = AppIcon.PlusButton,
                                 ) {
-                                    val newCollection = collection.copy(
-                                        packs = (collection.packs + packCodes).toImmutableSet()
+                                    val newCollection = selectedPacks.copy(
+                                        packs = (selectedPacks.packs + packCodes).toImmutableSet()
                                     )
-                                    onCollectionChange(newCollection)
+                                    onPacksChange(newCollection)
                                 }
                                 CardSectionHeaderIconButton(
                                     iconGlyph = AppIcon.MinusButton,
                                 ) {
-                                    val newCollection = collection.copy(
-                                        packs = (collection.packs - packCodes).toImmutableSet()
+                                    val newCollection = selectedPacks.copy(
+                                        packs = (selectedPacks.packs - packCodes).toImmutableSet()
                                     )
-                                    onCollectionChange(newCollection)
+                                    onPacksChange(newCollection)
                                 }
                             }
                         }
 
                         items(packs, key = { it.code }) { pack ->
                             val packIcon = PackIcon.fromPackCode(pack.code)
-                            val selected = collection.packs.contains(pack.code)
+                            val selected = selectedPacks.packs.contains(pack.code)
 
                             ArkhamCheckboxButton(
                                 title = if (pack.code != "core2") pack.name else stringResource(R.string.second_core_set),
@@ -250,8 +249,8 @@ fun CollectionScreen(
                                     } else {
                                         setOf(pack.code)
                                     }
-                                    collection.copy(
-                                        packs = (collection.packs + newPacks).toImmutableSet()
+                                    selectedPacks.copy(
+                                        packs = (selectedPacks.packs + newPacks).toImmutableSet()
                                     )
                                 } else {
                                     val newPacks = if (pack.code == "core") {
@@ -259,12 +258,12 @@ fun CollectionScreen(
                                     } else {
                                         setOf(pack.code)
                                     }
-                                    collection.copy(
-                                        packs = (collection.packs - newPacks).toImmutableSet()
+                                    selectedPacks.copy(
+                                        packs = (selectedPacks.packs - newPacks).toImmutableSet()
                                     )
                                 }
 
-                                onCollectionChange(newCollection)
+                                onPacksChange(newCollection)
                             }
                             HorizontalDivider(color = CustomTheme.colors.divider)
                         }

@@ -13,10 +13,10 @@ import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardTextSegment
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
 import com.arkhamcompanion.ui.cards.components.details.resolveTextSegmentWithoutStyles
+import com.arkhamcompanion.ui.components.PacksSelectorScreen
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.settings.AboutScreen
 import com.arkhamcompanion.ui.settings.BackUpScreen
-import com.arkhamcompanion.ui.settings.CollectionScreen
 import com.arkhamcompanion.ui.settings.DiagnosticsScreen
 import com.arkhamcompanion.ui.settings.RewardsScreen
 import com.arkhamcompanion.ui.settings.RulesSection
@@ -94,12 +94,12 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             }
         }
 
-        CollectionScreen(
-            ignoreCollection = ignoreCollection,
-            collection = collection,
+        PacksSelectorScreen(
+            selectedPacks = collection,
             allPacks = allPacks,
+            onPacksChange = settingsViewModel::setCollection,
+            ignorePacks = ignoreCollection,
             onIgnoreChange = settingsViewModel::setIgnoreCollection,
-            onCollectionChange = settingsViewModel::setCollection,
         )
 
         topAppBarState.update(

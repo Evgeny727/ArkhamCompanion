@@ -132,7 +132,7 @@ class EnvironmentClassifier(private val packs: List<Pack>) {
 
     private val currentCollection = resolveLimitedPoolToCollection(cardPool = current())
 
-    fun resolve(cardPool: List<String>): ResolvedEnvironment =
+    fun resolve(cardPool: Iterable<String>): ResolvedEnvironment =
         resolve(resolveLimitedPoolToCollection(cardPool))
 
     fun resolve(cardPool: Collection): ResolvedEnvironment {
@@ -172,7 +172,7 @@ class EnvironmentClassifier(private val packs: List<Pack>) {
         return groups.toList()
     }
 
-    fun resolveLimitedPoolToCollection(cardPool: List<String>): Collection {
+    fun resolveLimitedPoolToCollection(cardPool: Iterable<String>): Collection {
         val selectedPacks = mutableSetOf<String>()
         val reprintPacks = mutableSetOf<String>()
 

@@ -762,8 +762,6 @@ fun CardsFiltersScreen(
                     )
                 }
 
-
-
                 HorizontalDivider(color = CustomTheme.colors.divider)
             }
         }

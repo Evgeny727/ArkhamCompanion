@@ -50,7 +50,6 @@ import com.arkhamcompanion.ui.cards.filters.CardsFiltersEnemiesScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersIllustratorsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersInvestigatorAccessScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersLocationsScreen
-import com.arkhamcompanion.ui.cards.filters.CardsFiltersPacksScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersSlotsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersSubTypesScreen
@@ -58,6 +57,7 @@ import com.arkhamcompanion.ui.cards.filters.CardsFiltersTraitsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersTypesScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersUsesScreen
 import com.arkhamcompanion.ui.components.ArkhamSwitch
+import com.arkhamcompanion.ui.components.PacksSelectorScreen
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.navigation.ArkhamAppBarAction
 import com.arkhamcompanion.ui.navigation.LocalGraphSharedViewModelStoreOwner
@@ -846,10 +846,10 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
         val allPacks by cardsFiltersViewModel.packs.collectAsState()
 
-        CardsFiltersPacksScreen(
+        PacksSelectorScreen(
             selectedPacks = filters.packs,
             allPacks = allPacks,
-            onPacksChange = cardsViewModel::updatePacksFilter
+            onPacksChange = cardsViewModel::updatePacksFilter,
         )
 
         topAppBarState.update(
