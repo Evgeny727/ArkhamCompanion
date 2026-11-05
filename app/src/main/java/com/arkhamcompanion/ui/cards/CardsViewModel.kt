@@ -29,6 +29,8 @@ import com.arkhamcompanion.domain.model.cards.SkillsFilter
 import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
+import com.arkhamcompanion.domain.utils.ArkhamEnvironments.current
+import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -610,6 +612,14 @@ class CardsViewModel @AssistedInject constructor(
     fun updatePacksFilter(value: Collection) {
         updateCardFilters {
             it.copy(packs = value)
+        }
+    }
+
+    fun applyCurrent(environmentClassifier: EnvironmentClassifier) {
+        updateCardFilters {
+            it.copy(
+                packs = environmentClassifier.resolveLimitedPoolToCollection(current()),
+            )
         }
     }
 

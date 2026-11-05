@@ -7,6 +7,7 @@ import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
+import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -120,6 +122,10 @@ class CardsFiltersViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000L),
         initialValue = persistentMapOf()
     )
+
+    val environmentClassifier = packs
+        .filter { it.isNotEmpty() }
+        .map(::EnvironmentClassifier)
 
     val taboos = metaRepository.getTaboos().stateIn(
         scope = viewModelScope,

@@ -2037,4 +2037,5 @@
     <string name="decks_cleared">Decks cleared</string>
     <string name="clear_decks_error">Unable to clear decks</string>
     <string name="device">Device</string>
+    <string name="apply_environment">Apply %s environment</string>
 </resources>

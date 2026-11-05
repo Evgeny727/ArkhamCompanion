@@ -25,6 +25,8 @@ import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.model.cards.Ownership
+import com.arkhamcompanion.domain.model.settings.isEmpty
+import com.arkhamcompanion.domain.model.settings.isNotEmpty
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersCardsAccessScreen
@@ -49,10 +51,12 @@ import com.arkhamcompanion.ui.cards.components.filters.CollapsableFiltersSection
 import com.arkhamcompanion.ui.cards.components.filters.FilersSkillIconsSection
 import com.arkhamcompanion.ui.cards.components.filters.FiltersPropertiesSectionContent
 import com.arkhamcompanion.ui.cards.components.filters.NavigationFilterButton
+import com.arkhamcompanion.ui.components.ArkhamButton
 import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamTabooDialog
 import com.arkhamcompanion.ui.components.factionColor
+import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.navigation.cards.AVAILABLE_CARDS_GRAPH_FILTERS
 import com.arkhamcompanion.ui.navigation.cards.CardsGraphFilter
 import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
@@ -99,6 +103,7 @@ fun CardsFiltersScreen(
         is CardsGraphState.Investigator -> AVAILABLE_CARDS_GRAPH_FILTERS
         is CardsGraphState.Card -> ELIGIBLE_INVESTIGATORS_GRAPH_FILTERS
     }
+    val environmentClassifier by cardsFiltersViewModel.environmentClassifier.collectAsState(null)
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -203,7 +208,7 @@ fun CardsFiltersScreen(
                         onValueToggle = cardsViewModel::toggleForcedLevelRange,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) { range ->
                         val text = if (range.min == 0)
                             stringResource(R.string.level_start, range.min!!)
@@ -241,7 +246,7 @@ fun CardsFiltersScreen(
                     onValueToggle = cardsViewModel::updateTypes,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) { type, _ ->
                     Text(
                         text = types[type].toString(),
@@ -734,7 +739,33 @@ fun CardsFiltersScreen(
                 navigateTo(CardsFiltersPacksScreen(parentConfig))
             }
 
-            HorizontalDivider(color = CustomTheme.colors.divider)
+            if (filters.packs.isNotEmpty()) HorizontalDivider(color = CustomTheme.colors.divider)
+        }
+
+        if (filters.packs.isEmpty()) {
+            item("apply_current_button", "button") {
+                val currentString = stringResource(R.string.current)
+
+                ArkhamButton(
+                    title = stringResource(R.string.apply_environment, currentString),
+                    onClick = {
+                        environmentClassifier?.let {
+                            cardsViewModel.applyCurrent(it)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                ) { color ->
+                    ArkhamIconText(
+                        iconGlyph = AppIcon.Filter,
+                        color = color,
+                        size = 24.dp
+                    )
+                }
+
+
+
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
         }
 
         item("taboo_navigation", "navigation") {

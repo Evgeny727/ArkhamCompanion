@@ -2022,4 +2022,5 @@
     <string name="decks_cleared">Колоды удалены</string>
     <string name="clear_decks_error">Не удалось удалить колоды</string>
     <string name="device">Устройство</string>
+    <string name="apply_environment">Применить «%s среда»</string>
 </resources>
