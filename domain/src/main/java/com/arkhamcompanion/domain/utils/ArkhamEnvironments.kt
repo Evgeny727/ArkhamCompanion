@@ -44,6 +44,8 @@ object ArkhamEnvironments {
 
         return buildSet {
             (collection.packs + collection.reprintPacks).forEach { packCode ->
+                if (packCode == SECOND_CORE_CODE) return@forEach
+
                 packsMap[packCode]?.let { pack ->
                     if (!isDeckbuildingPack(pack.cycleCode)) return@forEach
 
@@ -121,8 +123,6 @@ class EnvironmentClassifier(private val packs: List<Pack>) {
             pack.cycleCode == "core_ch2" -> null
             pack.cycleCode == "investigator_decks_ch2" -> null
             pack.cycleCode == "return" -> null
-
-            pack.cycleCode == "investigator" -> "investigator"
 
             else -> pack.code
         }

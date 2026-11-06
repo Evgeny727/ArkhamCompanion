@@ -163,6 +163,20 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }.map { preferences ->
             preferences[UNLOCK_ALL_REWARDS] ?: true
         }
+    override val cardPool: Flow<ImmutableSet<String>> = dataStore.data
+        .catch {
+            if (it is IOException) {
+                analyticsRepository.logMessage("Error reading card pool preferences.")
+                analyticsRepository.logError(it)
+
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            preferences[CARD_POOL]?.split(",")?.filter { it.isNotBlank() }
+                ?.toImmutableSet() ?: persistentSetOf()
+        }
     override val cardsUpdatedAt: Flow<String> = dataStore.data
         .catch {
             if (it is IOException) {
@@ -246,6 +260,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val IGNORE_COLLECTION = booleanPreferencesKey("ignore_collection")
         val REWARDS = stringPreferencesKey("rewards")
         val UNLOCK_ALL_REWARDS = booleanPreferencesKey("unlock_all_rewards")
+        val CARD_POOL = stringPreferencesKey("card_pool")
         val CARDS_UPDATED_AT = stringPreferencesKey("cards_updated_at")
         val CARDS_SORT_ORDER_PLAYER = stringPreferencesKey("cards_sort_order_player")
         val CARDS_SORT_ORDER_MYTHOS = stringPreferencesKey("cards_sort_order_mythos")
@@ -308,6 +323,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun saveUnlockAllRewardsPreference(unlockAllRewards: Boolean) {
         dataStore.edit { preferences ->
             preferences[UNLOCK_ALL_REWARDS] = unlockAllRewards
+        }
+    }
+
+    override suspend fun saveCardPoolPreference(cardPool: Iterable<String>) {
+        dataStore.edit { preferences ->
+            preferences[CARD_POOL] = cardPool.joinToString(",")
         }
     }
 

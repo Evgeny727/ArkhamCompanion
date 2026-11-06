@@ -22,16 +22,13 @@ import com.arkhamcompanion.ui.cards.components.CardSectionHeader
 import com.arkhamcompanion.ui.cards.components.CardSectionHeaderIconButton
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.icons.PackIcon
-import com.arkhamcompanion.ui.settings.components.ChapterBuilder
-import com.arkhamcompanion.ui.settings.components.CycleBuilder
-import com.arkhamcompanion.ui.settings.components.coreCodes
+import com.arkhamcompanion.ui.settings.components.groupPacks
 import com.arkhamcompanion.ui.theme.CustomTheme
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 
 @Composable
-fun PacksSelectorScreen(
+fun PacksSelectionScreen(
     selectedPacks: Collection,
     allPacks: ImmutableList<Pack>,
     onPacksChange: (Collection) -> Unit,
@@ -40,37 +37,7 @@ fun PacksSelectorScreen(
     onIgnoreChange: (Boolean) -> Unit = {},
 ) {
     val groupedPacks = remember(allPacks) {
-        buildList {
-            var currentChapter: ChapterBuilder? = null
-            var currentCycle: CycleBuilder? = null
-
-            allPacks.forEach { pack ->
-                if (currentChapter?.chapter != pack.chapter) {
-                    currentChapter = ChapterBuilder(pack.chapter)
-                    add(currentChapter)
-                    currentCycle = null
-                }
-
-                if (currentCycle?.cycleName != pack.cycleName) {
-                    currentCycle = CycleBuilder(pack.cycleName)
-                    currentChapter!!.cycles += currentCycle
-                }
-
-                if (pack.reprint) {
-                    currentChapter!!.reprintPackCodes += pack.code
-                    currentCycle.reprintPacks += pack
-                    currentCycle.reprintPackCodes += pack.code
-                } else {
-                    if (currentCycle.reprintPacks.isEmpty() && pack.code !in coreCodes) {
-                        currentChapter!!.packCodes += pack.code
-                    } else {
-                        currentChapter!!.removablePackCodes += pack.code
-                    }
-                    currentCycle.packs += pack
-                    currentCycle.packCodes += pack.code
-                }
-            }
-        }.map { it.build() }.toImmutableList()
+        groupPacks(allPacks)
     }
     var expandedReprintCycles by rememberSaveable {
         mutableStateOf<Set<String>>(emptySet())

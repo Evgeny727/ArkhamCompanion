@@ -13,7 +13,8 @@ import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardTextSegment
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
 import com.arkhamcompanion.ui.cards.components.details.resolveTextSegmentWithoutStyles
-import com.arkhamcompanion.ui.components.PacksSelectorScreen
+import com.arkhamcompanion.ui.components.CardPoolSelectionScreen
+import com.arkhamcompanion.ui.components.PacksSelectionScreen
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.settings.AboutScreen
 import com.arkhamcompanion.ui.settings.BackUpScreen
@@ -22,6 +23,7 @@ import com.arkhamcompanion.ui.settings.RewardsScreen
 import com.arkhamcompanion.ui.settings.RulesSection
 import com.arkhamcompanion.ui.settings.SettingsAbout
 import com.arkhamcompanion.ui.settings.SettingsBackup
+import com.arkhamcompanion.ui.settings.SettingsCardPool
 import com.arkhamcompanion.ui.settings.SettingsCollection
 import com.arkhamcompanion.ui.settings.SettingsDiagnostics
 import com.arkhamcompanion.ui.settings.SettingsRewards
@@ -31,6 +33,7 @@ import com.arkhamcompanion.ui.settings.SettingsViewModel
 import com.arkhamcompanion.ui.settings.rules.RuleSectionScreen
 import com.arkhamcompanion.ui.settings.rules.RulesScreen
 import com.arkhamcompanion.ui.settings.rules.RulesViewModel
+import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
 
 fun EntryProviderScope<NavKey>.settingsEntries(
@@ -54,6 +57,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             onLogIn = viewModel::oAuthLogIn,
             onLogOut = viewModel::oAuthLogOut,
             onLanguageChange = viewModel::updateLocale,
+            navigateToCardPool = { navigator.navigateSingleTop(SettingsCardPool) },
             updateCards = viewModel::updateCardsIfAvailable,
             navigateToRules = { navigator.navigateSingleTop(SettingsRules) },
             navigateToCollection = { navigator.navigateSingleTop(SettingsCollection) },
@@ -94,7 +98,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             }
         }
 
-        PacksSelectorScreen(
+        PacksSelectionScreen(
             selectedPacks = collection,
             allPacks = allPacks,
             onPacksChange = settingsViewModel::setCollection,
@@ -157,6 +161,53 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             color = null,
             contentColor = null,
             rightActions = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+        )
+    }
+
+    entry<SettingsCardPool>(
+        metadata = { _ -> SharedViewModelStoreNavEntryDecorator.parent(
+            TopLevelRoute.Settings.toContentKey()
+        )}
+    ) {
+        val topAppBarState = LocalTopAppBarState.current
+        val settingsViewModel = hiltViewModel<SettingsViewModel>(
+            LocalSharedViewModelStoreOwner.current
+        )
+        val cardPoolState by settingsViewModel.cardPoolState.collectAsState()
+        val deckbuildingPacks by settingsViewModel.deckbuildingPacks.collectAsState()
+
+        LaunchedEffect(Unit) {
+            settingsViewModel.errors.collect {
+                viewModel.emitError(it.exception)
+            }
+        }
+
+        CardPoolSelectionScreen(
+            selectedPacks = cardPoolState,
+            deckbuildingPacks = deckbuildingPacks,
+            onPackAdd = settingsViewModel::addPackInCardPool,
+            onPackRemove = settingsViewModel::removePackFromCardPool,
+        )
+
+        topAppBarState.update(
+            title = stringResource(R.string.card_pool),
+            subtitle = null,
+            color = null,
+            contentColor = null,
+            rightActions = {
+                ArkhamAppBarAction(
+                    contentColor = CustomTheme.colors.m,
+                    onClick = settingsViewModel::clearCardPool,
+                    iconGlyph = AppIcon.Trash,
+                )
+            },
             leftAction = { color ->
                 ArkhamAppBarAction(
                     contentColor = color,

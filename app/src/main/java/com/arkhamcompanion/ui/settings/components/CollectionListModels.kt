@@ -54,3 +54,36 @@ internal class CycleBuilder(val cycleName: String) {
 }
 
 internal val coreCodes = setOf("core", "core2")
+
+internal fun groupPacks(packs: ImmutableList<Pack>) =
+    buildList {
+        var currentChapter: ChapterBuilder? = null
+        var currentCycle: CycleBuilder? = null
+
+        packs.forEach { pack ->
+            if (currentChapter?.chapter != pack.chapter) {
+                currentChapter = ChapterBuilder(pack.chapter)
+                add(currentChapter)
+                currentCycle = null
+            }
+
+            if (currentCycle?.cycleName != pack.cycleName) {
+                currentCycle = CycleBuilder(pack.cycleName)
+                currentChapter!!.cycles += currentCycle
+            }
+
+            if (pack.reprint) {
+                currentChapter!!.reprintPackCodes += pack.code
+                currentCycle.reprintPacks += pack
+                currentCycle.reprintPackCodes += pack.code
+            } else {
+                if (currentCycle.reprintPacks.isEmpty() && pack.code !in coreCodes) {
+                    currentChapter!!.packCodes += pack.code
+                } else {
+                    currentChapter!!.removablePackCodes += pack.code
+                }
+                currentCycle.packs += pack
+                currentCycle.packCodes += pack.code
+            }
+        }
+    }.map { it.build() }.toImmutableList()

@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -80,9 +81,10 @@ class DecksViewModel @Inject constructor(
         initialValue = persistentListOf()
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val environmentClassifier = allPacks
         .filter { it.isNotEmpty() }
-        .map(::EnvironmentClassifier)
+        .mapLatest(::EnvironmentClassifier)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val searchResults = combine(

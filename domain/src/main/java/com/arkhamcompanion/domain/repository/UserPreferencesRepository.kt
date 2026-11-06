@@ -18,6 +18,7 @@ interface UserPreferencesRepository {
     val ignoreCollection: Flow<Boolean>
     val rewards: Flow<ImmutableSet<String>>
     val unlockAllRewards: Flow<Boolean>
+    val cardPool: Flow<ImmutableSet<String>>
     val cardsUpdatedAt: Flow<String>
     val sortOrderPlayer: Flow<ImmutableList<String>>
     val sortOrderMythos: Flow<ImmutableList<String>>
@@ -33,6 +34,7 @@ interface UserPreferencesRepository {
     suspend fun saveIgnoreCollectionPreference(ignoreCollection: Boolean)
     suspend fun saveRewardsPreference(rewards: Set<String>)
     suspend fun saveUnlockAllRewardsPreference(unlockAllRewards: Boolean)
+    suspend fun saveCardPoolPreference(cardPool: Iterable<String>)
     suspend fun saveCardsUpdatedTimestamp(timestamp: String)
     suspend fun saveSortOrderPlayerPreference(sortOrder: List<String>)
     suspend fun saveSortOrderMythosPreference(sortOrder: List<String>)

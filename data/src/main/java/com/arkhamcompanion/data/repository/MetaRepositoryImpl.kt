@@ -9,6 +9,7 @@ import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.meta.Pack
 import com.arkhamcompanion.domain.model.meta.TabooSet
 import com.arkhamcompanion.domain.repository.MetaRepository
+import com.arkhamcompanion.domain.utils.SECOND_CORE_CODE
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.ImmutableSet
@@ -34,7 +35,7 @@ class MetaRepositoryImpl @Inject constructor(
                 add(pack)
 
                 if (secondCore && pack.code == "core") {
-                    add(pack.copy(code = "core2"))
+                    add(pack.copy(code = SECOND_CORE_CODE))
                 }
             }
         }.toImmutableList()

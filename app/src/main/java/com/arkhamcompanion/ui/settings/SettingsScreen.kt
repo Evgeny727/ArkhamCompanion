@@ -34,6 +34,7 @@ fun SettingsScreen(
     onLanguageChange: (String) -> Unit,
     navigateToCollection: () -> Unit,
     navigateToRewards: () -> Unit,
+    navigateToCardPool: () -> Unit,
     updateCards: (String) -> Unit,
     navigateToRules: () -> Unit,
     navigateToAbout: () -> Unit,
@@ -53,6 +54,7 @@ fun SettingsScreen(
     val unlockAllRewards by viewModel.unlockAllRewardsState.collectAsState()
     val tabooSetId by viewModel.tabooSetIdState.collectAsState()
     val tabooSetsList by viewModel.tabooSetsListState.collectAsState()
+    val cardPool by viewModel.cardPoolState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.errors.collect {
@@ -101,6 +103,8 @@ fun SettingsScreen(
                 setTaboo = viewModel::setTaboo,
                 tabooSetId = tabooSetId,
                 tabooSetsList = tabooSetsList,
+                cardPool = cardPool,
+                navigateToCardPool = navigateToCardPool,
                 updateCards = updateCards,
                 navigateToRules = navigateToRules,
                 loading = settingsUiState is SettingsUiState.Loading

@@ -24,3 +24,5 @@ val RETURN_TO_CYCLES = mapOf(
     )
 
 val REPRINT_CYCLE_CODES = setOf("dwl", "ptc", "tfa", "tcu", "tde", "tic")
+
+const val SECOND_CORE_CODE = "core2"

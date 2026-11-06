@@ -57,7 +57,7 @@ import com.arkhamcompanion.ui.cards.filters.CardsFiltersTraitsScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersTypesScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersUsesScreen
 import com.arkhamcompanion.ui.components.ArkhamSwitch
-import com.arkhamcompanion.ui.components.PacksSelectorScreen
+import com.arkhamcompanion.ui.components.PacksSelectionScreen
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.navigation.ArkhamAppBarAction
 import com.arkhamcompanion.ui.navigation.LocalGraphSharedViewModelStoreOwner
@@ -846,7 +846,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
         val allPacks by cardsFiltersViewModel.packs.collectAsState()
 
-        PacksSelectorScreen(
+        PacksSelectionScreen(
             selectedPacks = filters.packs,
             allPacks = allPacks,
             onPacksChange = cardsViewModel::updatePacksFilter,

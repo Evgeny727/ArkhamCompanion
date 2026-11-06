@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.icons.IconGlyph
@@ -25,6 +26,31 @@ import com.arkhamcompanion.ui.theme.CustomTheme
 fun ArkhamSurfaceButton(
     title: String,
     valueLabel: String,
+    modifier: Modifier = Modifier,
+    loading: Boolean = false,
+    editable: Boolean = true,
+    icon: IconGlyph? = null,
+    valueLabelDescription: String? = null,
+    noLabelDivider: Boolean = false,
+    onClick: () -> Unit = {},
+) {
+    ArkhamSurfaceButton(
+        title = title,
+        valueLabel = AnnotatedString(valueLabel),
+        modifier = modifier,
+        loading = loading,
+        editable = editable,
+        icon = icon,
+        valueLabelDescription = valueLabelDescription,
+        noLabelDivider = noLabelDivider,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun ArkhamSurfaceButton(
+    title: String,
+    valueLabel: AnnotatedString,
     modifier: Modifier = Modifier,
     loading: Boolean = false,
     editable: Boolean = true,

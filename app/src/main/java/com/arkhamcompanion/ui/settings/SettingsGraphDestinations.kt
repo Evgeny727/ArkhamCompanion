@@ -10,6 +10,9 @@ object SettingsCollection : NavKey
 object SettingsRewards : NavKey
 
 @Serializable
+object SettingsCardPool : NavKey
+
+@Serializable
 object SettingsRules : NavKey
 
 @Serializable

@@ -21,6 +21,7 @@ import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.meta.Pack
 import com.arkhamcompanion.domain.model.meta.TabooSet
 import com.arkhamcompanion.domain.model.settings.Collection
+import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
 import com.arkhamcompanion.ui.components.ArkhamDialog
 import com.arkhamcompanion.ui.components.ArkhamIconText
@@ -30,6 +31,7 @@ import com.arkhamcompanion.ui.components.ArkhamSquareButton
 import com.arkhamcompanion.ui.components.ArkhamSurfaceButton
 import com.arkhamcompanion.ui.components.ArkhamSurfaceButtonGroup
 import com.arkhamcompanion.ui.components.ArkhamTabooSetButton
+import com.arkhamcompanion.ui.components.CardPoolSurfaceButton
 import com.arkhamcompanion.ui.components.iconSize
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
@@ -51,12 +53,20 @@ fun CardsCard(
     setTaboo: (Int) -> Unit,
     tabooSetId: Int,
     tabooSetsList: ImmutableList<TabooSet>,
+    cardPool: ImmutableSet<String>,
+    navigateToCardPool: () -> Unit,
     updateCards: (String) -> Unit,
     navigateToRules: () -> Unit,
     loading: Boolean,
     modifier: Modifier = Modifier
 ) {
     val languageTag = LocalLanguage.current.languageTag
+    val environmentClassifier = remember(allPacks) {
+        EnvironmentClassifier(allPacks)
+    }
+    val resolvedEnvironment = remember(environmentClassifier, cardPool) {
+        environmentClassifier.resolve(cardPool)
+    }
 
     ArkhamRoundedFactionCard(
         faction = Faction.Neutral,
@@ -97,15 +107,12 @@ fun CardsCard(
                 onTabooSetChange = setTaboo
             )
 
-            //TODO:Add card pool button
-            //HorizontalDivider(color = CustomTheme.colors.divider)
+            HorizontalDivider(color = CustomTheme.colors.divider)
 
-//        ArkhamSurfaceButton(
-//            title = stringResource(R.string.card_pool),
-//            icon = AppIcon.Deck,
-//            valueLabel = languageName,
-//            onClick = {}
-//        )
+            CardPoolSurfaceButton(
+                resolvedEnvironment = resolvedEnvironment,
+                onClick = navigateToCardPool
+            )
         }
 
         ArkhamSquareButton(

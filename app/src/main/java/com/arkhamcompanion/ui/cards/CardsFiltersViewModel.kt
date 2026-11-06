@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
@@ -123,9 +124,10 @@ class CardsFiltersViewModel @Inject constructor(
         initialValue = persistentMapOf()
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     val environmentClassifier = packs
         .filter { it.isNotEmpty() }
-        .map(::EnvironmentClassifier)
+        .mapLatest(::EnvironmentClassifier)
 
     val taboos = metaRepository.getTaboos().stateIn(
         scope = viewModelScope,
