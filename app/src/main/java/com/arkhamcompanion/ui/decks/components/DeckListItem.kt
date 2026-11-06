@@ -168,10 +168,11 @@ fun DeckListItem(
                                     style = CustomTheme.typography.run { smallLabel + italic },
                                     color = Color.White,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
+
+                            Spacer(modifier = Modifier.weight(1f))
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 ArkhamScalableIconText(
