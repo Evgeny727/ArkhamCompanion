@@ -194,6 +194,12 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             deckbuildingPacks = deckbuildingPacks,
             onPackAdd = settingsViewModel::addPackInCardPool,
             onPackRemove = settingsViewModel::removePackFromCardPool,
+            applyCurrent = settingsViewModel::applyCurrentCardPool,
+            applyLegacy = settingsViewModel::clearCardPool,
+            applyLimited = settingsViewModel::applyLimitedCardPool,
+            applyChapter = settingsViewModel::applyChapterCardPool,
+            applyCPA = settingsViewModel::applyCPACardPool,
+            applyCollection = settingsViewModel::applyCollectionCardPool,
         )
 
         topAppBarState.update(

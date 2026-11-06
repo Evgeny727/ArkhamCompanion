@@ -2037,5 +2037,16 @@
     <string name="decks_cleared">Decks cleared</string>
     <string name="clear_decks_error">Unable to clear decks</string>
     <string name="device">Device</string>
-    <string name="apply_environment">Apply %s environment</string>
+    <string name="apply_environment">Apply %s</string>
+    <string name="configure_environment">Configure environment</string>
+    <string name="collection_environment">Collection</string>
+    <string name="cpa_environment">Campaign Play-Along</string>
+    <string name="legacy_environment_description">When deckbuilding in the Legacy Environment, players may build their decks and use investigators, player cards, and weaknesses from any Arkham Horror: The Card Game™ product. There are no restrictions whatsoever.</string>
+    <string name="limited_environment_description">When deckbuilding in the Limited environment, players may use the following products: The 2026 core set, the five investigator decks, three different player card expansions of their choice.</string>
+    <string name="current_environment_description">When deckbuilding in the Current environment, players may use the following products: The 2026 core set, the five investigator decks, the two most recently released deckbuilding expansions and the two most recently released investigator expansions after the 2026 core set.</string>
+    <string name="chapter_1_environment_description">Set the card pool to all packs in chapter 1.</string>
+    <string name="chapter_2_environment_description">Set the card pool to all packs in chapter 2.</string>
+    <string name="cpa_environment_description">The Campaign Play-Along is an ongoing event hosted on the Mythos Busters discord server. It is designed to play Arkham campaigns together, share stories and generally create a sense of community.</string>
+    <string name="collection_environment_description">Set your current collection as this deck\'s card pool. This can be useful to freeze the deck\'s card pool, or to share a "build preset" with people sharing a physical collection.</string>
+    <string name="replace_chapter_2_with_1">Substitute chapter 2 core and investigator decks with chapter 1 equivalents</string>
 </resources>

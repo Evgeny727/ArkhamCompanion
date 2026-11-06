@@ -2022,5 +2022,16 @@
     <string name="decks_cleared">Колоды удалены</string>
     <string name="clear_decks_error">Не удалось удалить колоды</string>
     <string name="device">Устройство</string>
-    <string name="apply_environment">Применить «%s среда»</string>
+    <string name="apply_environment">Применить «%s»</string>
+    <string name="configure_environment">Настроить среду</string>
+    <string name="collection_environment">Коллекция</string>
+    <string name="cpa_environment">Campaign Play-Along</string>
+    <string name="legacy_environment_description">Создавая колоду в неограниченной среде, игроки могут использовать сыщиков, карты игроков и слабости из любого продукта карточной игры «Ужас Аркхэма». Никаких ограничений нет.</string>
+    <string name="limited_environment_description">При составлении колоды в ограниченной среде игроки могут использовать карты из слудующих продуктов: базовый набор 2026, пять отдельных колод сыщиков 2026, три разных дополнения с картами игроков на ваш выбор.</string>
+    <string name="current_environment_description">При составлении колоды в актуальной среде игроки могут использовать карты из слудующих продуктов: базовый набор 2026, пять отдельных колод сыщиков 2026, два последних вышедших колодстроительных дополнения и два последних вышедших после базового набора 2026 дополнения с названием «Х. Сыщики».</string>
+    <string name="chapter_1_environment_description">Включить в пул карт все дополнения из 1-ого сезона.</string>
+    <string name="chapter_2_environment_description">Включить в пул карт все дополнения из 2-ого сезона.</string>
+    <string name="cpa_environment_description">Совместное прохождение кампаний — постоянное мероприятие на Discord-сервере Mythos Busters. Оно позволяет вместе проходить кампании Аркхэма, делиться историями и укреплять сообщество.</string>
+    <string name="collection_environment_description">Установить вашу текущую коллекцию как пул карт для этой колоды. Это может быть полезно для ограничения пула карт колоды или для совместного использования с людьми, которые играют с одной физической коллекцией.</string>
+    <string name="replace_chapter_2_with_1">Заменить базу и колоды сыщиков из второго сезона на соответствующие из первого сезона</string>
 </resources>

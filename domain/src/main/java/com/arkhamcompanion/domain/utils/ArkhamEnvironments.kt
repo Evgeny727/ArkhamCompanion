@@ -51,7 +51,7 @@ object ArkhamEnvironments {
 
                     if (!pack.reprint && pack.cycleCode in REPRINT_CYCLE_CODES) {
                         add("${pack.cycleCode}p")
-                    } else {
+                    } else if (packCode != "${pack.cycleCode}c") {
                         add(pack.code)
                     }
                 }

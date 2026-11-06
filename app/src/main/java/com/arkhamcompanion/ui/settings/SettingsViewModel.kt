@@ -14,6 +14,11 @@ import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.DecksRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
+import com.arkhamcompanion.domain.utils.ArkhamEnvironments.chapter
+import com.arkhamcompanion.domain.utils.ArkhamEnvironments.collection
+import com.arkhamcompanion.domain.utils.ArkhamEnvironments.cpa
+import com.arkhamcompanion.domain.utils.ArkhamEnvironments.current
+import com.arkhamcompanion.domain.utils.ArkhamEnvironments.limited
 import com.arkhamcompanion.domain.utils.REPRINT_CYCLE_CODES
 import com.arkhamcompanion.domain.utils.isDeckbuildingPack
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -254,6 +259,42 @@ class SettingsViewModel @Inject constructor(
             }
 
             if (asPack || asCycle) userPreferencesRepository.saveCardPoolPreference(newCardPool)
+        }
+    }
+
+    fun applyCurrentCardPool() {
+        viewModelScope.launch {
+            userPreferencesRepository.saveCardPoolPreference(current())
+        }
+    }
+
+    fun applyLimitedCardPool(packs: List<Pack>) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveCardPoolPreference(limited(packs))
+        }
+    }
+
+    fun applyCollectionCardPool() {
+        viewModelScope.launch {
+            userPreferencesRepository.saveCardPoolPreference(
+                collection(collectionState.value, allPacksState.value)
+            )
+        }
+    }
+
+    fun applyChapterCardPool(chapter: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveCardPoolPreference(
+                chapter(deckbuildingPacks.value, chapter)
+            )
+        }
+    }
+
+    fun applyCPACardPool(cycleCode: String, chapter: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveCardPoolPreference(
+                cpa(cycleCode, chapter)
+            )
         }
     }
 
