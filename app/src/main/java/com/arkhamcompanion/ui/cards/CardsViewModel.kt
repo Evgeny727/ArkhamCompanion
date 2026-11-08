@@ -31,15 +31,14 @@ import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import com.arkhamcompanion.domain.utils.ArkhamEnvironments.current
 import com.arkhamcompanion.domain.utils.EnvironmentClassifier
+import com.arkhamcompanion.domain.utils.toggle
 import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
-import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -287,10 +286,6 @@ class CardsViewModel @AssistedInject constructor(
         updateCardFilters {
             it.copy(factions = it.factions.toggle(value))
         }
-
-    private fun <T> ImmutableSet<T>.toggle(value: T): ImmutableSet<T> =
-        (if (value in this) minus(value) else plus(value))
-            .toImmutableSet()
 
     fun updateLevelRange(range: NullableIntRange) {
         updateCardFilters {

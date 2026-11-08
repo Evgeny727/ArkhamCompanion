@@ -18,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -34,6 +33,7 @@ import com.arkhamcompanion.ui.cards.components.PlaceholderCardListItem
 import com.arkhamcompanion.ui.components.ArkhamCheckCircle
 import com.arkhamcompanion.ui.components.ArkhamSearchBox
 import com.arkhamcompanion.ui.theme.CustomTheme
+import com.arkhamcompanion.ui.utils.getCardRowHeight
 import kotlinx.collections.immutable.ImmutableSet
 
 @Composable
@@ -47,13 +47,7 @@ fun CardsFiltersCardsAccessScreen(
     val cards = cardsFiltersViewModel.cards.collectAsLazyPagingItems()
     val query by cardsFiltersViewModel.dialogQuery.collectAsState()
 
-    val density = LocalDensity.current
-    val rowHeight = with(density) {
-        maxOf(
-            a = 36.dp,
-            b = (47 * CustomTheme.typography.scaleFactor * fontScale).dp
-        )
-    }
+    val rowHeight = getCardRowHeight()
 
     Column(modifier = modifier.fillMaxSize()) {
         ArkhamSearchBox(

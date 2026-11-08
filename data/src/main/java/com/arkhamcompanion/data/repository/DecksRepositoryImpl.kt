@@ -15,6 +15,7 @@ import com.arkhamcompanion.data.remote.dto.DeckBatchRequestDto
 import com.arkhamcompanion.data.remote.dto.toRequestDto
 import com.arkhamcompanion.data.remote.oauth.AccessTokenProvider
 import com.arkhamcompanion.data.utils.buildDecksListItemsQuery
+import com.arkhamcompanion.domain.model.decks.DeckFilters
 import com.arkhamcompanion.domain.model.decks.DeckListItem
 import com.arkhamcompanion.domain.objects.FuzzyMatcher.matchesFuzzy
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
@@ -24,6 +25,8 @@ import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.DecksRepository
 import com.arkhamcompanion.domain.repository.PerformanceRepository
 import com.arkhamcompanion.domain.utils.EnvironmentClassifier
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -104,10 +107,11 @@ class DecksRepositoryImpl @Inject constructor(
         query: String,
         environmentClassifier: EnvironmentClassifier,
         sort: String,
+        filters: DeckFilters
     ): Flow<PagingData<DeckListItem>> {
         val queryWords = query.normalizeForSearch().splitToWords()
 
-        val rawQuery = buildDecksListItemsQuery(sort)
+        val rawQuery = buildDecksListItemsQuery(sort, filters)
 
         return Pager(
             config = PagingConfig(
@@ -131,5 +135,14 @@ class DecksRepositoryImpl @Inject constructor(
             }.map { it.toDomain(environmentClassifier) }
         }
     }
+
+    override fun getAllTags(): Flow<ImmutableSet<String>> =
+        decksDao.getAllTags()
+            .map { tags ->
+                tags.asSequence()
+                    .flatMap { it.splitToWords() }
+                    .distinct()
+                    .toImmutableSet()
+            }
 
 }

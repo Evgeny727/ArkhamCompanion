@@ -91,7 +91,6 @@ fun DecksScreen(
             onQueryChange = decksViewModel::onSearchQueryChanged,
             onClearQuery = decksViewModel::clearSearchQuery,
             searchPlaceholder = stringResource(R.string.search_decks),
-            searchOptions = null //TODO: add options
         )
 
         PullToRefreshBox(

@@ -2055,4 +2055,5 @@
     <string name="decks_sort_alphabetical_desc">Alphabetical (Z -> A)</string>
     <string name="decks_sort_xp_asc">Least XP spent</string>
     <string name="decks_sort_xp_desc">Most XP spent</string>
+    <string name="search_for_tags">Search for tags</string>
 </resources>

@@ -2,9 +2,12 @@ package com.arkhamcompanion.data.utils
 
 import androidx.room3.RoomRawQuery
 import com.arkhamcompanion.data.objects.SortQueryBuilder.buildDecksSortClause
+import com.arkhamcompanion.domain.enums.DeckSource
+import com.arkhamcompanion.domain.model.decks.DeckFilters
 
-internal fun buildDecksListItemsQuery(sort: String): RoomRawQuery {
+internal fun buildDecksListItemsQuery(sort: String, filters: DeckFilters): RoomRawQuery {
     val sortClause = buildDecksSortClause(sort)
+    val filtersClause = filters.buildFiltersQuery()
 
     return RoomRawQuery(
         sql = """
@@ -260,8 +263,87 @@ internal fun buildDecksListItemsQuery(sort: String): RoomRawQuery {
                 LEFT JOIN deck_xp dx ON dx.deckId = d.id
                     
                 LEFT JOIN custom_deck_xp cx ON cx.deckId = d.id
+                
+                ${if (filtersClause.isNotBlank()) "WHERE $filtersClause " else ""}
             
                 ORDER BY $sortClause
             """.trimIndent()
     )
+}
+
+private fun DeckFilters.buildFiltersQuery(): String {
+    val defaultFilters = DeckFilters()
+
+    if (this == defaultFilters) return ""
+
+    val filtersListBuilder = buildList {
+        if (factions.isNotEmpty()) {
+            val factionsString = factions.joinToString(",") { "'${it.name.lowercase()}'" }
+            add(
+                """
+                    (
+                        i.faction_code IN ($factionsString) 
+                        OR i.faction2_code IN ($factionsString) 
+                        OR i.faction3_code IN ($factionsString)
+                    )
+                """.trimIndent()
+            )
+        }
+
+        if (alternateInvestigatorsOnly) {
+            add("i.parallel = 1")
+        }
+
+        if (source.isNotEmpty()) {
+            val sourceString = source.joinToString(",") {
+                val name = when (it) {
+                    DeckSource.Device -> null
+                    else -> it.name.lowercase()
+                }
+
+                "'${name}'"
+            }
+            add("d.source IN ($sourceString)")
+        }
+
+        if (tags.isNotEmpty()) {
+            add(
+                tags.joinToString(" OR ", prefix = "(", postfix = ")") {
+                    """
+                        instr(
+                            ' ' || d.tags || ' ',
+                            ' ' || '$it' || ' '
+                        ) > 0
+                    """.trimIndent()
+                }
+            )
+        }
+
+        if (cardsInDeck.isNotEmpty()) {
+            add(
+                cardsInDeck.joinToString(" AND ", prefix = "(", postfix = ")") {
+                    """(
+                        EXISTS (
+                            SELECT 1
+                            FROM json_each(d.slots) AS s
+                            WHERE s.key = '${it.code}'
+                        )
+                        OR
+                        EXISTS (
+                            SELECT 1
+                            FROM json_each(d.side_slots) AS ss
+                            WHERE ss.key = '${it.code}'
+                        )
+                        OR
+                        instr(
+                            ',' || replace(d.extra_deck, ' ', '') || ',',
+                            ',' || '${it.code}' || ','
+                        ) > 0
+                    )""".trimIndent()
+                }
+            )
+        }
+    }
+
+    return filtersListBuilder.joinToString(" AND ")
 }

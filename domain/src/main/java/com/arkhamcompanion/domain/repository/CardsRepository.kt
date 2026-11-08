@@ -54,7 +54,11 @@ interface CardsRepository {
 
     fun getAllInvestigatorsByName(name: String, collection: Collection): Flow<PagingData<CardListItem>>
 
-    fun getAllPlayableCardsByName(name: String, collection: Collection): Flow<PagingData<CardListItem>>
+    fun getAllPlayableCardsByNameWithCollection(
+        name: String,
+        collection: Collection
+    ): Flow<PagingData<CardListItem>>
+    fun getAllPlayableCardsByName(name: String): Flow<PagingData<CardListItem>>
     suspend fun getInitialCardFields(cardId: String): CardInvestigatorAccessFields
 
     fun getCardFaqByCodeFlow(code: String): Flow<ImmutableList<CardFaqEntry>?>

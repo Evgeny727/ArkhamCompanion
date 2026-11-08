@@ -610,7 +610,7 @@ class CardsRepositoryImpl @Inject constructor(
         data.map { it.toDomain() }
     }
 
-    override fun getAllPlayableCardsByName(name: String, collection: Collection) = Pager(
+    override fun getAllPlayableCardsByNameWithCollection(name: String, collection: Collection) = Pager(
         config = PagingConfig(
             pageSize = 70,
             prefetchDistance = 140,
@@ -624,6 +624,23 @@ class CardsRepositoryImpl @Inject constructor(
                     collection.packs,
                     collection.reprintPacks
                 ),
+                analyticsRepository = analyticsRepository
+            )
+        }
+    ).flow.map { data ->
+        data.map { it.toDomain() }
+    }
+
+    override fun getAllPlayableCardsByName(name: String) = Pager(
+        config = PagingConfig(
+            pageSize = 70,
+            prefetchDistance = 140,
+            enablePlaceholders = true,
+            initialLoadSize = 300,
+        ),
+        pagingSourceFactory = {
+            LoggingPagingSource(
+                delegate = cardsDao.getAllPlayableCardsByNamePaged(name),
                 analyticsRepository = analyticsRepository
             )
         }

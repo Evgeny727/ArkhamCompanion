@@ -175,6 +175,6 @@ class CardsFiltersViewModel @Inject constructor(
         .debounce(200.milliseconds)
         .distinctUntilChanged()
         .flatMapLatest { (query, collection) ->
-            cardsRepository.getAllPlayableCardsByName(query, collection)
+            cardsRepository.getAllPlayableCardsByNameWithCollection(query, collection)
         }.cachedIn(viewModelScope)
 }

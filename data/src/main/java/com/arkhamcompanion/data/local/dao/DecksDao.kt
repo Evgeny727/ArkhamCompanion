@@ -13,6 +13,7 @@ import com.arkhamcompanion.data.local.decks.DeckEntity
 import com.arkhamcompanion.data.local.decks.DeckIdWithTimestamp
 import com.arkhamcompanion.data.local.decks.DeckListItemEntity
 import com.arkhamcompanion.data.local.decks.DecksManifestEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DecksDao {
@@ -75,4 +76,7 @@ interface DecksDao {
 
     @RawQuery(observedEntities = [DeckEntity::class, CardEntity::class])
     fun searchPaginatedDecks(query: RoomRawQuery): PagingSource<Int, DeckListItemEntity>
+
+    @Query("SELECT tags FROM deck WHERE next_deck IS NULL")
+    fun getAllTags(): Flow<List<String>>
 }

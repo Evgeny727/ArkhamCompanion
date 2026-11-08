@@ -5,3 +5,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 object DecksSortScreen : NavKey
+
+@Serializable
+object DecksFiltersScreen : NavKey
+
+@Serializable
+object DecksFiltersTagsSelectionScreen : NavKey
+
+@Serializable
+object DecksFiltersCardsSelectionScreen : NavKey

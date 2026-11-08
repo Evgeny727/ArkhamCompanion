@@ -815,7 +815,7 @@ internal fun NullableIntRange.format(noValue: String): String =
     }
 
 @Composable
-internal fun selectedFilterLabel(label: String, values: List<String>): String {
+internal fun selectedFilterLabel(label: String, values: Collection<String>): String {
     val colon = LocalLanguage.current.colon
 
     return if (values.isNotEmpty()) {

@@ -3,6 +3,8 @@ package com.arkhamcompanion.data.mapper.db
 import com.arkhamcompanion.data.local.decks.DeckEntity
 import com.arkhamcompanion.data.remote.dto.DeckDto
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.normalizeTimestamp
+import com.arkhamcompanion.domain.objects.WHITESPACE_REGEX
+import com.arkhamcompanion.domain.objects.splitToWords
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -32,7 +34,7 @@ private fun DeckDto.toEntity(): DeckEntity =
         cardPool = meta.jsonObject["card_pool"]?.jsonPrimitive?.contentOrNull,
         source = source,
         tabooId = tabooId,
-        tags = tags,
+        tags = tags.replace(WHITESPACE_REGEX, " "),
         userId = userId,
         version = version,
         xpAdjustment = xpAdjustment,

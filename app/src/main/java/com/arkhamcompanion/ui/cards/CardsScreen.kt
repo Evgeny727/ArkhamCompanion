@@ -21,7 +21,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,6 +35,7 @@ import com.arkhamcompanion.ui.components.CardsSearchOptions
 import com.arkhamcompanion.ui.components.LazyCardListWithStickyHeaders
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
+import com.arkhamcompanion.ui.utils.getCardRowHeight
 import com.arkhamcompanion.ui.utils.localizedMessage
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -56,13 +56,7 @@ fun CardsScreen(
     val favoriteCodes by viewModel.favoriteCodes.collectAsState()
     val listState = rememberLazyListState()
 
-    val density = LocalDensity.current
-    val rowHeight = with(density) {
-        maxOf(
-            a = 36.dp,
-            b = (47 * CustomTheme.typography.scaleFactor * fontScale).dp
-        )
-    }
+    val rowHeight = getCardRowHeight()
 
     // Whenever the search query changes, scroll the list back to the top.
     LaunchedEffect(searchResults) {

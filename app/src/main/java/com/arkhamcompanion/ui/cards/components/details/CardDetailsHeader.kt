@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -44,6 +43,7 @@ import com.arkhamcompanion.ui.icons.PackIcon
 import com.arkhamcompanion.ui.theme.AppIconsFont
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.utils.appSp
+import com.arkhamcompanion.ui.utils.getCardRowHeight
 import com.arkhamcompanion.ui.utils.iconize
 import com.arkhamcompanion.ui.utils.scaledByFont
 
@@ -57,13 +57,7 @@ fun CardDetailsHeader(
 ) {
     val cardFaction = if (cardDetails.faction2 != null) Faction.Dual else cardDetails.faction
 
-    val density = LocalDensity.current
-    val minRowHeight = with(density) {
-        maxOf(
-            a = 36.dp,
-            b = (47 * CustomTheme.typography.scaleFactor * fontScale).dp
-        )
-    }
+    val minRowHeight = getCardRowHeight()
 
     Surface(
         modifier = modifier,

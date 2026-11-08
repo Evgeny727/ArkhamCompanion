@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.R
@@ -20,6 +19,7 @@ import com.arkhamcompanion.ui.components.ArkhamCheckCircle
 import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
+import com.arkhamcompanion.ui.utils.getCardRowHeight
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 
@@ -33,13 +33,7 @@ fun RewardsScreen(
     onCardClick: (String, Int?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val density = LocalDensity.current
-    val rowHeight = with(density) {
-        maxOf(
-            a = 36.dp,
-            b = (47 * CustomTheme.typography.scaleFactor * fontScale).dp
-        )
-    }
+    val rowHeight = getCardRowHeight()
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
         item("text", contentType = "text") {

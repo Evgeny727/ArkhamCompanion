@@ -4,7 +4,7 @@ import java.text.Normalizer
 
 private val SEARCH_REGEX = Regex("""["“”‹›«»〞〝〟„＂❝❞‘’❛❜‛",‚❮❯\(\)\-\.…¡!?¿]""")
 private val COMBINING_MARKS = "\\p{Mn}+".toRegex()
-private val WHITESPACE = "\\s+".toRegex()
+val WHITESPACE_REGEX = "\\s+".toRegex()
 
 fun String.normalizeForSearch(): String {
     if (isBlank()) return ""
@@ -15,6 +15,6 @@ fun String.normalizeForSearch(): String {
 }
 
 fun String.splitToWords(): List<String> {
-    return this.split(WHITESPACE)
+    return this.split(WHITESPACE_REGEX)
         .filter(String::isNotBlank)
 }

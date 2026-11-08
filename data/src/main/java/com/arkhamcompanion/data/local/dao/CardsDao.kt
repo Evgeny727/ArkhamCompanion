@@ -162,6 +162,18 @@ interface CardsDao {
     @RewriteQueriesToDropUnusedColumns
     @Query("""
         $BASE_CARD_LIST_QUERY 
+        WHERE c.type_code != 'investigator' 
+            AND c.taboo_set_id IS NULL 
+            AND c.hidden = 0 
+            AND c.deck_limit > 0 
+            AND c.search_name LIKE '%' || :name || '%'
+        ORDER BY sort_by_faction, official DESC
+    """)
+    fun getAllPlayableCardsByNamePaged(name: String): PagingSource<Int, CardListItemEntity>
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("""
+        $BASE_CARD_LIST_QUERY 
         WHERE id = :id
     """)
     suspend fun getInitialCardFieldsById(id: String): CardListItemEntity
