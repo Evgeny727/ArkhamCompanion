@@ -2049,4 +2049,10 @@
     <string name="cpa_environment_description">The Campaign Play-Along is an ongoing event hosted on the Mythos Busters discord server. It is designed to play Arkham campaigns together, share stories and generally create a sense of community.</string>
     <string name="collection_environment_description">Set your current collection as this deck\'s card pool. This can be useful to freeze the deck\'s card pool, or to share a "build preset" with people sharing a physical collection.</string>
     <string name="replace_chapter_2_with_1">Substitute chapter 2 core and investigator decks with chapter 1 equivalents</string>
+    <string name="decks_sort_date_updated">Updated recently</string>
+    <string name="decks_sort_date_created">Created recently</string>
+    <string name="decks_sort_alphabetical_asc">Alphabetical (A -> Z)</string>
+    <string name="decks_sort_alphabetical_desc">Alphabetical (Z -> A)</string>
+    <string name="decks_sort_xp_asc">Least XP spent</string>
+    <string name="decks_sort_xp_desc">Most XP spent</string>
 </resources>

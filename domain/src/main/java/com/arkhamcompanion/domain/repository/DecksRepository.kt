@@ -14,6 +14,7 @@ interface DecksRepository {
 
     fun searchPaginatedDecks(
         query: String,
-        environmentClassifier: EnvironmentClassifier
+        environmentClassifier: EnvironmentClassifier,
+        sort: String
     ): Flow<PagingData<DeckListItem>>
 }

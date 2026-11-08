@@ -22,6 +22,7 @@ interface UserPreferencesRepository {
     val cardsUpdatedAt: Flow<String>
     val sortOrderPlayer: Flow<ImmutableList<String>>
     val sortOrderMythos: Flow<ImmutableList<String>>
+    val sortOrderDecks: Flow<String>
     val cardSearchPreferences: Flow<CardSearchPreferences>
 
     suspend fun saveThemePreference(theme: Int)
@@ -38,7 +39,9 @@ interface UserPreferencesRepository {
     suspend fun saveCardsUpdatedTimestamp(timestamp: String)
     suspend fun saveSortOrderPlayerPreference(sortOrder: List<String>)
     suspend fun saveSortOrderMythosPreference(sortOrder: List<String>)
+    suspend fun saveSortOrderDecksPreference(sortOrder: String)
 }
 
 val DEFAULT_PLAYER_SORT_ORDER = persistentListOf("type", "slot")
 val DEFAULT_MYTHOS_SORT_ORDER = persistentListOf("pack", "position")
+const val DEFAULT_DECK_SORT_ORDER = "date_updated"

@@ -12,6 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
 import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
+import com.arkhamcompanion.domain.repository.DEFAULT_DECK_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DEFAULT_MYTHOS_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DEFAULT_PLAYER_SORT_ORDER
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
@@ -218,6 +219,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             preferences[CARDS_SORT_ORDER_MYTHOS]?.split(",")?.filter { it.isNotBlank() }
                 ?.toImmutableList() ?: DEFAULT_MYTHOS_SORT_ORDER
         }
+    override val sortOrderDecks: Flow<String> = dataStore.data
+        .catch {
+            if (it is IOException) {
+                analyticsRepository.logMessage("Error reading decks sort order preferences.")
+                analyticsRepository.logError(it)
+
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            preferences[DECKS_SORT_ORDER] ?: DEFAULT_DECK_SORT_ORDER
+        }
     override val cardSearchPreferences: Flow<CardSearchPreferences> = dataStore.data
         .catch {
             if (it is IOException) {
@@ -264,6 +278,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val CARDS_UPDATED_AT = stringPreferencesKey("cards_updated_at")
         val CARDS_SORT_ORDER_PLAYER = stringPreferencesKey("cards_sort_order_player")
         val CARDS_SORT_ORDER_MYTHOS = stringPreferencesKey("cards_sort_order_mythos")
+        val DECKS_SORT_ORDER = stringPreferencesKey("decks_sort_order")
     }
 
     override suspend fun saveThemePreference(theme: Int) {
@@ -343,6 +358,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             preferences[CARDS_SORT_ORDER_PLAYER] = sortOrder.ifEmpty {
                 DEFAULT_PLAYER_SORT_ORDER
             }.joinToString(",")
+        }
+    }
+
+    override suspend fun saveSortOrderDecksPreference(sortOrder: String) {
+        dataStore.edit { preferences ->
+            preferences[DECKS_SORT_ORDER] = sortOrder.ifEmpty { DEFAULT_DECK_SORT_ORDER }
         }
     }
 

@@ -1,7 +1,7 @@
 package com.arkhamcompanion.data.objects
 
-object CardSearchQueryBuilder {
-    fun buildSortClause(sortOrder: List<String>, spoiler: Boolean): String {
+object SortQueryBuilder {
+    fun buildCardsSortClause(sortOrder: List<String>, spoiler: Boolean): String {
         val positionFirst = sortOrder.indexOf("position") == 0
         return sortOrder.joinToString(", ") { option ->
             val col = when(option) {
@@ -19,6 +19,17 @@ object CardSearchQueryBuilder {
                 else -> option
             }
             col
+        }
+    }
+
+    fun buildDecksSortClause(sort: String): String {
+        return when(sort) {
+            "date_created" -> "d.date_creation DESC"
+            "alphabetical_asc" -> "d.name ASC"
+            "alphabetical_desc" -> "d.name DESC"
+            "xp_asc" -> "totalXp ASC"
+            "xp_desc" -> "totalXp DESC"
+            else -> "d.date_update DESC"
         }
     }
 }

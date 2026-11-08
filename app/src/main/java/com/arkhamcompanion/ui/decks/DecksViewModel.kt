@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.arkhamcompanion.UiErrorState
+import com.arkhamcompanion.domain.repository.DEFAULT_DECK_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DecksRepository
 import com.arkhamcompanion.domain.repository.MetaRepository
+import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
@@ -38,7 +40,8 @@ sealed interface DecksUiState {
 @HiltViewModel
 class DecksViewModel @Inject constructor(
     private val decksRepository: DecksRepository,
-    private val metaRepository: MetaRepository
+    private val metaRepository: MetaRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _decksUiState = MutableStateFlow<DecksUiState>(DecksUiState.Idle)
@@ -86,14 +89,21 @@ class DecksViewModel @Inject constructor(
         .filter { it.isNotEmpty() }
         .mapLatest(::EnvironmentClassifier)
 
+    val selectedSort = userPreferencesRepository.sortOrderDecks.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000L),
+        initialValue = DEFAULT_DECK_SORT_ORDER
+    )
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val searchResults = combine(
         debouncedSearchQuery,
-        environmentClassifier
-    ) { query, environmentClassifier ->
-        query to environmentClassifier
-    }.flatMapLatest { (query, environmentClassifier) ->
-        decksRepository.searchPaginatedDecks(query, environmentClassifier)
+        environmentClassifier,
+        selectedSort,
+    ) { query, environmentClassifier, sort ->
+        Triple(query, environmentClassifier, sort)
+    }.flatMapLatest { (query, environmentClassifier, sort) ->
+        decksRepository.searchPaginatedDecks(query, environmentClassifier, sort)
     }.cachedIn(viewModelScope)
 
 
@@ -112,4 +122,16 @@ class DecksViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5_000L),
         initialValue = persistentMapOf()
     )
+
+    fun applyNewSort(newSort: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveSortOrderDecksPreference(newSort)
+        }
+    }
+
+    fun clearSort() {
+        viewModelScope.launch {
+            userPreferencesRepository.saveSortOrderDecksPreference("")
+        }
+    }
 }

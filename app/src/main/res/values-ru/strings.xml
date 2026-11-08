@@ -2034,4 +2034,10 @@
     <string name="cpa_environment_description">Совместное прохождение кампаний — постоянное мероприятие на Discord-сервере Mythos Busters. Оно позволяет вместе проходить кампании Аркхэма, делиться историями и укреплять сообщество.</string>
     <string name="collection_environment_description">Установить вашу текущую коллекцию как пул карт для этой колоды. Это может быть полезно для ограничения пула карт колоды или для совместного использования с людьми, которые играют с одной физической коллекцией.</string>
     <string name="replace_chapter_2_with_1">Заменить базу и колоды сыщиков из второго сезона на соответствующие из первого сезона</string>
+    <string name="decks_sort_date_updated">Недавно обновлены</string>
+    <string name="decks_sort_date_created">Недавно созданы</string>
+    <string name="decks_sort_alphabetical_asc">По алфавиту (А -> Я)</string>
+    <string name="decks_sort_alphabetical_desc">По алфавиту (Я -> А)</string>
+    <string name="decks_sort_xp_asc">Опыта потрачено (по возрастанию)</string>
+    <string name="decks_sort_xp_desc">Опыта потрачено (по убыванию)</string>
 </resources>

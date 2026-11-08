@@ -3,7 +3,7 @@ package com.arkhamcompanion.data.utils
 import androidx.room3.RoomRawQuery
 import com.arkhamcompanion.data.local.dao.CardsDao
 import com.arkhamcompanion.data.objects.CardCache
-import com.arkhamcompanion.data.objects.CardSearchQueryBuilder.buildSortClause
+import com.arkhamcompanion.data.objects.SortQueryBuilder.buildCardsSortClause
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.Ownership
@@ -97,7 +97,7 @@ internal fun buildCardsListItemsQuery(requested: String) =
     """.trimIndent()
 
 internal fun buildSearchCardsQuery(searchConfig: CardSearchConfig): RoomRawQuery {
-    val sortClause = buildSortClause(
+    val sortClause = buildCardsSortClause(
         with(searchConfig) {
             if (spoiler) preferences.mythosSortOrder else preferences.playerSortOrder
         },

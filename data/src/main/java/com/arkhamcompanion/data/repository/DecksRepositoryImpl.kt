@@ -14,6 +14,7 @@ import com.arkhamcompanion.data.remote.datasources.DecksRemoteDataSource
 import com.arkhamcompanion.data.remote.dto.DeckBatchRequestDto
 import com.arkhamcompanion.data.remote.dto.toRequestDto
 import com.arkhamcompanion.data.remote.oauth.AccessTokenProvider
+import com.arkhamcompanion.data.utils.buildDecksListItemsQuery
 import com.arkhamcompanion.domain.model.decks.DeckListItem
 import com.arkhamcompanion.domain.objects.FuzzyMatcher.matchesFuzzy
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.compareTimestamps
@@ -101,9 +102,12 @@ class DecksRepositoryImpl @Inject constructor(
 
     override fun searchPaginatedDecks(
         query: String,
-        environmentClassifier: EnvironmentClassifier
+        environmentClassifier: EnvironmentClassifier,
+        sort: String,
     ): Flow<PagingData<DeckListItem>> {
         val queryWords = query.normalizeForSearch().splitToWords()
+
+        val rawQuery = buildDecksListItemsQuery(sort)
 
         return Pager(
             config = PagingConfig(
@@ -114,7 +118,7 @@ class DecksRepositoryImpl @Inject constructor(
             ),
             pagingSourceFactory = {
                 LoggingPagingSource(
-                    delegate = decksDao.searchPaginatedDecks(),
+                    delegate = decksDao.searchPaginatedDecks(rawQuery),
                     analyticsRepository = analyticsRepository
                 )
             }

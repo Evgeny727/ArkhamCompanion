@@ -8,8 +8,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.AppViewModel
+import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.decks.DecksScreen
+import com.arkhamcompanion.ui.decks.DecksSortScreen
 import com.arkhamcompanion.ui.decks.DecksViewModel
+import com.arkhamcompanion.ui.icons.AppIcon
+import com.arkhamcompanion.ui.theme.CustomTheme
 
 fun EntryProviderScope<NavKey>.decksEntries(
     navigator: Navigator,
@@ -44,8 +48,53 @@ fun EntryProviderScope<NavKey>.decksEntries(
             subtitle = null,
             color = null,
             contentColor = null,
-            rightActions = null,
+            rightActions = {
+                ArkhamAppBarAction(
+                    contentColor = CustomTheme.colors.m,
+                    onClick = { navigator.navigateSingleTop(DecksSortScreen) },
+                    iconGlyph = AppIcon.Sort,
+                )
+            },
             leftAction = null,
+        )
+    }
+
+    entry<DecksSortScreen>(
+        metadata = { key -> SharedViewModelStoreNavEntryDecorator.parent(
+            TopLevelRoute.Decks.toContentKey()
+        )}
+    ) {
+        val topAppBarState = LocalTopAppBarState.current
+        val decksViewModel = hiltViewModel<DecksViewModel>(
+            LocalSharedViewModelStoreOwner.current
+        )
+        val selectedSort by decksViewModel.selectedSort.collectAsState()
+
+        DecksSortScreen(
+            selectedSortOption = selectedSort,
+            onApply = { newSort -> decksViewModel.applyNewSort(newSort) }
+        )
+
+        topAppBarState.update(
+            title = stringResource(R.string.sort),
+            subtitle = null,
+            color = null,
+            contentColor = null,
+            rightActions = {
+                ArkhamAppBarAction(
+                    contentColor = CustomTheme.colors.m,
+                    onClick = decksViewModel::clearSort,
+                    iconGlyph = AppIcon.Trash,
+                )
+            },
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+            ignoreErrorState = true,
         )
     }
 }
