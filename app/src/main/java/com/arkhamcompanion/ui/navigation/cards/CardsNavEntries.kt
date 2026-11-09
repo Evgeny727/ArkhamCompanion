@@ -38,7 +38,7 @@ import com.arkhamcompanion.ui.cards.CardsFiltersTypesScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersUsesScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersViewModel
 import com.arkhamcompanion.ui.cards.CardsScreen
-import com.arkhamcompanion.ui.cards.CardsSortScreen
+import com.arkhamcompanion.ui.cards.CardsSortDialog
 import com.arkhamcompanion.ui.cards.CardsSortViewModel
 import com.arkhamcompanion.ui.cards.CardsViewModel
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
@@ -87,6 +87,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         ) { create(it) }
         val spoilerState by cardsViewModel.spoilerState.collectAsState()
         val isFiltersActive by cardsViewModel.isFiltersActive.collectAsState()
+        var showSortDialog by rememberSaveable { mutableStateOf(false) }
 
         CardsScreen(
             viewModel = cardsViewModel,
@@ -94,6 +95,21 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                 navigator.navigateSingleTop(CardDetailsScreen(graphState, code))
             }
         )
+
+        if (showSortDialog) {
+            val cardsSortViewModel = hiltViewModel<CardsSortViewModel>()
+
+            CardsSortDialog(
+                spoilerState = spoilerState,
+                cardsSortViewModel = cardsSortViewModel,
+                onApply = { newSortOptions ->
+                    cardsSortViewModel.applyNewSortOptions(newSortOptions, spoilerState)
+                    showSortDialog = false
+                },
+                onDismiss = { showSortDialog = false },
+                onReset = cardsSortViewModel::clearSortOptions
+            )
+        }
 
         topAppBarState.update(
             title = stringResource(
@@ -120,7 +136,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
 
                 ArkhamAppBarAction(
                     contentColor = CustomTheme.colors.m,
-                    onClick = { navigator.navigateSingleTop(CardsSortScreen(spoilerState)) },
+                    onClick = { showSortDialog = true },
                     iconGlyph = AppIcon.Sort,
                 )
             },
@@ -141,44 +157,6 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                         iconGlyph = AppIcon.ArrowBack,
                     )
                 }
-            },
-            ignoreErrorState = true,
-        )
-    }
-
-    entry<CardsSortScreen> { backStackEntry ->
-        val topAppBarState = LocalTopAppBarState.current
-        val spoilerState = backStackEntry.spoilerState
-        val cardsSortViewModel = hiltViewModel<CardsSortViewModel>()
-
-        CardsSortScreen(
-            spoilerState = spoilerState,
-            navigateUp = navigator::goBack,
-            cardsSortViewModel = cardsSortViewModel,
-            onApply = { newSortOptions ->
-                cardsSortViewModel.applyNewSortOptions(newSortOptions, spoilerState)
-                navigator.goBack()
-            }
-        )
-
-        topAppBarState.update(
-            title = stringResource(R.string.sort),
-            subtitle = null,
-            color = null,
-            contentColor = null,
-            rightActions = {
-                ArkhamAppBarAction(
-                    contentColor = CustomTheme.colors.m,
-                    onClick = cardsSortViewModel::clearSortOptions,
-                    iconGlyph = AppIcon.Trash,
-                )
-            },
-            leftAction = { color ->
-                ArkhamAppBarAction(
-                    contentColor = color,
-                    onClick = navigator::goBack,
-                    iconGlyph = AppIcon.ArrowBack,
-                )
             },
             ignoreErrorState = true,
         )

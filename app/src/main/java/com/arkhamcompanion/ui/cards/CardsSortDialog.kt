@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.components.ArkhamButtonColor
 import com.arkhamcompanion.ui.components.ArkhamCheckboxButton
+import com.arkhamcompanion.ui.components.ArkhamDialog
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamSquareButton
 import com.arkhamcompanion.ui.components.iconSize
@@ -38,11 +38,12 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
-fun CardsSortScreen(
+fun CardsSortDialog(
     spoilerState: Boolean,
-    navigateUp: () -> Unit,
     cardsSortViewModel: CardsSortViewModel,
     onApply: (List<String>) -> Unit,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit
 ) {
     val playerOrder by cardsSortViewModel.playerSortOptions.collectAsState()
     val mythosOrder by cardsSortViewModel.mythosSortOptions.collectAsState()
@@ -74,71 +75,90 @@ fun CardsSortScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            state = lazyState,
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(vertical = 16.dp, horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            itemsIndexed(localSortOptionsList, { _, it -> it.id }) { index, sortOption ->
-                ReorderableItem(reorderableState, sortOption.id) { isDragging ->
-                    val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+    ArkhamDialog(
+        title = stringResource(R.string.sort),
+        onDismiss = onDismiss,
+        allowDismiss = false
+    ) {
+        Column {
+            ArkhamSquareButton(
+                title = stringResource(R.string.reset),
+                onClick = onReset,
+                colors = ArkhamButtonColor.Red,
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) { color ->
+                ArkhamIconText(
+                    iconGlyph = AppIcon.Trash,
+                    color = color,
+                    size = iconSize(AppIcon.Trash)
+                )
+            }
 
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = Color.Transparent,
-                        tonalElevation = elevation,
-                        shape = CustomTheme.shapes.medium
-                    ) {
-                        Column(
+            LazyColumn(
+                state = lazyState,
+                contentPadding = PaddingValues(vertical = 16.dp, horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                itemsIndexed(localSortOptionsList, { _, it -> it.id }) { index, sortOption ->
+                    ReorderableItem(reorderableState, sortOption.id) { isDragging ->
+                        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+
+                        Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            color = Color.Transparent,
+                            tonalElevation = elevation,
+                            shape = CustomTheme.shapes.medium
                         ) {
-                            ArkhamCheckboxButton(
-                                title = stringResource(sortOption.resId),
-                                isSelected = sortOption.isActive,
-                                iconGlyph = AppIcon.Menu,
-                                modifier = Modifier.draggableHandle()
-                            ) { value ->
-                                localSortOptionsList[index] = sortOption.copy(isActive = value)
-                            }
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                ArkhamCheckboxButton(
+                                    title = stringResource(sortOption.resId),
+                                    isSelected = sortOption.isActive,
+                                    iconGlyph = AppIcon.Menu,
+                                    modifier = Modifier.draggableHandle()
+                                ) { value ->
+                                    localSortOptionsList[index] = sortOption.copy(isActive = value)
+                                }
 
-                            if (index != localSortOptionsList.lastIndex) HorizontalDivider(color = CustomTheme.colors.divider)
+                                if (index != localSortOptionsList.lastIndex) HorizontalDivider(color = CustomTheme.colors.divider)
+                            }
                         }
                     }
                 }
             }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            ArkhamSquareButton(
-                title = stringResource(R.string.cancel),
-                onClick = navigateUp,
-                modifier = Modifier.weight(1f),
-                colors = ArkhamButtonColor.RedOutline,
-            ) { color ->
-                ArkhamIconText(
-                    iconGlyph = AppIcon.Dismiss,
-                    color = color,
-                    size = iconSize(AppIcon.Dismiss)
-                )
-            }
-            ArkhamSquareButton(
-                title = stringResource(R.string.apply),
-                onClick = { onApply(activeSortOptions) },
-                modifier = Modifier.weight(1f),
-                enabled = activeSortOptions != sortOptions
-            ) { color ->
-                ArkhamIconText(
-                    iconGlyph = AppIcon.CheckThin,
-                    color = color,
-                    size = iconSize(AppIcon.CheckThin)
-                )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ArkhamSquareButton(
+                    title = stringResource(R.string.cancel),
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f),
+                    colors = ArkhamButtonColor.RedOutline,
+                ) { color ->
+                    ArkhamIconText(
+                        iconGlyph = AppIcon.Dismiss,
+                        color = color,
+                        size = iconSize(AppIcon.Dismiss)
+                    )
+                }
+                ArkhamSquareButton(
+                    title = stringResource(R.string.apply),
+                    onClick = { onApply(activeSortOptions) },
+                    modifier = Modifier.weight(1f),
+                    enabled = activeSortOptions != sortOptions
+                ) { color ->
+                    ArkhamIconText(
+                        iconGlyph = AppIcon.CheckThin,
+                        color = color,
+                        size = iconSize(AppIcon.CheckThin)
+                    )
+                }
             }
         }
     }
