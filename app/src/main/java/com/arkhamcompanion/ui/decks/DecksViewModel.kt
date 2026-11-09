@@ -156,12 +156,6 @@ class DecksViewModel @Inject constructor(
         }
     }
 
-    fun clearSort() {
-        viewModelScope.launch {
-            userPreferencesRepository.saveSortOrderDecksPreference("")
-        }
-    }
-
     val factions = metaRepository.getAllFactions().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000L),

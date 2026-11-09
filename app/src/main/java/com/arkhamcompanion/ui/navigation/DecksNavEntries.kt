@@ -3,6 +3,9 @@ package com.arkhamcompanion.ui.navigation
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
@@ -10,13 +13,14 @@ import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
+import com.arkhamcompanion.ui.components.ArkhamDialog
 import com.arkhamcompanion.ui.decks.DecksFilersTagsScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersCardsScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersCardsSelectionScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersTagsSelectionScreen
 import com.arkhamcompanion.ui.decks.DecksScreen
-import com.arkhamcompanion.ui.decks.DecksSortScreen
+import com.arkhamcompanion.ui.decks.DecksSortDialog
 import com.arkhamcompanion.ui.decks.DecksViewModel
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.theme.CustomTheme
@@ -41,6 +45,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
         val userState by viewModel.userState.collectAsState()
         val appState by viewModel.appState.collectAsState()
         val isFilterActive by decksViewModel.isFiltersActive.collectAsState()
+        val selectedSort by decksViewModel.selectedSort.collectAsState()
+        var showSortDialog by rememberSaveable { mutableStateOf(false) }
 
         DecksScreen(
             userId = userState.arkhamBuildUser?.id,
@@ -49,6 +55,18 @@ fun EntryProviderScope<NavKey>.decksEntries(
             navigateToDeck = { deckId -> },
             decksViewModel = decksViewModel,
         )
+
+        if (showSortDialog) {
+            ArkhamDialog(
+                title = stringResource(R.string.sort),
+                onDismiss = { showSortDialog = false },
+            ) {
+                DecksSortDialog(
+                    selectedSortOption = selectedSort,
+                    onApply = { newSort -> decksViewModel.applyNewSort(newSort) }
+                )
+            }
+        }
 
         topAppBarState.update(
             title = stringResource(TopLevelRoute.Decks.label),
@@ -65,7 +83,7 @@ fun EntryProviderScope<NavKey>.decksEntries(
 
                 ArkhamAppBarAction(
                     contentColor = CustomTheme.colors.m,
-                    onClick = { navigator.navigateSingleTop(DecksSortScreen) },
+                    onClick = { showSortDialog = true },
                     iconGlyph = AppIcon.Sort,
                 )
             },
@@ -190,45 +208,6 @@ fun EntryProviderScope<NavKey>.decksEntries(
                 ArkhamAppBarAction(
                     contentColor = CustomTheme.colors.m,
                     onClick = decksViewModel::clearDeckCardsFilter,
-                    iconGlyph = AppIcon.Trash,
-                )
-            },
-            leftAction = { color ->
-                ArkhamAppBarAction(
-                    contentColor = color,
-                    onClick = navigator::goBack,
-                    iconGlyph = AppIcon.ArrowBack,
-                )
-            },
-            ignoreErrorState = true,
-        )
-    }
-
-    entry<DecksSortScreen>(
-        metadata = { SharedViewModelStoreNavEntryDecorator.parent(
-            TopLevelRoute.Decks.toContentKey()
-        )}
-    ) {
-        val topAppBarState = LocalTopAppBarState.current
-        val decksViewModel = hiltViewModel<DecksViewModel>(
-            LocalSharedViewModelStoreOwner.current
-        )
-        val selectedSort by decksViewModel.selectedSort.collectAsState()
-
-        DecksSortScreen(
-            selectedSortOption = selectedSort,
-            onApply = { newSort -> decksViewModel.applyNewSort(newSort) }
-        )
-
-        topAppBarState.update(
-            title = stringResource(R.string.sort),
-            subtitle = null,
-            color = null,
-            contentColor = null,
-            rightActions = {
-                ArkhamAppBarAction(
-                    contentColor = CustomTheme.colors.m,
-                    onClick = decksViewModel::clearSort,
                     iconGlyph = AppIcon.Trash,
                 )
             },
