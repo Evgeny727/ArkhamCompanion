@@ -4,6 +4,7 @@ import androidx.room3.RoomRawQuery
 import com.arkhamcompanion.data.local.dao.CardsDao
 import com.arkhamcompanion.data.objects.CardCache
 import com.arkhamcompanion.data.objects.SortQueryBuilder.buildCardsSortClause
+import com.arkhamcompanion.domain.enums.CardsSearchTarget
 import com.arkhamcompanion.domain.model.cards.CardFilters
 import com.arkhamcompanion.domain.model.cards.CardSearchConfig
 import com.arkhamcompanion.domain.model.cards.Ownership
@@ -99,7 +100,15 @@ internal fun buildCardsListItemsQuery(requested: String) =
 internal fun buildSearchCardsQuery(searchConfig: CardSearchConfig): RoomRawQuery {
     val sortClause = buildCardsSortClause(
         with(searchConfig) {
-            if (spoiler) preferences.mythosSortOrder else preferences.playerSortOrder
+            when {
+                searchTarget == CardsSearchTarget.DeckInvestigators -> {
+                    listOf(preferences.investigatorSortOrder)
+                }
+
+                spoiler -> preferences.mythosSortOrder
+
+                else -> preferences.playerSortOrder
+            }
         },
         searchConfig.spoiler
     )
@@ -559,7 +568,7 @@ internal fun CardFilters.buildFiltersQuery(alias: String): String {
                 """.trimIndent())
         }
 
-        if (whoCanTakeCard.isNotEmpty()) {
+        if (whoCanTakeCard == null || whoCanTakeCard.orEmpty().isNotEmpty()) {
             add("(c.type_code == 'investigator' AND c.deck_options IS NOT NULL)")
         }
 

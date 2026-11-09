@@ -34,6 +34,8 @@ import androidx.paging.compose.itemKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.decks.DeckListItem
+import com.arkhamcompanion.ui.components.ArkhamButton
+import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.components.ArkhamRoundedCardFooter
 import com.arkhamcompanion.ui.components.ArkhamRoundedCardFooterItem
 import com.arkhamcompanion.ui.components.ArkhamRoundedCardHeader
@@ -53,8 +55,9 @@ fun DecksScreen(
     userLoading: Boolean,
     onUserConnect: () -> Unit,
     navigateToDeck: (String) -> Unit,
+    onCreateNewDeck: () -> Unit,
     decksViewModel: DecksViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val decksUiState by decksViewModel.decksUiState.collectAsState()
     val refreshState = rememberPullToRefreshState()
@@ -184,20 +187,19 @@ fun DecksScreen(
                     }
                 }
 
-                //TODO: uncomment when deck creation is added
-//                item("new_deck_button", contentType = "button") {
-//                    ArkhamButton(
-//                        title = stringResource(R.string.new_deck),
-//                        onClick = { /*TODO: create new deck*/ },
-//                        maxLines = 1,
-//                    ) { color ->
-//                        ArkhamIconText(
-//                            iconGlyph = AppIcon.Deck,
-//                            color = color,
-//                            size = 24.dp
-//                        )
-//                    }
-//                }
+                item("new_deck_button", contentType = "button") {
+                    ArkhamButton(
+                        title = stringResource(R.string.new_deck),
+                        onClick = onCreateNewDeck,
+                        maxLines = 1,
+                    ) { color ->
+                        ArkhamIconText(
+                            iconGlyph = AppIcon.Deck,
+                            color = color,
+                            size = 24.dp
+                        )
+                    }
+                }
 
                 if (userId == null && !userLoading) {
                     item(key = "sign_in_block", contentType = "sign_in_block") {

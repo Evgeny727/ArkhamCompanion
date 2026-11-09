@@ -47,6 +47,7 @@ import com.arkhamcompanion.domain.arkhamql.lexer.QueryLexer
 import com.arkhamcompanion.domain.arkhamql.lexer.QueryLexerException
 import com.arkhamcompanion.domain.arkhamql.parser.QueryParser
 import com.arkhamcompanion.domain.arkhamql.parser.QueryParserException
+import com.arkhamcompanion.domain.enums.CardsSearchTarget
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
 import com.arkhamcompanion.domain.model.cards.CardFaqEntry
 import com.arkhamcompanion.domain.model.cards.CardInvestigatorAccessFields
@@ -384,7 +385,15 @@ class CardsRepositoryImpl @Inject constructor(
             }
         ).flow.withCategoryHeaders(
             with(searchConfig) {
-                if (spoiler) preferences.mythosSortOrder else preferences.playerSortOrder
+                when {
+                    searchTarget == CardsSearchTarget.DeckInvestigators -> {
+                        listOf(preferences.investigatorSortOrder)
+                    }
+
+                    spoiler -> preferences.mythosSortOrder
+
+                    else -> preferences.playerSortOrder
+                }
             },
             searchConfig.spoiler
         )
@@ -446,9 +455,9 @@ class CardsRepositoryImpl @Inject constructor(
                             analyticsRepository::logMessage
                         )
 
-                    searchConfig.filters.whoCanTakeCard.isNotEmpty() ->
+                    searchConfig.filters.whoCanTakeCard.orEmpty().isNotEmpty() ->
                         list.filterInvestigatorsByCards(
-                            searchConfig.filters.whoCanTakeCard,
+                            searchConfig.filters.whoCanTakeCard.orEmpty(),
                             analyticsRepository::logMessage
                         )
 

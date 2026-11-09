@@ -14,6 +14,9 @@ sealed interface CardsGraphState {
 
     @Serializable
     data class Card(val cardId: String) : CardsGraphState
+
+    @Serializable
+    data object DeckInvestigator : CardsGraphState
 }
 
 //Only filters that differs between graphs

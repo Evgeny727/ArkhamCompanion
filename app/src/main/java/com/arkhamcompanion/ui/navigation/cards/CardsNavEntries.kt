@@ -15,6 +15,7 @@ import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.model.cards.CardSearchResultItem
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
+import com.arkhamcompanion.domain.utils.orEmpty
 import com.arkhamcompanion.ui.cards.CardDetailsScreen
 import com.arkhamcompanion.ui.cards.CardDetailsViewModel
 import com.arkhamcompanion.ui.cards.CardFaqScreen
@@ -58,6 +59,7 @@ import com.arkhamcompanion.ui.cards.filters.CardsFiltersTypesScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersUsesScreen
 import com.arkhamcompanion.ui.components.ArkhamSwitch
 import com.arkhamcompanion.ui.components.PacksSelectionScreen
+import com.arkhamcompanion.ui.decks.InvestigatorsSortDialog
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.navigation.ArkhamAppBarAction
 import com.arkhamcompanion.ui.navigation.LocalGraphSharedViewModelStoreOwner
@@ -91,24 +93,50 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
 
         CardsScreen(
             viewModel = cardsViewModel,
-            onCardClick = { code ->
-                navigator.navigateSingleTop(CardDetailsScreen(graphState, code))
+            onCardClick = { code, parallel, tabooSetId ->
+                when (graphState) {
+                    is CardsGraphState.DeckInvestigator -> {
+                        //TODO: Navigate to deck creation screen with investigator data
+                    }
+
+                    else -> {
+                        navigator.navigateSingleTop(
+                            CardDetailsScreen(graphState, code)
+                        )
+                    }
+                }
             }
         )
 
         if (showSortDialog) {
             val cardsSortViewModel = hiltViewModel<CardsSortViewModel>()
 
-            CardsSortDialog(
-                spoilerState = spoilerState,
-                cardsSortViewModel = cardsSortViewModel,
-                onApply = { newSortOptions ->
-                    cardsSortViewModel.applyNewSortOptions(newSortOptions, spoilerState)
-                    showSortDialog = false
-                },
-                onDismiss = { showSortDialog = false },
-                onReset = cardsSortViewModel::clearSortOptions
-            )
+            when (graphState) {
+                is CardsGraphState.DeckInvestigator -> {
+                    val sortOption by cardsSortViewModel.investigatorSortOption.collectAsState()
+
+                    InvestigatorsSortDialog(
+                        selectedSortOption = sortOption,
+                        onApply = { newSortOption ->
+                            cardsSortViewModel.applyNewSortOption(newSortOption)
+                        },
+                        onDismiss = { showSortDialog = false },
+                    )
+                }
+
+                else -> {
+                    CardsSortDialog(
+                        spoilerState = spoilerState,
+                        cardsSortViewModel = cardsSortViewModel,
+                        onApply = { newSortOptions ->
+                            cardsSortViewModel.applyNewSortOptions(newSortOptions, spoilerState)
+                            showSortDialog = false
+                        },
+                        onDismiss = { showSortDialog = false },
+                        onReset = cardsSortViewModel::clearSortOptions
+                    )
+                }
+            }
         }
 
         topAppBarState.update(
@@ -117,6 +145,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                     is CardsGraphState.Investigator -> R.string.allowed_cards
 
                     is CardsGraphState.Card -> R.string.investigators
+
+                    is CardsGraphState.DeckInvestigator -> R.string.new_deck
 
                     is CardsGraphState.Main -> {
                         if (spoilerState) R.string.encounter_cards else R.string.player_cards
@@ -386,7 +416,7 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         CardsFiltersCardsAccessScreen(
-            selectedCards = filters.whoCanTakeCard,
+            selectedCards = filters.whoCanTakeCard.orEmpty(),
             cardsFiltersViewModel = cardsFiltersViewModel,
             onCardToggle = cardsViewModel::toggleWhoCanTakeCardFilter,
             onCardClick = { code, tabooSetId ->

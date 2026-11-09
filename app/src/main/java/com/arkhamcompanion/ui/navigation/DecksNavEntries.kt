@@ -13,7 +13,6 @@ import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
-import com.arkhamcompanion.ui.components.ArkhamDialog
 import com.arkhamcompanion.ui.decks.DecksFilersTagsScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersCardsScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersCardsSelectionScreen
@@ -23,6 +22,7 @@ import com.arkhamcompanion.ui.decks.DecksScreen
 import com.arkhamcompanion.ui.decks.DecksSortDialog
 import com.arkhamcompanion.ui.decks.DecksViewModel
 import com.arkhamcompanion.ui.icons.AppIcon
+import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import com.arkhamcompanion.ui.theme.CustomTheme
 
 fun EntryProviderScope<NavKey>.decksEntries(
@@ -47,25 +47,28 @@ fun EntryProviderScope<NavKey>.decksEntries(
         val isFilterActive by decksViewModel.isFiltersActive.collectAsState()
         val selectedSort by decksViewModel.selectedSort.collectAsState()
         var showSortDialog by rememberSaveable { mutableStateOf(false) }
+        val createNewDeckNavigation = {
+            navigator.navigateSingleTop(
+                route = TopLevelRoute.Cards(CardsGraphState.DeckInvestigator),
+                withinStack = true
+            )
+        }
 
         DecksScreen(
             userId = userState.arkhamBuildUser?.id,
             userLoading = appState.isUserLoading(),
             onUserConnect = viewModel::oAuthLogIn,
             navigateToDeck = { deckId -> },
+            onCreateNewDeck = createNewDeckNavigation,
             decksViewModel = decksViewModel,
         )
 
         if (showSortDialog) {
-            ArkhamDialog(
-                title = stringResource(R.string.sort),
-                onDismiss = { showSortDialog = false },
-            ) {
-                DecksSortDialog(
-                    selectedSortOption = selectedSort,
-                    onApply = { newSort -> decksViewModel.applyNewSort(newSort) }
-                )
-            }
+            DecksSortDialog(
+                selectedSortOption = selectedSort,
+                onApply = { newSort -> decksViewModel.applyNewSort(newSort) },
+                onDismiss = { showSortDialog = false }
+            )
         }
 
         topAppBarState.update(
@@ -74,6 +77,12 @@ fun EntryProviderScope<NavKey>.decksEntries(
             color = null,
             contentColor = null,
             rightActions = {
+                ArkhamAppBarAction(
+                    contentColor = CustomTheme.colors.m,
+                    onClick = createNewDeckNavigation,
+                    iconGlyph = AppIcon.PlusButton,
+                )
+
                 ArkhamAppBarAction(
                     contentColor = CustomTheme.colors.m,
                     onClick = { navigator.navigateSingleTop(DecksFiltersScreen) },

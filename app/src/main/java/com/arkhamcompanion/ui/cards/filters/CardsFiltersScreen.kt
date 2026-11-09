@@ -27,6 +27,7 @@ import com.arkhamcompanion.domain.model.cards.NullableIntRange
 import com.arkhamcompanion.domain.model.cards.Ownership
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.model.settings.isNotEmpty
+import com.arkhamcompanion.domain.utils.orEmpty
 import com.arkhamcompanion.ui.cards.CardsFiltersActionsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersAssetsScreen
 import com.arkhamcompanion.ui.cards.CardsFiltersCardsAccessScreen
@@ -101,7 +102,7 @@ fun CardsFiltersScreen(
     val availableFilters = when (parentConfig) {
         CardsGraphState.Main -> MAIN_CARDS_GRAPH_FILTERS
         is CardsGraphState.Investigator -> AVAILABLE_CARDS_GRAPH_FILTERS
-        is CardsGraphState.Card -> ELIGIBLE_INVESTIGATORS_GRAPH_FILTERS
+        is CardsGraphState.Card, is CardsGraphState.DeckInvestigator -> ELIGIBLE_INVESTIGATORS_GRAPH_FILTERS
     }
     val environmentClassifier by cardsFiltersViewModel.environmentClassifier.collectAsState(null)
 
@@ -151,11 +152,11 @@ fun CardsFiltersScreen(
             }
         }
 
-        if (filters.whoCanTakeCard.isNotEmpty()) {
+        if (filters.whoCanTakeCard.orEmpty().isNotEmpty()) {
             item("cards_filter", "button") {
                 ArkhamCheckboxButton(
                     title = stringResource(R.string.card_access) + CustomTheme.language.colon
-                            + filters.whoCanTakeCard.run { if (this.size == 1) first().name else size },
+                            + filters.whoCanTakeCard.run { if (this!!.size == 1) first().name else size },
                     isSelected = true,
                     isRegularText = true,
                     modifier = Modifier.padding(8.dp)
@@ -305,10 +306,10 @@ fun CardsFiltersScreen(
             item("choose_cards_filter", "navigation") {
                 NavigationFilterButton(
                     label = stringResource(R.string.card_access) + CustomTheme.language.colon +
-                            if (filters.whoCanTakeCard.isEmpty()) {
+                            if (filters.whoCanTakeCard.orEmpty().isEmpty()) {
                                 stringResource(R.string.none)
                             } else {
-                                filters.whoCanTakeCard.size
+                                filters.whoCanTakeCard!!.size
                             },
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {

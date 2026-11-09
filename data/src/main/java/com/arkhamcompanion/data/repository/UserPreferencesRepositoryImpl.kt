@@ -13,6 +13,7 @@ import com.arkhamcompanion.domain.model.cards.CardSearchPreferences
 import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.repository.AnalyticsRepository
 import com.arkhamcompanion.domain.repository.DEFAULT_DECK_SORT_ORDER
+import com.arkhamcompanion.domain.repository.DEFAULT_INVESTIGATOR_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DEFAULT_MYTHOS_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DEFAULT_PLAYER_SORT_ORDER
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
@@ -232,6 +233,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }.map { preferences ->
             preferences[DECKS_SORT_ORDER] ?: DEFAULT_DECK_SORT_ORDER
         }
+    override val sortOrderInvestigators: Flow<String> = dataStore.data
+        .catch {
+            if (it is IOException) {
+                analyticsRepository.logMessage("Error reading investigators sort order preferences.")
+                analyticsRepository.logError(it)
+
+                emit(emptyPreferences())
+            } else {
+                throw it
+            }
+        }.map { preferences ->
+            preferences[INVESTIGATORS_SORT_ORDER] ?: DEFAULT_INVESTIGATOR_SORT_ORDER
+        }
     override val cardSearchPreferences: Flow<CardSearchPreferences> = dataStore.data
         .catch {
             if (it is IOException) {
@@ -252,6 +266,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                     ?.filter { it.isNotBlank() } ?: DEFAULT_PLAYER_SORT_ORDER,
                 mythosSortOrder = preferences[CARDS_SORT_ORDER_MYTHOS]?.split(",")
                     ?.filter { it.isNotBlank() } ?: DEFAULT_MYTHOS_SORT_ORDER,
+                investigatorSortOrder = preferences[INVESTIGATORS_SORT_ORDER]
+                    ?: DEFAULT_INVESTIGATOR_SORT_ORDER,
                 ignoreCollection = preferences[IGNORE_COLLECTION] ?: true,
                 collection = preferences[COLLECTION]?.let { json.decodeFromString<Collection>(it) }
                     ?: Collection()
@@ -279,6 +295,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val CARDS_SORT_ORDER_PLAYER = stringPreferencesKey("cards_sort_order_player")
         val CARDS_SORT_ORDER_MYTHOS = stringPreferencesKey("cards_sort_order_mythos")
         val DECKS_SORT_ORDER = stringPreferencesKey("decks_sort_order")
+        val INVESTIGATORS_SORT_ORDER = stringPreferencesKey("investigators_sort_order")
     }
 
     override suspend fun saveThemePreference(theme: Int) {
@@ -361,17 +378,23 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun saveSortOrderMythosPreference(sortOrder: List<String>) {
+        dataStore.edit { preferences ->
+            preferences[CARDS_SORT_ORDER_MYTHOS] = sortOrder.ifEmpty {
+                DEFAULT_MYTHOS_SORT_ORDER
+            }.joinToString(",")
+        }
+    }
+
     override suspend fun saveSortOrderDecksPreference(sortOrder: String) {
         dataStore.edit { preferences ->
             preferences[DECKS_SORT_ORDER] = sortOrder.ifEmpty { DEFAULT_DECK_SORT_ORDER }
         }
     }
 
-    override suspend fun saveSortOrderMythosPreference(sortOrder: List<String>) {
+    override suspend fun saveSortOrderInvestigatorsPreference(sortOrder: String) {
         dataStore.edit { preferences ->
-            preferences[CARDS_SORT_ORDER_MYTHOS] = sortOrder.ifEmpty {
-                DEFAULT_MYTHOS_SORT_ORDER
-            }.joinToString(",")
+            preferences[INVESTIGATORS_SORT_ORDER] = sortOrder.ifEmpty { DEFAULT_INVESTIGATOR_SORT_ORDER }
         }
     }
 }

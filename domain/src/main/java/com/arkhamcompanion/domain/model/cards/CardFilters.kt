@@ -15,7 +15,7 @@ data class CardFilters(
     val subTypes: ImmutableSet<CardSubType?> = persistentSetOf(),
     val favoritesOnly: Boolean = false,
     val cardpoolFilter: CardpoolFilter? = null,
-    val whoCanTakeCard: ImmutableSet<CardInvestigatorAccessFields> = persistentSetOf(),
+    val whoCanTakeCard: ImmutableSet<CardInvestigatorAccessFields>? = persistentSetOf(),
     val investigatorSkillsFilter: InvestigatorSkillsFilter = InvestigatorSkillsFilter(),
     val costFilter: CostFilter = CostFilter(),
     val skillsFilter: SkillsFilter = SkillsFilter(),

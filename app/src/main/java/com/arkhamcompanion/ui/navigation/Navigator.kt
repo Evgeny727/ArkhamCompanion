@@ -13,6 +13,10 @@ class Navigator(val state: NavigationState) {
             return
         }
 
+        navigateWithinStack(route, launchSingleTop)
+    }
+
+    fun navigateWithinStack(route: NavKey, launchSingleTop: Boolean = false) {
         val currentStack = state.backStacks[state.topLevelRoute]
             ?: error("Stack for ${state.topLevelRoute} not found")
 
@@ -47,4 +51,11 @@ class Navigator(val state: NavigationState) {
     }
 }
 
-internal fun Navigator.navigateSingleTop(route: NavKey) = navigate(route, launchSingleTop = true)
+internal fun Navigator.navigateSingleTop(
+    route: NavKey,
+    withinStack: Boolean = false
+) = if (withinStack) {
+    navigateWithinStack(route, launchSingleTop = true)
+} else {
+    navigate(route, launchSingleTop = true)
+}

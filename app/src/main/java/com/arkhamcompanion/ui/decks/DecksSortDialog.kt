@@ -101,10 +101,6 @@ fun DecksSortDialog(
                     enabled = selectedSortOption != "xp_desc",
                     isRadio = true
                 ) { onApply("xp_desc") }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                HorizontalDivider(color = CustomTheme.colors.divider)
             }
         }
     }

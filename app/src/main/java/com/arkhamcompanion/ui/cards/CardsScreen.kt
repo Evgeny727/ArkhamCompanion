@@ -43,7 +43,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun CardsScreen(
     viewModel: CardsViewModel,
-    onCardClick: (String) -> Unit,
+    onCardClick: (
+        code: String,
+        parallel: Boolean,
+        tabooSetId: Int?
+    ) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.cardsUiState.collectAsState()

@@ -6,6 +6,7 @@ import androidx.paging.cachedIn
 import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
+import com.arkhamcompanion.domain.enums.CardsSearchTarget
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.AssetFilter
 import com.arkhamcompanion.domain.model.cards.CardFilters
@@ -31,6 +32,7 @@ import com.arkhamcompanion.domain.repository.CardsRepository
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
 import com.arkhamcompanion.domain.utils.ArkhamEnvironments.current
 import com.arkhamcompanion.domain.utils.EnvironmentClassifier
+import com.arkhamcompanion.domain.utils.orEmpty
 import com.arkhamcompanion.domain.utils.toggle
 import com.arkhamcompanion.ui.navigation.cards.CardsGraphState
 import dagger.assisted.Assisted
@@ -135,6 +137,11 @@ class CardsViewModel @AssistedInject constructor(
                 getInitialCardFields(cardsGraphState.cardId)
             }
 
+            is CardsGraphState.DeckInvestigator -> {
+                defaultFilters = defaultFilters.copy(whoCanTakeCard = null)
+                _cardFilters.value = defaultFilters
+            }
+
             CardsGraphState.Main -> { /*Do nothing*/ }
         }
     }
@@ -171,7 +178,7 @@ class CardsViewModel @AssistedInject constructor(
                     )
                 }
 
-                CardsGraphState.Main -> { /*Do nothing*/ }
+                else -> { /*Do nothing*/ }
             }
 
             _cardFilters.value = defaultFilters
@@ -191,7 +198,11 @@ class CardsViewModel @AssistedInject constructor(
             spoilerState,
             searchOptions.copy(searchQuery = searchOptions.searchQuery.trim()),
             cardsSearchPreferences,
-            cardFilters
+            cardFilters,
+            searchTarget = when (cardsGraphState) {
+                is CardsGraphState.DeckInvestigator -> CardsSearchTarget.DeckInvestigators
+                else -> CardsSearchTarget.Cards
+            }
         )
     }.debounce(200.milliseconds)
         .distinctUntilChanged()
@@ -271,7 +282,7 @@ class CardsViewModel @AssistedInject constructor(
         updateCardFilters {
             it.copy(
                 cardpoolFilter = null,
-                whoCanTakeCard = it.whoCanTakeCard.toggle(fields)
+                whoCanTakeCard = it.whoCanTakeCard.orEmpty().toggle(fields)
             )
         }
     }

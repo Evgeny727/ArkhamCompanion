@@ -57,7 +57,11 @@ fun LazyCardListWithStickyHeaders(
     favoriteCodes: ImmutableSet<String>,
     listState: LazyListState,
     rowHeight: Dp,
-    onCardClick: (String) -> Unit,
+    onCardClick: (
+        code: String,
+        parallel: Boolean,
+        tabooSetId: Int?
+    ) -> Unit,
     showClearFilters: Boolean,
     onClearFilters: () -> Unit,
     modifier: Modifier = Modifier,
@@ -255,7 +259,11 @@ fun LazyCardListWithStickyHeaders(
                             rowHeight = rowHeight,
                             isFavorite = item.card.code in favoriteCodes,
                             onClick = {
-                                onCardClick(item.card.code)
+                                onCardClick(
+                                    item.card.code,
+                                    item.card.parallel,
+                                    item.card.tabooSetId
+                                )
                             }
                         )
                     }

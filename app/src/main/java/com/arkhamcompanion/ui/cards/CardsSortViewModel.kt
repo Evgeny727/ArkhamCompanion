@@ -2,6 +2,7 @@ package com.arkhamcompanion.ui.cards
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.arkhamcompanion.domain.repository.DEFAULT_INVESTIGATOR_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DEFAULT_MYTHOS_SORT_ORDER
 import com.arkhamcompanion.domain.repository.DEFAULT_PLAYER_SORT_ORDER
 import com.arkhamcompanion.domain.repository.UserPreferencesRepository
@@ -30,6 +31,12 @@ class CardsSortViewModel @Inject constructor(
         initialValue = DEFAULT_MYTHOS_SORT_ORDER
     )
 
+    val investigatorSortOption = userPreferencesRepository.sortOrderInvestigators.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = DEFAULT_INVESTIGATOR_SORT_ORDER
+    )
+
     private val _clearClicked = MutableSharedFlow<Unit>()
     val clearClicked = _clearClicked.asSharedFlow()
 
@@ -37,6 +44,12 @@ class CardsSortViewModel @Inject constructor(
         viewModelScope.launch {
             if (spoiler) userPreferencesRepository.saveSortOrderMythosPreference(newSortOptions)
             else userPreferencesRepository.saveSortOrderPlayerPreference(newSortOptions)
+        }
+    }
+
+    fun applyNewSortOption(newSortOption:String) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveSortOrderInvestigatorsPreference(newSortOption)
         }
     }
 
