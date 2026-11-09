@@ -22,19 +22,26 @@ enum class CardsGraphFilter {
     TypeFilter,
     SubTypeFilter,
     InvestigatorAccessFilter,
+    InvestigatorSkillsFilter,
     CardsAccessFilter,
     CostFiler,
     SkillsFilter,
     AssetFilter,
+    PropertiesFilter,
     EnemyFilter,
     LocationFilter,
     EncounterSetFilter,
 }
 
-val MAIN_CARDS_GRAPH_FILTERS = CardsGraphFilter.entries.toImmutableSet()
+val MAIN_CARDS_GRAPH_FILTERS = CardsGraphFilter.entries
+    .minus(CardsGraphFilter.InvestigatorSkillsFilter)
+    .toImmutableSet()
 
 val AVAILABLE_CARDS_GRAPH_FILTERS = MAIN_CARDS_GRAPH_FILTERS
     .minus(CardsGraphFilter.CardsAccessFilter)
     .toImmutableSet()
 
-val ELIGIBLE_INVESTIGATORS_GRAPH_FILTERS = persistentSetOf(CardsGraphFilter.CardsAccessFilter)
+val ELIGIBLE_INVESTIGATORS_GRAPH_FILTERS = persistentSetOf(
+    CardsGraphFilter.InvestigatorAccessFilter,
+    CardsGraphFilter.InvestigatorSkillsFilter
+)

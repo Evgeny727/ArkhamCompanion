@@ -319,6 +319,97 @@ fun CardsFiltersScreen(
             }
         }
 
+        if (CardsGraphFilter.InvestigatorSkillsFilter in availableFilters) {
+            item("investigator_skills_section", "section") {
+                val label = stringResource(R.string.skills)
+                val willpowerText = stringResource(R.string.willpower)
+                val intellectText = stringResource(R.string.intellect)
+                val combatText = stringResource(R.string.combat)
+                val agilityText = stringResource(R.string.agility)
+                val colon = LocalLanguage.current.colon
+                val isCollapsed = filtersUiState.collapsedSections[FilterSection.InvestigatorSkills] ?: true
+                val isDefaultValues = filters.investigatorSkillsFilter == defaultFilters.investigatorSkillsFilter
+                val willpowerValues = "$willpowerText (${
+                    filters.investigatorSkillsFilter.willpower.format()
+                })"
+                val intellectValues = "$intellectText (${
+                    filters.investigatorSkillsFilter.intellect.format()
+                })"
+                val combatValues = "$combatText (${
+                    filters.investigatorSkillsFilter.combat.format()
+                })"
+                val agilityValues = "$agilityText (${
+                    filters.investigatorSkillsFilter.agility.format()
+                })"
+
+                CollapsableFiltersSection(
+                    label = if (isDefaultValues) stringResource(R.string.label_all, label)
+                    else "$label$colon$willpowerValues, $intellectValues, $combatValues, $agilityValues",
+                    isNotCollapsed = !isCollapsed,
+                    onCollapseChange = {
+                        cardsFiltersViewModel.toggleSection(FilterSection.InvestigatorSkills)
+                    },
+                    onSectionClear = cardsViewModel::clearInvestigatorSkillsFilter,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .animateContentSize()
+                ) {
+                    Text(
+                        text = willpowerText,
+                        style = CustomTheme.typography.menuText
+                    )
+
+                    ArkhamRangeSlider(
+                        range = filters.investigatorSkillsFilter.willpower,
+                        maxRange = defaultFilters.investigatorSkillsFilter.willpower,
+                        onUpdateRange = cardsViewModel::updateWillpowerRange,
+                    )
+
+                    HorizontalDivider(color = CustomTheme.colors.divider)
+
+                    Text(
+                        text = intellectText,
+                        style = CustomTheme.typography.menuText
+                    )
+
+                    ArkhamRangeSlider(
+                        range = filters.investigatorSkillsFilter.intellect,
+                        maxRange = defaultFilters.investigatorSkillsFilter.intellect,
+                        onUpdateRange = cardsViewModel::updateIntellectRange,
+                    )
+
+                    HorizontalDivider(color = CustomTheme.colors.divider)
+
+                    Text(
+                        text = combatText,
+                        style = CustomTheme.typography.menuText
+                    )
+
+                    ArkhamRangeSlider(
+                        range = filters.investigatorSkillsFilter.combat,
+                        maxRange = defaultFilters.investigatorSkillsFilter.combat,
+                        onUpdateRange = cardsViewModel::updateCombatRange,
+                    )
+
+                    HorizontalDivider(color = CustomTheme.colors.divider)
+
+                    Text(
+                        text = agilityText,
+                        style = CustomTheme.typography.menuText
+                    )
+
+                    ArkhamRangeSlider(
+                        range = filters.investigatorSkillsFilter.agility,
+                        maxRange = defaultFilters.investigatorSkillsFilter.agility,
+                        onUpdateRange = cardsViewModel::updateAgilityRange,
+                    )
+                }
+
+                HorizontalDivider(color = CustomTheme.colors.divider)
+            }
+        }
+
         if (CardsGraphFilter.CostFiler in availableFilters) {
             item("cost_section", "section") {
                 val label = stringResource(R.string.cost)
@@ -532,29 +623,31 @@ fun CardsFiltersScreen(
             }
         }
 
-        item("properties_section", "section") {
-            val label = stringResource(R.string.properties)
-            val isCollapsed = filtersUiState.collapsedSections[FilterSection.Properties] ?: true
+        if (CardsGraphFilter.PropertiesFilter in availableFilters) {
+            item("properties_section", "section") {
+                val label = stringResource(R.string.properties)
+                val isCollapsed = filtersUiState.collapsedSections[FilterSection.Properties] ?: true
 
-            CollapsableFiltersSection(
-                label = label,
-                isNotCollapsed = isCollapsed,
-                onCollapseChange = {
-                    cardsFiltersViewModel.toggleSection(FilterSection.Properties)
-                },
-                onSectionClear = cardsViewModel::clearPropertiesFilter,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .animateContentSize()
-            ) {
-                FiltersPropertiesSectionContent(
-                    propertiesFilter = filters.propertiesFilter,
-                    onValueChange = cardsViewModel::updatePropertiesFilter
-                )
+                CollapsableFiltersSection(
+                    label = label,
+                    isNotCollapsed = isCollapsed,
+                    onCollapseChange = {
+                        cardsFiltersViewModel.toggleSection(FilterSection.Properties)
+                    },
+                    onSectionClear = cardsViewModel::clearPropertiesFilter,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .animateContentSize()
+                ) {
+                    FiltersPropertiesSectionContent(
+                        propertiesFilter = filters.propertiesFilter,
+                        onValueChange = cardsViewModel::updatePropertiesFilter
+                    )
+                }
+
+                HorizontalDivider(color = CustomTheme.colors.divider)
             }
-
-            HorizontalDivider(color = CustomTheme.colors.divider)
         }
 
         if (CardsGraphFilter.EnemyFilter in availableFilters) {
@@ -807,7 +900,7 @@ fun CardsFiltersScreen(
     }
 }
 
-internal fun NullableIntRange.format(noValue: String): String =
+internal fun NullableIntRange.format(noValue: String = ""): String =
     if (min == max) {
         min?.toString() ?: noValue
     } else {

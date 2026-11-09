@@ -563,6 +563,23 @@ internal fun CardFilters.buildFiltersQuery(alias: String): String {
             add("(c.type_code == 'investigator' AND c.deck_options IS NOT NULL)")
         }
 
+        investigatorSkillsFilter.run {
+            if (this == defaultFilters.investigatorSkillsFilter) return@run
+
+            if (willpower != defaultFilters.investigatorSkillsFilter.willpower) {
+                add("${alias}.skill_willpower BETWEEN ${willpower.min} AND ${willpower.max}")
+            }
+            if (intellect != defaultFilters.investigatorSkillsFilter.intellect) {
+                add("${alias}.skill_intellect BETWEEN ${intellect.min} AND ${intellect.max}")
+            }
+            if (combat != defaultFilters.investigatorSkillsFilter.combat) {
+                add("${alias}.skill_combat BETWEEN ${combat.min} AND ${combat.max}")
+            }
+            if (agility != defaultFilters.investigatorSkillsFilter.agility) {
+                add("${alias}.skill_agility BETWEEN ${agility.min} AND ${agility.max}")
+            }
+        }
+
         favoritesOnly.run {
             if (!this) return@run
 

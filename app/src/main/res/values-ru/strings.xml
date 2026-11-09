@@ -2041,4 +2041,5 @@
     <string name="decks_sort_xp_asc">Опыта потрачено (по возрастанию)</string>
     <string name="decks_sort_xp_desc">Опыта потрачено (по убыванию)</string>
     <string name="search_for_tags">Найти теги</string>
+    <string name="skills">Навыки</string>
 </resources>

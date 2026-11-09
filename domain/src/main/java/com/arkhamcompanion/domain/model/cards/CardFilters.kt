@@ -16,6 +16,7 @@ data class CardFilters(
     val favoritesOnly: Boolean = false,
     val cardpoolFilter: CardpoolFilter? = null,
     val whoCanTakeCard: ImmutableSet<CardInvestigatorAccessFields> = persistentSetOf(),
+    val investigatorSkillsFilter: InvestigatorSkillsFilter = InvestigatorSkillsFilter(),
     val costFilter: CostFilter = CostFilter(),
     val skillsFilter: SkillsFilter = SkillsFilter(),
     val actions: ImmutableSet<String> = persistentSetOf(),
@@ -62,6 +63,13 @@ data class InvestigatorAccessConfig(
 enum class CardpoolTarget {
     Slots, ExtraSlots, Both
 }
+
+data class InvestigatorSkillsFilter(
+    val willpower: NullableIntRange = NullableIntRange(0, 5),
+    val intellect: NullableIntRange = NullableIntRange(0, 5),
+    val combat: NullableIntRange = NullableIntRange(0, 5),
+    val agility: NullableIntRange = NullableIntRange(0, 5),
+)
 
 data class CostFilter(
     val range: NullableIntRange = NullableIntRange(null, 20),

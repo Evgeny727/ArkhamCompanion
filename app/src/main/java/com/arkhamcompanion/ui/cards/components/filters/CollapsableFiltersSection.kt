@@ -174,7 +174,7 @@ fun ArkhamRangeSlider(
                 ))
             },
             modifier = Modifier.fillMaxWidth().height(32.dp),
-            steps = maxRange.max ?: 0,
+            steps = (maxRange.max ?: 0) - if (maxRange.min != null) 1 else 0,
             startThumb = {
                 SliderDefaults.Thumb(
                     interactionSource = remember { MutableInteractionSource() },

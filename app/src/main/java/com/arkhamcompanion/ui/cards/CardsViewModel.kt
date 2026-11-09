@@ -278,7 +278,53 @@ class CardsViewModel @AssistedInject constructor(
 
     fun clearWhoCanTakeCardFilter() {
         updateCardFilters {
-            it.copy(whoCanTakeCard = persistentSetOf())
+            it.copy(whoCanTakeCard = defaultFilters.whoCanTakeCard)
+        }
+    }
+
+    fun updateWillpowerRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                investigatorSkillsFilter = it.investigatorSkillsFilter.copy(
+                    willpower = range
+                )
+            )
+        }
+    }
+
+    fun updateIntellectRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                investigatorSkillsFilter = it.investigatorSkillsFilter.copy(
+                    intellect = range
+                )
+            )
+        }
+    }
+
+    fun updateCombatRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                investigatorSkillsFilter = it.investigatorSkillsFilter.copy(
+                    combat = range
+                )
+            )
+        }
+    }
+
+    fun updateAgilityRange(range: NullableIntRange) {
+        updateCardFilters {
+            it.copy(
+                investigatorSkillsFilter = it.investigatorSkillsFilter.copy(
+                    agility = range
+                )
+            )
+        }
+    }
+
+    fun clearInvestigatorSkillsFilter() {
+        updateCardFilters {
+            it.copy(investigatorSkillsFilter = defaultFilters.investigatorSkillsFilter)
         }
     }
 

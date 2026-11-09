@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 enum class FilterSection {
     Level, Cost, Skills, HealthSanity, Properties, Official, Ownership,
-    Fight, Evade, Damage, Horror, Shroud, Clues
+    Fight, Evade, Damage, Horror, Shroud, Clues, InvestigatorSkills
 }
 
 data class FiltersUiState(
