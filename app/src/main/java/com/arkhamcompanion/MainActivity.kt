@@ -12,6 +12,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.intl.Locale
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -20,6 +21,8 @@ import com.arkhamcompanion.domain.model.auth.ArkhamOAuthCallback
 import com.arkhamcompanion.domain.model.auth.ArkhamOAuthCallbackActions
 import com.arkhamcompanion.domain.model.auth.AuthorizationCodeGrant
 import com.arkhamcompanion.ui.navigation.ArkhamNavHost
+import com.arkhamcompanion.ui.navigation.LocalTopAppBarState
+import com.arkhamcompanion.ui.navigation.TopAppBarState
 import com.arkhamcompanion.ui.theme.ArkhamCompanionTheme
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.google.android.gms.common.ConnectionResult
@@ -60,6 +63,7 @@ class MainActivity : AppCompatActivity() {
             val langTag = viewModel.resolveLanguageTag(lang)
             val scaleFactor by viewModel.scaleFactorState.collectAsState()
             val theme by viewModel.themeState.collectAsState()
+            val topAppBarState = remember { TopAppBarState() }
             // Collecting user's theme from shared preferences via viewmodel - false = light, true = dark
             val currentTheme = when(theme) {
                 0 -> false
@@ -69,8 +73,17 @@ class MainActivity : AppCompatActivity() {
             }
             if (currentTheme != null) {
                 isDataLoaded = true
-                ArkhamCompanionTheme(currentTheme, langTag, scaleFactor) {
-                    CompositionLocalProvider(LocalThemeIsDark provides currentTheme) {
+
+                ArkhamCompanionTheme(
+                    currentTheme,
+                    langTag,
+                    scaleFactor,
+                    topAppBarState.color
+                ) {
+                    CompositionLocalProvider(
+                        LocalThemeIsDark provides currentTheme,
+                        LocalTopAppBarState provides topAppBarState
+                    ) {
                         Surface(
                             modifier = Modifier.fillMaxSize(),
                             color = CustomTheme.colors.background

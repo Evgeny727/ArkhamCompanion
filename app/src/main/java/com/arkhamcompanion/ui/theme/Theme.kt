@@ -1,13 +1,15 @@
 package com.arkhamcompanion.ui.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 object CustomTheme {
     val typography: CustomTypography
@@ -33,6 +35,7 @@ fun ArkhamCompanionTheme(
     darkTheme: Boolean,
     lang: String,
     scaleFactor: Float = 1f,
+    topAppBarColor: Color?,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -45,13 +48,15 @@ fun ArkhamCompanionTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.apply {
-                statusBarColor = colorScheme.background.toArgb()
-                navigationBarColor = colorScheme.background.toArgb()
-            }
-            WindowCompat.getInsetsController(window, view).apply {
-                isAppearanceLightStatusBars = !darkTheme
-                isAppearanceLightNavigationBars = !darkTheme
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+
+            controller.isAppearanceLightStatusBars =
+                (topAppBarColor ?: colorScheme.background).luminance() > 0.5f
+            controller.isAppearanceLightNavigationBars =
+                colorScheme.background.luminance() > 0.5f
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
             }
         }
     }

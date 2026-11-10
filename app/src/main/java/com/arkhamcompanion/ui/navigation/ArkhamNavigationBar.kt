@@ -1,11 +1,13 @@
 package com.arkhamcompanion.ui.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
@@ -22,13 +24,19 @@ import androidx.compose.ui.unit.sp
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.theme.Alegreya
 import com.arkhamcompanion.ui.theme.CustomTheme
+import com.arkhamcompanion.ui.utils.applyNavigationBarInsets
 
 val topLevelRoutes = setOf(TopLevelRoute.Cards(), TopLevelRoute.Decks, TopLevelRoute.Campaigns, TopLevelRoute.Settings)
 
 @Composable
 fun ArkhamNavigationBar(navigator: Navigator) {
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(CustomTheme.colors.background)
+    ) {
         HorizontalDivider(color = CustomTheme.colors.divider)
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -58,6 +66,8 @@ fun ArkhamNavigationBar(navigator: Navigator) {
                 )
             }
         }
+
+        Spacer(modifier = Modifier.applyNavigationBarInsets())
     }
 }
 
