@@ -59,6 +59,7 @@ import com.arkhamcompanion.ui.cards.filters.CardsFiltersTypesScreen
 import com.arkhamcompanion.ui.cards.filters.CardsFiltersUsesScreen
 import com.arkhamcompanion.ui.components.ArkhamSwitch
 import com.arkhamcompanion.ui.components.PacksSelectionScreen
+import com.arkhamcompanion.ui.decks.DecksDeckCreationScreen
 import com.arkhamcompanion.ui.decks.InvestigatorsSortDialog
 import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.navigation.ArkhamAppBarAction
@@ -93,10 +94,13 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
 
         CardsScreen(
             viewModel = cardsViewModel,
-            onCardClick = { code, parallel, tabooSetId ->
+            onCardClick = { code, alternateOfCode, parallel ->
                 when (graphState) {
                     is CardsGraphState.DeckInvestigator -> {
-                        //TODO: Navigate to deck creation screen with investigator data
+                        navigator.navigateSingleTop(
+                            route = DecksDeckCreationScreen(alternateOfCode ?: code, parallel),
+                            stack = TopLevelRoute.Decks
+                        )
                     }
 
                     else -> {
@@ -981,6 +985,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                         CardsGraphState.Card(it)
                     ))
                 }
+            },
+            onCreateNewDeckNavigation = { code, parallel ->
+                navigator.navigateSingleTop(
+                    route = DecksDeckCreationScreen(code, parallel),
+                    stack = TopLevelRoute.Decks
+                )
             }
         )
 
@@ -1111,6 +1121,12 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
                         CardsGraphState.Card(it)
                     ))
                 }
+            },
+            onCreateNewDeckNavigation = { code, parallel ->
+                navigator.navigateSingleTop(
+                    route = DecksDeckCreationScreen(code, parallel),
+                    stack = TopLevelRoute.Decks
+                )
             }
         )
 

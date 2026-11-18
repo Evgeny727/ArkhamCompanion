@@ -17,6 +17,7 @@ import com.arkhamcompanion.ui.theme.LocalLanguage
 @Composable
 fun CardPoolSurfaceButton(
     resolvedEnvironment: ResolvedEnvironment,
+    editable: Boolean = true,
     onClick: () -> Unit
 ) {
     val languageTag = LocalLanguage.current.languageTag
@@ -56,6 +57,7 @@ fun CardPoolSurfaceButton(
             }
             DeckEnvironment.Custom -> AnnotatedString(stringResource(R.string.custom))
         },
+        editable = editable,
         onClick = onClick,
     )
 }

@@ -111,6 +111,7 @@ data class CardDetails(
 ) : CardInvestigatorAccessFields
 
 data class CardPackInfo(
+    val cardCode: String,
     val code: String,
     val reprintCode: String?,
     val name: String,

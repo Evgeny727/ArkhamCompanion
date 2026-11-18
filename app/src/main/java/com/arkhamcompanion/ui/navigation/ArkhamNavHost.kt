@@ -109,7 +109,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
             )
         },
         bottomBar = {
-            ArkhamNavigationBar(navigator = navigator)
+           if (!topAppBarState.hideBottomBar) ArkhamNavigationBar(navigator = navigator)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) { data ->
             Snackbar(

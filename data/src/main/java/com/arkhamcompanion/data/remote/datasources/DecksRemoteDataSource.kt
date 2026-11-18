@@ -3,6 +3,7 @@ package com.arkhamcompanion.data.remote.datasources
 import com.arkhamcompanion.data.remote.api.DecksApi
 import com.arkhamcompanion.data.remote.dto.DeckBatchRequestDto
 import com.arkhamcompanion.data.remote.dto.DeckDto
+import com.arkhamcompanion.data.remote.dto.DeckWriteRequestDto
 import com.arkhamcompanion.data.remote.dto.DecksManifestDto
 import com.arkhamcompanion.data.utils.bearerToken
 import com.arkhamcompanion.data.utils.requireBody
@@ -18,4 +19,7 @@ class DecksRemoteDataSource @Inject constructor(
 
     suspend fun fetchDecksBatch(accessToken: String, request: DeckBatchRequestDto): List<DeckDto> =
         decksApi.batchDecks(accessToken.bearerToken, request).requireBody().decks
+
+    suspend fun createDeck(accessToken: String, requestDto: DeckWriteRequestDto): DeckDto =
+        decksApi.createDeck(authorization = accessToken.bearerToken, request = requestDto).requireBody()
 }

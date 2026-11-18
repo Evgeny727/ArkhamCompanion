@@ -186,7 +186,8 @@ fun CardDetailsFrontContent(
     cardDetailsWithPackInfo: CardDetailsWithPackInfo,
     firstPackInCollection: String?,
     styleResolver: CardTextStyleResolver,
-    flavorStyleResolver: CardTextStyleResolver
+    flavorStyleResolver: CardTextStyleResolver,
+    isDeckInvestigatorView: Boolean = false
 ) {
     cardDetailsWithPackInfo.run {
         val flavorFirst = with(cardDetails) {
@@ -247,7 +248,7 @@ fun CardDetailsFrontContent(
             )
         }
 
-        if (!flavorFirst) {
+        if (!flavorFirst && !isDeckInvestigatorView) {
             cardDetails.parsedFlavor?.let {
                 ParsedCardText(it, flavorStyleResolver, isFlavor = true)
             }
@@ -263,17 +264,20 @@ fun CardDetailsFrontContent(
         }
     }
 
-    CardDetailsPackInfoBlock(
-        cardDetailsWithPackInfo = cardDetailsWithPackInfo,
-        firstPackInCollection = firstPackInCollection
-    )
+    if (!isDeckInvestigatorView) {
+        CardDetailsPackInfoBlock(
+            cardDetailsWithPackInfo = cardDetailsWithPackInfo,
+            firstPackInCollection = firstPackInCollection
+        )
+    }
 }
 
 @Composable
 fun CardDetailsBackContent(
     cardDetailsWithPackInfo: CardDetailsWithPackInfo,
     styleResolver: CardTextStyleResolver,
-    flavorStyleResolver: CardTextStyleResolver
+    flavorStyleResolver: CardTextStyleResolver,
+    isDeckInvestigatorView: Boolean = false
 ) {
     cardDetailsWithPackInfo.run {
         val flavorFirst = with(cardDetails) {
@@ -323,13 +327,16 @@ fun CardDetailsBackContent(
             ParsedCardText(it, styleResolver)
         }
 
-        if (!flavorFirst) {
+        if (!flavorFirst && !isDeckInvestigatorView) {
             cardDetails.parsedBackFlavor?.let {
                 ParsedCardText(it, flavorStyleResolver, isFlavor = true)
             }
         }
 
-        if (cardDetails.illustrator != cardDetails.backIllustrator && cardDetails.backIllustrator != null) {
+        if (!isDeckInvestigatorView &&
+            cardDetails.illustrator != cardDetails.backIllustrator &&
+            cardDetails.backIllustrator != null
+        ) {
             CardDetailsPackInfoBlock(
                 cardDetailsWithPackInfo = cardDetailsWithPackInfo,
                 onlyIllustrator = true

@@ -276,6 +276,7 @@ private fun optionFilter(
 
             val parsed = parseOption(option = DeckOption(
                 id = select.id,
+                faction = select.faction,
                 level = select.level,
                 name = select.name,
                 trait = select.trait,

@@ -8,6 +8,17 @@ import com.arkhamcompanion.domain.arkhamql.QueryError
 import com.arkhamcompanion.domain.arkhamql.lexer.QueryToken
 import com.arkhamcompanion.ui.theme.language
 
+fun getLocalizedFaction(code: String) =
+    when (code) {
+        "guardian" -> R.string.guardian
+        "seeker" -> R.string.seeker
+        "rogue" -> R.string.rogue
+        "mystic" -> R.string.mystic
+        "survivor" -> R.string.survivor
+        "neutral" -> R.string.neutral
+        else -> R.string.mythos
+    }
+
 fun getLocalizedAction(code: String) =
     when (code) {
         "Fight" -> R.string.fight
@@ -553,6 +564,23 @@ fun getLocalizedSkill(code: String) =
         "intellect" -> R.string.intellect
         "willpower" -> R.string.willpower
         else -> R.string.unknown
+    }
+
+fun getLocalizedOptionSelection(name: String?) =
+    when (name) {
+        "Trait Choice" -> R.string.trait_choice
+        else -> null
+    }
+
+fun getLocalizedOptionSelectionValue(value: String?) =
+    when (value) {
+        "improvised" -> R.string.trait_improvised
+        "gambit" -> R.string.trait_gambit
+        "fortune" -> R.string.trait_fortune
+        "blessed" -> R.string.trait_blessed
+        "cursed" -> R.string.trait_cursed
+        "both" -> R.string.blessed_and_cursed
+        else -> null
     }
 
 @ReadOnlyComposable

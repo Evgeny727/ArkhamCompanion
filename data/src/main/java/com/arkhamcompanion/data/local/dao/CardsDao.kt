@@ -51,6 +51,7 @@ interface CardsDao {
         WITH selected_taboo AS (
             SELECT CASE
                 WHEN :tabooSetId = 100 THEN (SELECT MAX(id) FROM taboo_set)
+                WHEN :tabooSetId = 0 THEN NULL
                 ELSE :tabooSetId
             END AS id
         )

@@ -184,6 +184,7 @@ private fun buildPackInfoList(
 }
 
 internal fun CardDetailsEntity.toPackInfoDomain() = CardPackInfo(
+    cardCode = code,
     code = packCode,
     reprintCode = reprintPackCode,
     name = packName,

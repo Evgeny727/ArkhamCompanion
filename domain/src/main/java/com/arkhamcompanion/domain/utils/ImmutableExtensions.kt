@@ -1,6 +1,8 @@
 package com.arkhamcompanion.domain.utils
 
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 
@@ -15,3 +17,8 @@ fun <T> ImmutableSet<T>.toggle(value: T): ImmutableSet<T> =
  * Returns this Set if it's not `null` and the empty immutable set otherwise.
  */
 fun <T> ImmutableSet<T>?.orEmpty(): ImmutableSet<T> = this ?: persistentSetOf()
+
+/**
+ * Returns this List if it's not `null` and the empty immutable list otherwise.
+ */
+fun <T> ImmutableList<T>?.orEmpty(): ImmutableList<T> = this ?: persistentListOf()

@@ -81,19 +81,18 @@ fun LazyListScope.cardDetailsDeckbuildingSection(
             }
         }
 
-        //TODO:Implement deck creation
-//    item("create_deck_button", contentType = "button") {
-//        ArkhamButton(
-//            title = stringResource(R.string.create_new_deck),
-//            onClick = onCreateNewDeck,
-//        ) { color ->
-//            ArkhamIconText(
-//                iconGlyph = AppIcon.Deck,
-//                color = color,
-//                size = 24.dp
-//            )
-//        }
-//    }
+        item("create_deck_button", contentType = "button") {
+            ArkhamButton(
+                title = stringResource(R.string.create_new_deck),
+                onClick = onCreateNewDeck,
+            ) { color ->
+                ArkhamIconText(
+                    iconGlyph = AppIcon.Deck,
+                    color = color,
+                    size = 24.dp
+                )
+            }
+        }
     } else {
         item("who_can_use_button", contentType = "button") {
             ArkhamButton(

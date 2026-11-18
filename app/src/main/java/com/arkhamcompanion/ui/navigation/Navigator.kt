@@ -6,17 +6,17 @@ import androidx.navigation3.runtime.NavKey
  * Handles navigation events (forward and back) by updating the navigation state.
  */
 class Navigator(val state: NavigationState) {
-    fun navigate(route: NavKey, launchSingleTop: Boolean = false) {
+    fun navigate(route: NavKey, launchSingleTop: Boolean = false, resetToTopLevel: Boolean = false) {
         if (route in state.backStacks.keys) {
             state.topLevelRoute = route
             state.navigationType = NavigationType.TopLevel
             return
         }
 
-        navigateWithinStack(route, launchSingleTop)
+        navigateWithinStack(route, launchSingleTop, resetToTopLevel)
     }
 
-    fun navigateWithinStack(route: NavKey, launchSingleTop: Boolean = false) {
+    fun navigateWithinStack(route: NavKey, launchSingleTop: Boolean = false, resetToTopLevel: Boolean = false) {
         val currentStack = state.backStacks[state.topLevelRoute]
             ?: error("Stack for ${state.topLevelRoute} not found")
 
@@ -24,8 +24,21 @@ class Navigator(val state: NavigationState) {
             return
         }
 
+        if (resetToTopLevel) {
+            goBackToTopLevelRoute(state.topLevelRoute)
+        }
+
         state.navigationType = NavigationType.WithinStack
         currentStack.add(route)
+    }
+
+    fun navigateToAnotherStack(route: NavKey, stack: NavKey, launchSingleTop: Boolean = false) {
+        if (stack in state.backStacks.keys) {
+            state.topLevelRoute = stack
+            state.navigationType = NavigationType.TopLevel
+
+            navigateWithinStack(route, launchSingleTop)
+        }
     }
 
     fun goBack(): Boolean {
@@ -53,9 +66,11 @@ class Navigator(val state: NavigationState) {
 
 internal fun Navigator.navigateSingleTop(
     route: NavKey,
-    withinStack: Boolean = false
-) = if (withinStack) {
-    navigateWithinStack(route, launchSingleTop = true)
-} else {
-    navigate(route, launchSingleTop = true)
+    withinStack: Boolean = false,
+    stack: NavKey? = null,
+    resetToTopLevel: Boolean = false
+) = when {
+    stack != null -> navigateToAnotherStack(route, stack, launchSingleTop = true)
+    withinStack -> navigateWithinStack(route, launchSingleTop = true, resetToTopLevel)
+    else -> navigate(route, launchSingleTop = true, resetToTopLevel)
 }

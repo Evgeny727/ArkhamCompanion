@@ -59,8 +59,8 @@ fun LazyCardListWithStickyHeaders(
     rowHeight: Dp,
     onCardClick: (
         code: String,
+        alternateOfCode: String?,
         parallel: Boolean,
-        tabooSetId: Int?
     ) -> Unit,
     showClearFilters: Boolean,
     onClearFilters: () -> Unit,
@@ -261,8 +261,8 @@ fun LazyCardListWithStickyHeaders(
                             onClick = {
                                 onCardClick(
                                     item.card.code,
+                                    item.card.alternateOfCode,
                                     item.card.parallel,
-                                    item.card.tabooSetId
                                 )
                             }
                         )

@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -56,7 +57,7 @@ class DecksViewModel @Inject constructor(
     val decksUiState = _decksUiState.asStateFlow()
 
     private val _errors = MutableSharedFlow<UiErrorState>(extraBufferCapacity = 1)
-    val errors: SharedFlow<UiErrorState> = _errors
+    val errors: SharedFlow<UiErrorState> = _errors.asSharedFlow()
 
     private fun emitError(throwable: Throwable) {
         _errors.tryEmit(UiErrorState(throwable))

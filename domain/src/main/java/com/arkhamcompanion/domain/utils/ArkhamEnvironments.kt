@@ -7,8 +7,8 @@ import com.arkhamcompanion.domain.model.settings.Collection
 import com.arkhamcompanion.domain.model.settings.contains
 import com.arkhamcompanion.domain.model.settings.isEmpty
 import com.arkhamcompanion.domain.utils.ArkhamEnvironments.current
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 
@@ -26,10 +26,10 @@ fun isDeckbuildingPack(cycleCode: String): Boolean =
     cycleCode !in NON_DECKBUILDING_POOL_CYCLE_CODES
 
 object ArkhamEnvironments {
-    fun current(): ImmutableList<String> =
-        persistentListOf("cycle:core_ch2", "cycle:investigator_decks_ch2")
+    fun current(): ImmutableSet<String> =
+        persistentSetOf("cycle:core_ch2", "cycle:investigator_decks_ch2")
 
-    fun limited(packs: List<Pack>): ImmutableList<String> = buildList {
+    fun limited(packs: List<Pack>): ImmutableSet<String> = buildSet {
         packs.forEach { pack ->
             RETURN_TO_CYCLES[pack.cycleCode]?.let { returnPack ->
                 addAll(listOf(pack.code, returnPack))
@@ -37,9 +37,9 @@ object ArkhamEnvironments {
         }
         add("cycle:core_ch2")
         add("cycle:investigator_decks_ch2")
-    }.toImmutableList()
+    }.toImmutableSet()
 
-    fun collection(collection: Collection, packs: List<Pack>): ImmutableList<String> {
+    fun collection(collection: Collection, packs: List<Pack>): ImmutableSet<String> {
         val packsMap = packs.associateBy { it.code }
 
         return buildSet {
@@ -56,10 +56,10 @@ object ArkhamEnvironments {
                     }
                 }
             }
-        }.toImmutableList()
+        }.toImmutableSet()
     }
 
-    fun chapter(packs: List<Pack>, chapter: Int): ImmutableList<String> = buildSet {
+    fun chapter(packs: List<Pack>, chapter: Int): ImmutableSet<String> = buildSet {
         packs.forEach { pack ->
             if (
                 pack.chapter != chapter ||
@@ -72,10 +72,10 @@ object ArkhamEnvironments {
 
             add(pack.code)
         }
-    }.toImmutableList()
+    }.toImmutableSet()
 
     //Campaign Play-Along from Mythos Busters discord
-    fun cpa(cycleCode: String, chapter: Int): ImmutableList<String> = buildList {
+    fun cpa(cycleCode: String, chapter: Int): ImmutableSet<String> = buildSet {
         when (cycleCode) {
             "core" -> add("rcore")
 
@@ -91,10 +91,10 @@ object ArkhamEnvironments {
         } else {
             addAll(listOf("cycle:investigator", "cycle:core", "rtnotz"))
         }
-    }.toImmutableList()
+    }.toImmutableSet()
 }
 
-class EnvironmentClassifier(private val packs: List<Pack>) {
+class EnvironmentClassifier(packs: List<Pack>) {
 
     val packsByCode = packs.associateBy { it.code }
 

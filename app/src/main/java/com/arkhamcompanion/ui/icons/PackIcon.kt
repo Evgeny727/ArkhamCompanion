@@ -718,6 +718,7 @@ enum class PackIcon(
             isPack: Boolean = true,
             returnDefaultCore: Boolean = true
         ): IconGlyph? = when(packCode) {
+            "rcore" -> Core
             "nat" -> Nate
             "har" -> Harvey
             "win" -> Winifred

@@ -2042,4 +2042,8 @@
     <string name="decks_sort_xp_desc">Опыта потрачено (по убыванию)</string>
     <string name="search_for_tags">Найти теги</string>
     <string name="skills">Навыки</string>
+    <string name="upload_to_arkham_build">Загрузить на Arkham.Build</string>
+    <string name="select_version">Выбрать версию</string>
+    <string name="alternate_version">Альтернативная версия</string>
+    <string name="use_starter_deck">Использовать стартовую колоду</string>
 </resources>

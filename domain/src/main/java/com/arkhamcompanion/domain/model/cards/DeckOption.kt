@@ -36,6 +36,7 @@ data class AtLeastOption(
 
 data class OptionSelect(
     val id: String,
+    val faction: ImmutableList<Faction> = persistentListOf(),
     val level: IntRange = IntRange(0, 5),
     val name: String,
     val size: Int? = null,

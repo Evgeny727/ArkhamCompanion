@@ -6,13 +6,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.AppViewModel
 import com.arkhamcompanion.R
+import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
+import com.arkhamcompanion.ui.components.CardPoolSelectionScreen
+import com.arkhamcompanion.ui.components.factionColor
+import com.arkhamcompanion.ui.decks.DeckCreationScreen
+import com.arkhamcompanion.ui.decks.DeckScreen
+import com.arkhamcompanion.ui.decks.DecksCreationViewModel
+import com.arkhamcompanion.ui.decks.DecksDeckCreationCardPoolSelection
+import com.arkhamcompanion.ui.decks.DecksDeckCreationScreen
 import com.arkhamcompanion.ui.decks.DecksFilersTagsScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersCardsScreen
 import com.arkhamcompanion.ui.decks.DecksFiltersCardsSelectionScreen
@@ -228,6 +237,163 @@ fun EntryProviderScope<NavKey>.decksEntries(
                 )
             },
             ignoreErrorState = true,
+        )
+    }
+
+    entry<DecksDeckCreationScreen>(
+        clazzContentKey = { key -> key.toContentKey() }
+    ) { backStackEntry ->
+        val topAppBarState = LocalTopAppBarState.current
+        val decksCreationViewModel = hiltAssistedViewModel<
+            DecksCreationViewModel,
+            DecksCreationViewModel.Factory,
+            Pair<String, Boolean>
+        >(backStackEntry.code to backStackEntry.parallel) {
+            create(it.first, it.second)
+        }
+        val userState by viewModel.userState.collectAsState()
+        val investigator by decksCreationViewModel.investigatorFlow.collectAsState()
+
+        val factionColor = investigator?.card?.details?.cardDetails?.run {
+            factionColor(
+                when {
+                    faction2 != null -> Faction.Dual
+                    else -> faction
+                }
+            )
+        }
+
+        LaunchedEffect(Unit) {
+            decksCreationViewModel.errors.collect {
+                viewModel.emitError(it.exception)
+            }
+        }
+
+        DeckCreationScreen(
+            userState = userState,
+            investigator = investigator,
+            decksCreationViewModel = decksCreationViewModel,
+            onDismiss = { navigator.goBack() },
+            onNavigateToCardPool = {
+                navigator.navigateSingleTop(
+                    DecksDeckCreationCardPoolSelection(backStackEntry)
+                )
+            },
+            onNavigateToCardDetails = { code, tabooSetId ->
+                navigator.navigateSingleTop(
+                    StandaloneCardDetailsScreen(code, tabooSetId),
+                    withinStack = true
+                )
+            },
+            onNavigateToNewDeck = { id ->
+                navigator.navigateSingleTop(
+                    DeckScreen(id),
+                    resetToTopLevel = true
+                )
+            }
+        )
+
+        topAppBarState.update(
+            title = investigator?.card?.details?.cardDetails?.name.orEmpty(),
+            subtitle = stringResource(R.string.new_deck),
+            color = factionColor?.background,
+            contentColor = Color.White,
+            rightActions = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+            hideBottomBar = true
+        )
+    }
+
+    entry<DecksDeckCreationCardPoolSelection>(
+        metadata = { SharedViewModelStoreNavEntryDecorator.parent(
+            it.creationState.toContentKey()
+        )}
+    ) { backStackEntry ->
+        val topAppBarState = LocalTopAppBarState.current
+        val decksCreationViewModel = hiltAssistedViewModel<
+            DecksCreationViewModel,
+            DecksCreationViewModel.Factory,
+            Pair<String, Boolean>
+        >(
+            key = backStackEntry.creationState.code to backStackEntry.creationState.parallel,
+            viewModelStoreOwner = LocalSharedViewModelStoreOwner.current
+        ) {
+            create(it.first, it.second)
+        }
+        val selectedPacks by decksCreationViewModel.cardPoolState.collectAsState()
+        val deckbuildingPacks by decksCreationViewModel.deckbuildingPacks.collectAsState()
+        val investigator by decksCreationViewModel.investigatorFlow.collectAsState()
+
+        val factionColor = investigator?.card?.details?.cardDetails?.run {
+            factionColor(
+                when {
+                    faction2 != null -> Faction.Dual
+                    else -> faction
+                }
+            )
+        }
+
+        CardPoolSelectionScreen(
+            selectedPacks = selectedPacks,
+            deckbuildingPacks = deckbuildingPacks,
+            onPackAdd = decksCreationViewModel::addPackInCardPool,
+            onPackRemove = decksCreationViewModel::removePackFromCardPool,
+            applyCurrent = decksCreationViewModel::applyCurrentCardPool,
+            applyLegacy = decksCreationViewModel::clearCardPool,
+            applyLimited = decksCreationViewModel::applyLimitedCardPool,
+            applyChapter = decksCreationViewModel::applyChapterCardPool,
+            applyCPA = decksCreationViewModel::applyCPACardPool,
+            applyCollection = decksCreationViewModel::applyCollectionCardPool,
+        )
+
+        topAppBarState.update(
+            title = investigator?.card?.details?.cardDetails?.name.orEmpty(),
+            subtitle = stringResource(R.string.card_pool),
+            color = factionColor?.background,
+            contentColor = Color.White,
+            rightActions = {
+                ArkhamAppBarAction(
+                    contentColor = Color.White,
+                    onClick = decksCreationViewModel::clearCardPool,
+                    iconGlyph = AppIcon.Trash,
+                )
+            },
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+            hideBottomBar = true
+        )
+    }
+
+    entry<DeckScreen>(
+        clazzContentKey = { key -> key.toContentKey() }
+    ) { backStackEntry ->
+        val topAppBarState = LocalTopAppBarState.current
+
+        topAppBarState.update(
+            title = backStackEntry.id,
+            subtitle = "",
+            color = null,
+            contentColor = null,
+            rightActions = null,
+            leftAction = { color ->
+                ArkhamAppBarAction(
+                    contentColor = color,
+                    onClick = navigator::goBack,
+                    iconGlyph = AppIcon.ArrowBack,
+                )
+            },
+            hideBottomBar = true
         )
     }
 }

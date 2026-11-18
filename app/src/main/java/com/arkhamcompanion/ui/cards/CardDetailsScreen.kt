@@ -49,6 +49,10 @@ fun CardDetailsScreen(
     onTabooNavigation: (String,  String) -> Unit,
     onShowInvestigatorCardpool: (String, String?) -> Unit,
     onShowWhoCanTakeCard: (String?) -> Unit,
+    onCreateNewDeckNavigation: (
+        code: String,
+        parallel: Boolean,
+    ) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val collection by cardDetailsViewModel.collectionFlow.collectAsState()
@@ -281,9 +285,14 @@ fun CardDetailsScreen(
                                     cardDetailsWithRelations?.card?.details?.cardDetails?.id
                                 )
                             } } else null,
-                            isBase = !isBase
+                            isBase = !isBase,
                         ) {
-                            /*TODO:Create new deck*/
+                            cardDetailsWithRelations?.card?.run {
+                                onCreateNewDeckNavigation(
+                                    details.cardDetails.alternateOfCode ?: details.cardDetails.code,
+                                    details.cardDetails.parallel,
+                                )
+                            }
                         }
                     }
 

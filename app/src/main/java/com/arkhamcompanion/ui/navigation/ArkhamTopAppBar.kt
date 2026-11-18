@@ -181,6 +181,9 @@ class TopAppBarState {
     var ignoreErrorState: Boolean by mutableStateOf(false)
         private set
 
+    var hideBottomBar: Boolean by mutableStateOf(false)
+        private set
+
     fun update(
         title: String = this.title,
         subtitle: String? = this.subtitle,
@@ -188,7 +191,8 @@ class TopAppBarState {
         contentColor: Color? = this.contentColor,
         rightActions: (@Composable RowScope.(Color) -> Unit)? = this.rightActions,
         leftAction: (@Composable ((Color) -> Unit))? = this.leftAction,
-        ignoreErrorState: Boolean = false
+        ignoreErrorState: Boolean = false,
+        hideBottomBar: Boolean = false
     ) {
         this.title = title
         this.subtitle = subtitle
@@ -197,5 +201,6 @@ class TopAppBarState {
         this.rightActions = rightActions
         this.leftAction = leftAction
         this.ignoreErrorState = ignoreErrorState
+        this.hideBottomBar = hideBottomBar
     }
 }

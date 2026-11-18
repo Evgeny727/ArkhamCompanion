@@ -4,7 +4,6 @@ import com.arkhamcompanion.data.local.decks.DeckEntity
 import com.arkhamcompanion.data.remote.dto.DeckDto
 import com.arkhamcompanion.domain.objects.TimestampNormalizer.normalizeTimestamp
 import com.arkhamcompanion.domain.objects.WHITESPACE_REGEX
-import com.arkhamcompanion.domain.objects.splitToWords
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -12,7 +11,7 @@ import kotlinx.serialization.json.jsonPrimitive
 internal fun List<DeckDto>.toEntity(): List<DeckEntity> =
     map { it.toEntity() }
 
-private fun DeckDto.toEntity(): DeckEntity =
+fun DeckDto.toEntity(): DeckEntity =
     DeckEntity(
         dateCreation = normalizeTimestamp(dateCreation),
         dateUpdate = normalizeTimestamp(dateUpdate),

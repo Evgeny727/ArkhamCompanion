@@ -45,8 +45,8 @@ fun CardsScreen(
     viewModel: CardsViewModel,
     onCardClick: (
         code: String,
+        alternateOfCode: String?,
         parallel: Boolean,
-        tabooSetId: Int?
     ) -> Unit,
     modifier: Modifier = Modifier,
 ) {

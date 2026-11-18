@@ -32,6 +32,7 @@ fun ArkhamTabooSetButton(
     tabooSetsList: ImmutableList<TabooSet>,
     includeCurrent: Boolean = false,
     loading: Boolean = false,
+    editable: Boolean = true,
     onTabooSetChange: (Int) -> Unit,
 ) {
     val tabooSetName = when (tabooSetId) {
@@ -53,7 +54,7 @@ fun ArkhamTabooSetButton(
         icon = AppIcon.Taboo,
         valueLabel = tabooSetName,
         loading = loading,
-        editable = !loading,
+        editable = editable && !loading,
         onClick = { showTabooPicker = true }
     )
 
@@ -117,10 +118,16 @@ fun ArkhamTabooDialog(
 
             tabooSetsList.forEach { tabooSet ->
                 item(tabooSet.id) {
+                    val selected = if (includeCurrent) {
+                        tabooSetId == tabooSet.id
+                    } else {
+                        tabooSetId == 100 && tabooSet == tabooSetsList.first() || tabooSetId == tabooSet.id
+                    }
+
                     ArkhamCheckboxButton(
                         title = "${tabooSet.name} (${tabooSet.date.toLocalizedDate()})",
-                        isSelected = tabooSetId == tabooSet.id,
-                        enabled = tabooSetId != tabooSet.id,
+                        isSelected = selected,
+                        enabled = !selected,
                         isRadio = true
                     ) {
                         onDismiss()

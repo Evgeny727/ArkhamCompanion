@@ -3,6 +3,8 @@ package com.arkhamcompanion.domain.utils
 object SpecialCardCodes {
     /** Connected to parallel roland's front. */
     val DIRECTIVES = setOf("90025", "90026", "90027", "90028", "90029")
+    /** Has spirit deck. */
+    const val PARALLEL_JIM = "90049"
     /** Parallel front has deckbuilding impact. */
     const val PARALLEL_ROLAND = "90024"
     /** Parallel front has deckbuilding impact. */

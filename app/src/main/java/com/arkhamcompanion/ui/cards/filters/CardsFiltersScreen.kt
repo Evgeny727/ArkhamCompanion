@@ -823,7 +823,10 @@ fun CardsFiltersScreen(
             val textAll = stringResource(R.string.packs_all)
             val selectedPacks = filters.packs.reprintPacks.take(10).mapNotNull { packsMap[it]?.name } +
                     filters.packs.packs.take(10).mapNotNull { packsMap[it]?.name }
-            val label = stringResource(R.string.packs_value, selectedPacks.joinToString(", "))
+            val label = stringResource(
+                R.string.packs_value,
+                selectedPacks.joinToString(", ", limit = 3)
+            )
             val text = if (selectedPacks.isNotEmpty()) label else textAll
 
             NavigationFilterButton(
@@ -913,7 +916,7 @@ internal fun selectedFilterLabel(label: String, values: Collection<String>): Str
     val colon = LocalLanguage.current.colon
 
     return if (values.isNotEmpty()) {
-        "$label$colon${values.joinToString(", ")}"
+        "$label$colon${values.joinToString(", ", limit = 5)}"
     } else {
         stringResource(R.string.label_all, label)
     }

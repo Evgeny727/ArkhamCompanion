@@ -2057,4 +2057,6 @@
     <string name="decks_sort_xp_desc">Most XP spent</string>
     <string name="search_for_tags">Search for tags</string>
     <string name="skills">Skills</string>
+    <string name="upload_to_arkham_build">Upload to Arkham.Build</string>
+    <string name="use_starter_deck">Use official starter deck</string>
 </resources>
