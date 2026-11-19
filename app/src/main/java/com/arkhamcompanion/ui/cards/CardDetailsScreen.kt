@@ -167,13 +167,17 @@ fun CardDetailsScreen(
                         bottom = 32.dp
                     )
                 ) {
-                    val isInvestigator = cardDetailsWithRelations?.card?.details?.cardDetails?.type ==
-                            CardType.Investigator
+                    val isInvestigator = cardDetailsWithRelations?.card?.details?.cardDetails?.run {
+                        type == CardType.Investigator && encounterCode == null
+                    } ?: false
 
                     val isParallel = cardDetailsWithRelations?.cardRelations?.parallel != null
                     val isBase = cardDetailsWithRelations?.cardRelations?.base != null
-                    val isAvailableForDecks = cardDetailsWithRelations?.card?.details?.cardDetails?.deckLimit != null
-                            && cardDetailsWithRelations?.cardRelations?.bonded.orEmpty().isEmpty()
+                    val isAvailableForDecks = cardDetailsWithRelations?.run {
+                        card.details.cardDetails.deckLimit != null &&
+                                card.details.cardDetails.type != CardType.Investigator &&
+                                cardRelations.bonded.isEmpty()
+                    } ?: false
 
                     cardDetailsWithRelations?.card?.let { relatedCard ->
                         cardDetailsWithLinkedBack(
