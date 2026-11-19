@@ -1,5 +1,6 @@
 package com.arkhamcompanion
 
+import com.arkhamcompanion.domain.exceptions.FailedToCheckForUpdateException
 import com.arkhamcompanion.domain.exceptions.UnableCreateCardsCacheException
 import com.arkhamcompanion.domain.exceptions.UnableToLoadCardsCacheException
 import com.arkhamcompanion.domain.repository.CardsRepository
@@ -98,7 +99,7 @@ class CardsSyncManager @Inject constructor(
         )
             .onSuccess { block(it) }
             .onFailure {
-                _errors.tryEmit(it)
+                _errors.tryEmit(FailedToCheckForUpdateException(it.message))
                 _state.value = CardsSyncState.Ready
             }
     }

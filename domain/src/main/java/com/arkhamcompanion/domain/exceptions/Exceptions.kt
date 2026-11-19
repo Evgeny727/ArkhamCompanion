@@ -6,3 +6,6 @@ class UnableToLoadCardsCacheException : RuntimeException()
 class UnableCreateCardsCacheException : RuntimeException()
 class ClearLocalDecksException : RuntimeException()
 class ClearRemoteDecksException : RuntimeException()
+class FailedToCheckForUpdateException(
+    override val message: String? = null,
+) : RuntimeException(message)

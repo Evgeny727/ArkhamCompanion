@@ -2046,4 +2046,5 @@
     <string name="select_version">Выбрать версию</string>
     <string name="alternate_version">Альтернативная версия</string>
     <string name="use_starter_deck">Использовать стартовую колоду</string>
+    <string name="check_for_update_error">Неудалось проверить наличие обновления для карт</string>
 </resources>

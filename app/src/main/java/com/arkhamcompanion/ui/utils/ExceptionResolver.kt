@@ -6,6 +6,7 @@ import com.arkhamcompanion.domain.exceptions.ClearCardsDatabaseException
 import com.arkhamcompanion.domain.exceptions.ClearFavoriteCardsException
 import com.arkhamcompanion.domain.exceptions.ClearLocalDecksException
 import com.arkhamcompanion.domain.exceptions.ClearRemoteDecksException
+import com.arkhamcompanion.domain.exceptions.FailedToCheckForUpdateException
 import com.arkhamcompanion.domain.exceptions.UnableCreateCardsCacheException
 import com.arkhamcompanion.domain.exceptions.UnableToLoadCardsCacheException
 
@@ -16,6 +17,7 @@ internal fun Throwable.resolveExceptionToStringResId(): Int? = when (this) {
     is UnableToLoadCardsCacheException -> R.string.load_cards_cache_error
     is UnableCreateCardsCacheException -> R.string.create_cards_cache_error
     is ClearLocalDecksException, is ClearRemoteDecksException -> R.string.clear_decks_error
+    is FailedToCheckForUpdateException -> R.string.check_for_update_error
     else -> {
         if (this.localizedMessage != null) return null
         R.string.unknown_error
