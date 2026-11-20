@@ -33,6 +33,9 @@ data class DeckEntity(
     @ColumnInfo("alternate_back_code")
     val alternateBackCode: String? = null,
 
+    @ColumnInfo("transform_into")
+    val transformInto: String? = null,
+
     val meta: JsonElement,
 
     val name: String,

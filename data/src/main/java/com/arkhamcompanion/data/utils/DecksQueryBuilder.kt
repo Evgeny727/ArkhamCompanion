@@ -222,6 +222,7 @@ internal fun buildDecksListItemsQuery(sort: String, filters: DeckFilters): RoomR
                     FROM current_decks d
                     INNER JOIN card i
                         ON i.code = COALESCE(
+                            d.transform_into,
                             d.alternate_front_code,
                             d.investigator_code
                         )

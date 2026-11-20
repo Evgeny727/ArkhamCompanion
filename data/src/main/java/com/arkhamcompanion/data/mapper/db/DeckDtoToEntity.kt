@@ -22,6 +22,7 @@ fun DeckDto.toEntity(): DeckEntity =
         investigatorCode = investigatorCode,
         alternateFrontCode = meta.jsonObject["alternate_front"]?.jsonPrimitive?.contentOrNull,
         alternateBackCode = meta.jsonObject["alternate_back"]?.jsonPrimitive?.contentOrNull,
+        transformInto = meta.jsonObject["transform_into"]?.jsonPrimitive?.contentOrNull,
         meta = meta,
         name = name,
         nextDeck = nextDeck,
