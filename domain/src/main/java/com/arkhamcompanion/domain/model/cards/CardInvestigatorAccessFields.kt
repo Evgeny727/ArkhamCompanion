@@ -20,6 +20,7 @@ interface CardInvestigatorAccessFields {
     val faction: Faction
     val faction2: Faction?
     val faction3: Faction?
+    val encounterCode: String?
     val type: CardType
     val subType: CardSubType?
     val xp: Int?

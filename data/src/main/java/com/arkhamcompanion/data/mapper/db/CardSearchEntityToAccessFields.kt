@@ -25,6 +25,7 @@ internal fun CardSearchQLFields.toAccessFields(): InvestigatorAccessFields = Inv
     faction = Faction.byFaction(factionCode),
     faction2 = faction2Code?.let { Faction.byFaction(it) },
     faction3 = faction3Code?.let { Faction.byFaction(it) },
+    encounterCode = encounterCode,
     type = CardType.byType(typeCode),
     subType = subTypeCode?.let { CardSubType.bySubType(it) },
     xp = xp,

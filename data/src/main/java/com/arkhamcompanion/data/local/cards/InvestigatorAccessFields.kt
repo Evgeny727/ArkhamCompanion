@@ -25,6 +25,7 @@ data class InvestigatorAccessFields(
     override val faction: Faction,
     override val faction2: Faction?,
     override val faction3: Faction?,
+    override val encounterCode: String?,
     override val type: CardType,
     override val subType: CardSubType?,
     override val xp: Int?,

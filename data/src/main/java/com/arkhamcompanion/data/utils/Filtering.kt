@@ -108,9 +108,13 @@ private fun investigatorCardFilter(
         },
     )
 
+    val storyCardsFilter: Filter<CardInvestigatorAccessFields> = { card ->
+        card.encounterCode != null && card.xp == null && card.faction != Faction.Mythos
+    }
+
     return and(
         canAccessParallelSignatures,
-        or(requiredCardsFilter, playerCardsFilter)
+        or(requiredCardsFilter, storyCardsFilter, playerCardsFilter)
     )
 }
 

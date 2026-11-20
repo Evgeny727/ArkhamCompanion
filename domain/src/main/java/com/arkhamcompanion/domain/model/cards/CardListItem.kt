@@ -45,7 +45,7 @@ data class CardListItem(
     val cycleCode: String,
     val cycleName: String,
     val cyclePosition: Int,
-    val encounterCode: String?,
+    override val encounterCode: String?,
     val encounterName: String?,
     val reprintPackCode: String?,
 

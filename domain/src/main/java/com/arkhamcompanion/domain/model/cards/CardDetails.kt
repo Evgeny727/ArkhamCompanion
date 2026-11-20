@@ -29,7 +29,7 @@ data class CardDetails(
     val doubleSided: Boolean,
     override val duplicateOfCode: String?,
     val deckLimit: Int?,
-    val encounterCode: String?,
+    override val encounterCode: String?,
     val encounterPosition: Int?,
     val encounterName: String?,
     val enemyDamage: Int?,
