@@ -42,7 +42,7 @@ fun EntryProviderScope<NavKey>.decksEntries(
 ) {
     entry<TopLevelRoute.Decks>(
         clazzContentKey = { key -> key.toContentKey() }
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
 
         val decksViewModel = hiltViewModel<DecksViewModel>()
@@ -85,6 +85,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
         }
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(TopLevelRoute.Decks.label),
             subtitle = null,
             color = null,
@@ -117,7 +119,7 @@ fun EntryProviderScope<NavKey>.decksEntries(
         metadata = { SharedViewModelStoreNavEntryDecorator.parent(
             TopLevelRoute.Decks.toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val decksViewModel = hiltViewModel<DecksViewModel>(
             LocalSharedViewModelStoreOwner.current
@@ -129,6 +131,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.filters),
             subtitle = null,
             color = null,
@@ -158,7 +162,7 @@ fun EntryProviderScope<NavKey>.decksEntries(
         metadata = { SharedViewModelStoreNavEntryDecorator.parent(
             TopLevelRoute.Decks.toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val decksViewModel = hiltViewModel<DecksViewModel>(
             LocalSharedViewModelStoreOwner.current
@@ -177,6 +181,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.tags),
             subtitle = null,
             color = null,
@@ -203,7 +209,7 @@ fun EntryProviderScope<NavKey>.decksEntries(
         metadata = { SharedViewModelStoreNavEntryDecorator.parent(
             TopLevelRoute.Decks.toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val decksViewModel = hiltViewModel<DecksViewModel>(
             LocalSharedViewModelStoreOwner.current
@@ -222,6 +228,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.deck_cards),
             subtitle = null,
             color = null,
@@ -298,6 +306,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = investigator?.card?.details?.cardDetails?.name.orEmpty(),
             subtitle = stringResource(R.string.new_deck),
             color = factionColor?.background,
@@ -357,6 +367,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = investigator?.card?.details?.cardDetails?.name.orEmpty(),
             subtitle = stringResource(R.string.card_pool),
             color = factionColor?.background,
@@ -386,6 +398,8 @@ fun EntryProviderScope<NavKey>.decksEntries(
 
         topAppBarState.update(
             title = backStackEntry.id,
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             subtitle = "",
             color = null,
             contentColor = null,

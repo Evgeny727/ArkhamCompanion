@@ -8,12 +8,14 @@ import com.arkhamcompanion.ui.campaigns.CampaignsScreen
 fun EntryProviderScope<NavKey>.campaignsEntries(navigator: Navigator) {
     entry<TopLevelRoute.Campaigns>(
         clazzContentKey = { key -> key.toContentKey() }
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
 
         CampaignsScreen()
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(TopLevelRoute.Campaigns.label),
             subtitle = null,
             color = null,

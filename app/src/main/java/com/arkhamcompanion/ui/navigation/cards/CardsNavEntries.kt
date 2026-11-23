@@ -65,6 +65,7 @@ import com.arkhamcompanion.ui.icons.AppIcon
 import com.arkhamcompanion.ui.navigation.ArkhamAppBarAction
 import com.arkhamcompanion.ui.navigation.LocalGraphSharedViewModelStoreOwner
 import com.arkhamcompanion.ui.navigation.LocalSharedViewModelStoreOwner
+import com.arkhamcompanion.ui.navigation.LocalTopAppBarActiveEntry
 import com.arkhamcompanion.ui.navigation.LocalTopAppBarState
 import com.arkhamcompanion.ui.navigation.Navigator
 import com.arkhamcompanion.ui.navigation.SharedViewModelStoreNavEntryDecorator
@@ -144,6 +145,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         }
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(
                 id = when (graphState) {
                     is CardsGraphState.Investigator -> R.string.allowed_cards
@@ -218,6 +221,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.filters),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -268,6 +273,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.types),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -316,6 +323,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.subtypes),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -374,6 +383,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.investigators),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -431,6 +442,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.cards),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -483,6 +496,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.actions),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -531,6 +546,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.traits),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -576,6 +593,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.asset_filters),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -624,6 +643,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.slots),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -672,6 +693,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.uses),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -720,6 +743,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.enemy_filters),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -768,6 +793,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.location_filters),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -816,6 +843,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.encounter_sets),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -865,6 +894,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.pack_filters),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -913,6 +944,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.illustrators),
             subtitle = pluralStringResource(
                 R.plurals.count_card,
@@ -995,6 +1028,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = "",
             subtitle = null,
             color = null,
@@ -1033,6 +1068,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = backStackEntry.cardName,
             subtitle = stringResource(R.string.taboos),
             color = null,
@@ -1065,6 +1102,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = backStackEntry.cardName,
             subtitle = stringResource(R.string.faq),
             color = null,
@@ -1131,6 +1170,8 @@ fun EntryProviderScope<NavKey>.cardsEntries(navigator: Navigator) {
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.card),
             subtitle = null,
             color = null,

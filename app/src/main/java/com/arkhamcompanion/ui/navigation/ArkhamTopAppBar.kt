@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import com.arkhamcompanion.R
 import com.arkhamcompanion.ui.components.ArkhamIconText
 import com.arkhamcompanion.ui.icons.IconGlyph
@@ -185,6 +186,8 @@ class TopAppBarState {
         private set
 
     fun update(
+        entryKey: NavKey,
+        activeEntryKey: NavKey?,
         title: String = this.title,
         subtitle: String? = this.subtitle,
         color: Color? = this.color,
@@ -194,6 +197,8 @@ class TopAppBarState {
         ignoreErrorState: Boolean = false,
         hideBottomBar: Boolean = false
     ) {
+        if (entryKey != activeEntryKey) return
+
         this.title = title
         this.subtitle = subtitle
         this.color = color

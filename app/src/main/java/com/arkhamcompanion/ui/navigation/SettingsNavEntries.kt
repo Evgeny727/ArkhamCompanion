@@ -42,7 +42,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
 ) {
     entry<TopLevelRoute.Settings>(
         clazzContentKey = { key -> key.toContentKey() }
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val settingsViewModel = hiltViewModel<SettingsViewModel>()
         val theme by viewModel.themeState.collectAsState()
@@ -69,6 +69,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(TopLevelRoute.Settings.label),
             subtitle = null,
             color = null,
@@ -83,7 +85,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         metadata = { _ -> SharedViewModelStoreNavEntryDecorator.parent(
             TopLevelRoute.Settings.toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val settingsViewModel = hiltViewModel<SettingsViewModel>(
             LocalSharedViewModelStoreOwner.current
@@ -107,6 +109,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.edit_collection),
             subtitle = null,
             color = null,
@@ -126,7 +130,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         metadata = { _ -> SharedViewModelStoreNavEntryDecorator.parent(
             TopLevelRoute.Settings.toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val settingsViewModel = hiltViewModel<SettingsViewModel>(
             LocalSharedViewModelStoreOwner.current
@@ -156,6 +160,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.edit_unlocked_rewards),
             subtitle = null,
             color = null,
@@ -175,7 +181,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         metadata = { _ -> SharedViewModelStoreNavEntryDecorator.parent(
             TopLevelRoute.Settings.toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val settingsViewModel = hiltViewModel<SettingsViewModel>(
             LocalSharedViewModelStoreOwner.current
@@ -203,6 +209,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.card_pool),
             subtitle = null,
             color = null,
@@ -226,7 +234,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
 
     entry<SettingsRules>(
         clazzContentKey = { key -> key.toContentKey() },
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
 
         val locale = LocalLanguage.current.languageTag
@@ -242,6 +250,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.rules),
             subtitle = null,
             color = null,
@@ -301,6 +311,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         } ?: ""
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = title,
             subtitle = null,
             color = null,
@@ -316,12 +328,14 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
     }
 
-    entry<SettingsAbout> {
+    entry<SettingsAbout> { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
 
         AboutScreen()
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.about_arkham_companion),
             subtitle = null,
             color = null,
@@ -337,13 +351,15 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
     }
 
-    entry<SettingsBackup> {
+    entry<SettingsBackup> { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
 
         //TODO: add backup screen
         BackUpScreen()
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.backup_data),
             subtitle = null,
             color = null,
@@ -363,7 +379,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         metadata = { _ -> SharedViewModelStoreNavEntryDecorator.parent(
             TopLevelRoute.Settings.toContentKey()
         )}
-    ) {
+    ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current
         val settingsViewModel = hiltViewModel<SettingsViewModel>(
             LocalSharedViewModelStoreOwner.current
@@ -375,6 +391,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         )
 
         topAppBarState.update(
+            entryKey = backStackEntry,
+            activeEntryKey = LocalTopAppBarActiveEntry.current,
             title = stringResource(R.string.diagnostics),
             subtitle = null,
             color = null,

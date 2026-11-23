@@ -35,6 +35,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
@@ -51,6 +52,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.arkhamcompanion.AppViewModel
@@ -67,6 +69,7 @@ import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import com.arkhamcompanion.ui.utils.resolveExceptionToStringResId
 
 val LocalTopAppBarState = compositionLocalOf { TopAppBarState() }
+val LocalTopAppBarActiveEntry = compositionLocalOf<NavKey?> { null }
 
 @Composable
 fun ArkhamNavHost(viewModel: AppViewModel) {
@@ -171,23 +174,56 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            NavDisplay(
-                entries = navigationState.toEntries(entryProvider),
-                onBack = navigator::goBack,
-                transitionSpec = {
-                    if (navigationState.navigationType == NavigationType.TopLevel) {
-                        fadeIn(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = LinearEasing,
+            val activeEntryKey = navigationState.backStacks[navigationState.topLevelRoute]
+                ?.lastOrNull()
+
+            CompositionLocalProvider(LocalTopAppBarActiveEntry provides activeEntryKey) {
+                NavDisplay(
+                    entries = navigationState.toEntries(entryProvider),
+                    onBack = navigator::goBack,
+                    transitionSpec = {
+                        if (navigationState.navigationType == NavigationType.TopLevel) {
+                            fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
+                            ) togetherWith fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
                             )
-                        ) togetherWith fadeOut(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = LinearEasing,
+                        } else {
+                            ContentTransform(
+                                targetContentEnter = fadeIn(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = LinearEasing,
+                                    )
+                                ) + slideIntoContainer(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = EaseIn,
+                                    ),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                ),
+                                initialContentExit = fadeOut(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = LinearEasing,
+                                    )
+                                ) + slideOutOfContainer(
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = EaseIn,
+                                    ),
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                )
                             )
-                        )
-                    } else {
+                        }
+                    },
+                    popTransitionSpec = {
                         ContentTransform(
                             targetContentEnter = fadeIn(
                                 animationSpec = tween(
@@ -199,7 +235,7 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                                     durationMillis = 300,
                                     easing = EaseIn,
                                 ),
-                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
                             ),
                             initialContentExit = fadeOut(
                                 animationSpec = tween(
@@ -211,69 +247,41 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
                                     durationMillis = 300,
                                     easing = EaseIn,
                                 ),
-                                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
                             )
                         )
-                    }
-                },
-                popTransitionSpec = {
-                    ContentTransform(
-                        targetContentEnter = fadeIn(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = LinearEasing,
-                            )
-                        ) + slideIntoContainer(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = EaseIn,
+                    },
+                    predictivePopTransitionSpec = {
+                        ContentTransform(
+                            targetContentEnter = fadeIn(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
+                            ) + slideIntoContainer(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
                             ),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End,
-                        ),
-                        initialContentExit = fadeOut(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = LinearEasing,
+                            initialContentExit = fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = LinearEasing,
+                                )
+                            ) + slideOutOfContainer(
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn,
+                                ),
+                                towards = AnimatedContentTransitionScope.SlideDirection.End,
                             )
-                        ) + slideOutOfContainer(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = EaseIn,
-                            ),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End,
                         )
-                    )
-                },
-                predictivePopTransitionSpec = {
-                    ContentTransform(
-                        targetContentEnter = fadeIn(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = LinearEasing,
-                            )
-                        ) + slideIntoContainer(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = EaseIn,
-                            ),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End,
-                        ),
-                        initialContentExit = fadeOut(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = LinearEasing,
-                            )
-                        ) + slideOutOfContainer(
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = EaseIn,
-                            ),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End,
-                        )
-                    )
-                },
-                modifier = Modifier.applyScaffoldPaddings(innerPadding),
-            )
+                    },
+                    modifier = Modifier.applyScaffoldPaddings(innerPadding),
+                )
+            }
 
             if (cardsState is CardsSyncState.Loading) {
                 CardsDownloadingProgressIndicator((cardsState as CardsSyncState.Loading).progress)
