@@ -4,7 +4,8 @@ class CardPatchRegistry {
 
     private fun loadPatches(): List<CardPatch> = loadAdditionalPatches() + loadGameBeginAttributePatches() +
             loadHiddenFixesPatches() + loadMissingTagsPatches() + loadPerInvestigatorPatches() +
-            loadReprintsPatches() + loadBackTypePatches() + loadDeckOptionsPatches()
+            loadReprintsPatches() + loadBackTypePatches() + loadDeckOptionsPatches() +
+            loadCardAttachmentsPatches()
     private val patchesByCode: Map<String, CardPatch> =
         loadPatches().groupBy { it.code }
             .mapValues { (_, list) -> list.reduce(CardPatch::merge) }

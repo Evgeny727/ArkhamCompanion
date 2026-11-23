@@ -67,6 +67,7 @@ data class CardListItemEntity(
     @Embedded
     val skills: Skills,
 
+    val attachments: JsonElement?,
     val parallel: Boolean,
     @ColumnInfo(name = "is_unique")
     val isUnique: Boolean,

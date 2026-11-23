@@ -65,6 +65,7 @@ internal fun buildCardsListItemsQuery(requested: String) =
             c.skill_agility,
             c.skill_wild,
         
+            c.attachments,
             c.parallel,
             c.is_unique,
             c.slot,

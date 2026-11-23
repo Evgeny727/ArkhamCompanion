@@ -12,6 +12,7 @@ import com.arkhamcompanion.domain.model.cards.CardListItemUiModel
 import com.arkhamcompanion.domain.model.cards.CardsHeaderType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.jsonObject
 
 fun CardListItemEntity.toDomain() = CardListItem(
     id = id,
@@ -51,6 +52,7 @@ fun CardListItemEntity.toDomain() = CardListItem(
     skillCombat = skills.skillCombat,
     skillAgility = skills.skillAgility,
     skillWild = skills.skillWild,
+    attachments = attachments?.jsonObject?.toAttachments(code, name),
     parallel = parallel,
     isUnique = isUnique,
     stage = stage,

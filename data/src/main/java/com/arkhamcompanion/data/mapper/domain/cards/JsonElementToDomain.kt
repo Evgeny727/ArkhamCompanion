@@ -1,9 +1,13 @@
 package com.arkhamcompanion.data.mapper.domain.cards
 
+import com.arkhamcompanion.data.mapper.domain.decks.toDeckSlots
 import com.arkhamcompanion.domain.enums.CardSubType
 import com.arkhamcompanion.domain.enums.CardType
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.AtLeastOption
+import com.arkhamcompanion.domain.model.cards.AttachmentFilter
+import com.arkhamcompanion.domain.model.cards.AttachmentIcon
+import com.arkhamcompanion.domain.model.cards.Attachments
 import com.arkhamcompanion.domain.model.cards.CustomizationChoice
 import com.arkhamcompanion.domain.model.cards.CustomizationOption
 import com.arkhamcompanion.domain.model.cards.CustomizationOptionCard
@@ -15,6 +19,7 @@ import com.arkhamcompanion.domain.model.cards.RandomCard
 import com.arkhamcompanion.domain.model.cards.Restrictions
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.booleanOrNull
@@ -169,3 +174,25 @@ private fun JsonObject.toCard(): CustomizationOptionCard {
 
     return CustomizationOptionCard(type, trait)
 }
+
+internal fun JsonObject.toAttachments(code: String, name: String) = Attachments(
+    code = code,
+    limit = get("limit")?.jsonPrimitive?.intOrNull,
+    traits = get("traits")?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }.orEmpty().toSet(),
+    filters = get("filters")?.jsonArray?.mapNotNull {
+        val obj = it.jsonObject
+        val attribute = obj["attribute"]?.jsonPrimitive?.contentOrNull.orEmpty()
+        val value = obj["value"]?.jsonPrimitive?.contentOrNull
+        val not = obj["not"]?.jsonPrimitive?.booleanOrNull ?: false
+
+        when (attribute) {
+            "type_code" -> AttachmentFilter.Type(CardType.byType(value.orEmpty()), not)
+            "xp" -> AttachmentFilter.Xp(value?.toIntOrNull(), not)
+            else -> null
+        }
+    }.orEmpty(),
+    name = get("name")?.jsonPrimitive?.contentOrNull ?: name,
+    icon = AttachmentIcon.byIcon(get("icon")?.jsonPrimitive?.contentOrNull.orEmpty()),
+    targetSize = get("targetSize")?.jsonPrimitive?.intOrNull ?: 0,
+    requiredCards = get("requiredCards")?.jsonObject?.toDeckSlots().orEmpty().toImmutableMap()
+)
