@@ -17,8 +17,10 @@ import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.ui.cards.StandaloneCardDetailsScreen
 import com.arkhamcompanion.ui.components.CardPoolSelectionScreen
 import com.arkhamcompanion.ui.components.factionColor
+import com.arkhamcompanion.ui.deck.DeckScreen
+import com.arkhamcompanion.ui.deck.DeckViewModel
 import com.arkhamcompanion.ui.decks.DeckCreationScreen
-import com.arkhamcompanion.ui.decks.DeckScreen
+import com.arkhamcompanion.ui.decks.DeckDestination
 import com.arkhamcompanion.ui.decks.DecksCreationViewModel
 import com.arkhamcompanion.ui.decks.DecksDeckCreationCardPoolSelection
 import com.arkhamcompanion.ui.decks.DecksDeckCreationScreen
@@ -67,7 +69,9 @@ fun EntryProviderScope<NavKey>.decksEntries(
             userId = userState.arkhamBuildUser?.id,
             userLoading = appState.isUserLoading(),
             onUserConnect = viewModel::oAuthLogIn,
-            navigateToDeck = { deckId -> },
+            navigateToDeck = { deckId ->
+                navigator.navigateSingleTop(DeckDestination(deckId))
+            },
             onCreateNewDeck = createNewDeckNavigation,
             decksViewModel = decksViewModel,
         )
@@ -287,7 +291,7 @@ fun EntryProviderScope<NavKey>.decksEntries(
             },
             onNavigateToNewDeck = { id ->
                 navigator.navigateSingleTop(
-                    DeckScreen(id),
+                    DeckDestination(id),
                     resetToTopLevel = true
                 )
             }
@@ -375,7 +379,7 @@ fun EntryProviderScope<NavKey>.decksEntries(
         )
     }
 
-    entry<DeckScreen>(
+    entry<DeckDestination>(
         clazzContentKey = { key -> key.toContentKey() }
     ) { backStackEntry ->
         val topAppBarState = LocalTopAppBarState.current

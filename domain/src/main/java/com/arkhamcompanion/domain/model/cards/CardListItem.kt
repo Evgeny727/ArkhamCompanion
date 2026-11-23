@@ -60,6 +60,7 @@ data class CardListItem(
     val skillAgility: Int?,
     val skillWild: Int?,
 
+    val attachments: Attachments?,
     val parallel: Boolean,
     val isUnique: Boolean,
     val stage: Int?,

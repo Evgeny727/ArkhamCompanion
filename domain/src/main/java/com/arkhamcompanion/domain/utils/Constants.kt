@@ -3,6 +3,10 @@ package com.arkhamcompanion.domain.utils
 object SpecialCardCodes {
     /** Connected to parallel roland's front. */
     val DIRECTIVES = setOf("90025", "90026", "90027", "90028", "90029")
+    /** Has deck size selection (and accompanying taboo). */
+    const val MANDY = "06002"
+    /** Scales with investigator deck size selection. */
+    const val OCCULT_EVIDENCE = "06008"
     /** Has spirit deck. */
     const val PARALLEL_JIM = "90049"
     /** Parallel front has deckbuilding impact. */

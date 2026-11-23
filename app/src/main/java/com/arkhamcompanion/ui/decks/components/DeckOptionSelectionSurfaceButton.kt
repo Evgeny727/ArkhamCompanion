@@ -31,6 +31,7 @@ import com.arkhamcompanion.ui.utils.getLocalizedOptionSelectionValue
 @Composable
 fun DeckOptionSelectionSurfaceButton(
     option: DeckOption,
+    index: Int,
     selections: Selections,
     editable: Boolean = true,
     onClick: (String, Selection) -> Unit
@@ -48,7 +49,12 @@ fun DeckOptionSelectionSurfaceButton(
             option = option,
             ifDeckSize = { AppIcon.Deck },
             ifFaction = {
-                val selection = selections[option.id ?: "faction_selected"]
+                val id = getOptionId(
+                    optionId = option.id,
+                    index = index,
+                    defaultId = "faction_selected"
+                )
+                val selection = selections[id]
                 if (selection is Selection.FactionSelection) {
                     factionIcon(Faction.byFaction(selection.value))
                 } else {
@@ -59,9 +65,30 @@ fun DeckOptionSelectionSurfaceButton(
         ),
         valueLabel = valueByOptionType(
             option = option,
-            ifDeckSize = { selections[option.id ?: "deck_size_selected"] },
-            ifFaction = { selections[option.id ?: "faction_selected"] },
-            ifOption = { selections[option.id ?: "option_selected"] }
+            ifDeckSize = {
+                val id = getOptionId(
+                    optionId = option.id,
+                    index = index,
+                    defaultId = "deck_size_selected"
+                )
+                selections[id]
+            },
+            ifFaction = {
+                val id = getOptionId(
+                    optionId = option.id,
+                    index = index,
+                    defaultId = "faction_selected"
+                )
+                selections[id]
+            },
+            ifOption = {
+                val id = getOptionId(
+                    optionId = option.id,
+                    index = index,
+                    defaultId = "option_selected"
+                )
+                selections[id]
+            }
         )?.let { selection ->
             when (selection) {
                 is Selection.DeckSizeSelection -> selection.value.toString()
@@ -90,7 +117,12 @@ fun DeckOptionSelectionSurfaceButton(
                 when {
                     option.deckSizeSelect.isNotEmpty() -> {
                         items(items = option.deckSizeSelect, key = { it }) { deckSize ->
-                            val selection = selections[option.id ?: "deck_size_selected"]
+                            val id = getOptionId(
+                                optionId = option.id,
+                                index = index,
+                                defaultId = "deck_size_selected"
+                            )
+                            val selection = selections[id]
                             val selected =
                                 (selection as? Selection.DeckSizeSelection)?.value == deckSize.toIntOrNull()
 
@@ -101,7 +133,7 @@ fun DeckOptionSelectionSurfaceButton(
                                 isRadio = true,
                             ) {
                                 onClick(
-                                    option.id ?: "deck_size_selected",
+                                    id,
                                     Selection.DeckSizeSelection(
                                         value = deckSize.toIntOrNull() ?: 30,
                                         options = option.deckSizeSelect,
@@ -122,7 +154,12 @@ fun DeckOptionSelectionSurfaceButton(
                     option.factionSelect.isNotEmpty() -> {
                         items(items = option.factionSelect, key = { it.name }) { faction ->
                             val factionCode = faction.name.lowercase()
-                            val selection = selections[option.id ?: "faction_selected"]
+                            val id = getOptionId(
+                                optionId = option.id,
+                                index = index,
+                                defaultId = "faction_selected"
+                            )
+                            val selection = selections[id]
                             val selected =
                                 (selection as? Selection.FactionSelection)?.value == factionCode
 
@@ -135,7 +172,7 @@ fun DeckOptionSelectionSurfaceButton(
                                 isRadio = true,
                             ) {
                                 onClick(
-                                    option.id ?: "faction_selected",
+                                    id,
                                     Selection.FactionSelection(
                                         value = factionCode,
                                         options = option.factionSelect.map { it.name.lowercase() },
@@ -155,7 +192,12 @@ fun DeckOptionSelectionSurfaceButton(
 
                     else -> {
                         items(items = option.optionSelect, key = { it.id }) { optionSelect ->
-                            val selection = selections[option.id ?: "option_selected"]
+                            val id = getOptionId(
+                                optionId = option.id,
+                                index = index,
+                                defaultId = "option_selected"
+                            )
+                            val selection = selections[id]
                             val selected =
                                 (selection as? Selection.OptionSelection)?.value?.id == optionSelect.id
 
@@ -168,7 +210,7 @@ fun DeckOptionSelectionSurfaceButton(
                                 isRadio = true,
                             ) {
                                 onClick(
-                                    option.id ?: "option_selected",
+                                    id,
                                     Selection.OptionSelection(
                                         value = optionSelect,
                                         options = option.optionSelect,
@@ -190,6 +232,12 @@ fun DeckOptionSelectionSurfaceButton(
         }
     }
 }
+
+private fun getOptionId(
+    optionId: String?,
+    index: Int,
+    defaultId: String
+) = optionId?.let { "deck_option:$it:$index" } ?: defaultId
 
 private inline fun <T> valueByOptionType(
     option: DeckOption,

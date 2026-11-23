@@ -24,6 +24,6 @@ data class DecksDeckCreationCardPoolSelection(
 ) : NavKey
 
 @Serializable
-data class DeckScreen(
+data class DeckDestination(
     val id: String
 ) : NavKey

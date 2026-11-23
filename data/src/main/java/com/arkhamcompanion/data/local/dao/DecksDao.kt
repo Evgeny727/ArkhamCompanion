@@ -5,10 +5,12 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.RawQuery
+import androidx.room3.RewriteQueriesToDropUnusedColumns
 import androidx.room3.RoomRawQuery
 import androidx.room3.Transaction
 import androidx.room3.Upsert
 import com.arkhamcompanion.data.local.cards.CardEntity
+import com.arkhamcompanion.data.local.decks.DeckDetailsEntity
 import com.arkhamcompanion.data.local.decks.DeckEntity
 import com.arkhamcompanion.data.local.decks.DeckIdWithTimestamp
 import com.arkhamcompanion.data.local.decks.DeckListItemEntity
@@ -33,10 +35,10 @@ interface DecksDao {
         insertDecksManifest(manifest)
     }
 
-    @Query("DELETE FROM deck WHERE source IS NULL AND user_id IS NULL")
+    @Query("DELETE FROM deck WHERE source IS NULL")
     suspend fun deleteAllLocalDecks()
 
-    @Query("DELETE FROM deck WHERE source IS NOT NULL AND user_id IS NOT NULL")
+    @Query("DELETE FROM deck WHERE source IS NOT NULL")
     suspend fun deleteAllRemoteDecks()
 
     @Transaction

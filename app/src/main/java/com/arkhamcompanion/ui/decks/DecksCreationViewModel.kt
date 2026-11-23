@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.arkhamcompanion.UiErrorState
 import com.arkhamcompanion.domain.enums.Faction
+import com.arkhamcompanion.domain.model.decks.Selection
 import com.arkhamcompanion.domain.model.decks.Selections
 import com.arkhamcompanion.domain.model.meta.Pack
 import com.arkhamcompanion.domain.model.settings.Collection
@@ -17,6 +18,9 @@ import com.arkhamcompanion.domain.utils.ArkhamEnvironments.cpa
 import com.arkhamcompanion.domain.utils.ArkhamEnvironments.current
 import com.arkhamcompanion.domain.utils.ArkhamEnvironments.limited
 import com.arkhamcompanion.domain.utils.REPRINT_CYCLE_CODES
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.MANDY
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.OCCULT_EVIDENCE
+import com.arkhamcompanion.domain.utils.SpecialCardCodes.RANDOM_BASIC_WEAKNESS
 import com.arkhamcompanion.domain.utils.isDeckbuildingPack
 import com.arkhamcompanion.domain.utils.orEmpty
 import dagger.assisted.Assisted
@@ -95,12 +99,18 @@ class DecksCreationViewModel @AssistedInject constructor(
     ) { code, tabooSetId ->
         code to tabooSetId
     }.flatMapLatest { (code, tabooSetId) ->
+
+        _deckSelections.value = emptyMap()
+
         cardsRepository.getCardWithRelationsByCodeFlow(code, tabooSetId)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = null
     )
+
+    private val _deckSelections = MutableStateFlow<Selections>(emptyMap())
+    val deckSelections = _deckSelections.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val parallelInvestigatorFlow = investigatorFlow.flatMapLatest { investigator ->
@@ -130,6 +140,13 @@ class DecksCreationViewModel @AssistedInject constructor(
 
     fun selectParallel(parallelSelection: ParallelSelection) {
         _parallelSelection.value = parallelSelection
+        _deckSelections.value = emptyMap()
+    }
+
+    fun putNewSelection(key: String, value: Selection) {
+        _deckSelections.update {
+            it + (key to value)
+        }
     }
 
     private val _uploadToArkhamBuild = MutableStateFlow(false)
@@ -305,7 +322,22 @@ class DecksCreationViewModel @AssistedInject constructor(
                             if (investigator.card.details.cardDetails.official &&
                                 !it.details.cardDetails.official) return@forEach
 
-                            put(it.details.cardDetails.code, it.details.cardDetails.quantity)
+                            if (
+                                investigator.card.details.cardDetails.code == MANDY &&
+                                it.details.cardDetails.code == OCCULT_EVIDENCE
+                            ) {
+                                val selectedSize = (selections["deck_size_selected"]
+                                        as? Selection.DeckSizeSelection)?.value ?: 50
+                                val quantity = when (selectedSize) {
+                                    30 -> 1
+                                    40 -> 2
+                                    else -> 3
+                                }
+
+                                put(it.details.cardDetails.code, quantity)
+                            } else {
+                                put(it.details.cardDetails.code, it.details.cardDetails.quantity)
+                            }
                         }
                     }
 
@@ -337,7 +369,7 @@ class DecksCreationViewModel @AssistedInject constructor(
                     }
 
                     if (investigator.card.details.cardDetails.deckRequirements?.random.orEmpty().isNotEmpty()) {
-                        put("01000", 1)
+                        put(RANDOM_BASIC_WEAKNESS, 1)
                     }
                 }.toImmutableMap()
             }

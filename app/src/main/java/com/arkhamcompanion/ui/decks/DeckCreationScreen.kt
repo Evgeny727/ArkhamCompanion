@@ -16,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,7 +27,6 @@ import com.arkhamcompanion.AppUserState
 import com.arkhamcompanion.R
 import com.arkhamcompanion.domain.enums.Faction
 import com.arkhamcompanion.domain.model.cards.CardDetailsWithRelations
-import com.arkhamcompanion.domain.model.decks.Selection
 import com.arkhamcompanion.domain.utils.EnvironmentClassifier
 import com.arkhamcompanion.domain.utils.SpecialCardCodes.PARALLEL_JIM
 import com.arkhamcompanion.domain.utils.SpecialCardCodes.PARALLEL_ROLAND
@@ -84,6 +82,7 @@ fun DeckCreationScreen(
     val cardPool by decksCreationViewModel.cardPoolState.collectAsState()
     val collection by decksCreationViewModel.collection.collectAsState()
     val deckbuildingPacks by decksCreationViewModel.deckbuildingPacks.collectAsState()
+    val deckSelections by decksCreationViewModel.deckSelections.collectAsState()
 
     val deckOptions = remember(investigator, parallelInvestigator, parallelSelection) {
         if (parallelSelection.second) {
@@ -97,9 +96,6 @@ fun DeckCreationScreen(
                     option.factionSelect.isNotEmpty() ||
                     option.optionSelect.isNotEmpty()
         }.toImmutableList()
-    }
-    val deckSelections = remember(investigator, parallelInvestigator, parallelSelection) {
-        mutableStateMapOf<String, Selection>()
     }
 
     val investigatorRelations = remember(investigator, parallelInvestigator, parallelSelection) {
@@ -229,13 +225,14 @@ fun DeckCreationScreen(
                         editable = !isLoading
                     )
 
-                    deckOptions.forEach { option ->
+                    deckOptions.forEachIndexed { index, option ->
                         HorizontalDivider(color = CustomTheme.colors.divider)
 
                         DeckOptionSelectionSurfaceButton(
                             option = option,
+                            index = index,
                             selections = deckSelections,
-                            onClick = deckSelections::put,
+                            onClick = decksCreationViewModel::putNewSelection,
                             editable = !isLoading
                         )
                     }
