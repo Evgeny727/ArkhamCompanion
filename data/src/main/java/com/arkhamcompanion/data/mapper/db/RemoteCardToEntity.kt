@@ -49,6 +49,7 @@ fun SingleCard.toEntity(
     return CardEntity(
         id = id,
         code = code,
+        attachments = patchValues.attachments.resolve(),
         advancedFor = advanced_for,
         altArtInvestigator = alt_art_investigator ?: false,
         alternateOfCode = alternate_of_code,

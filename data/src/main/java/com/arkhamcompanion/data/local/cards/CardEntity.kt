@@ -137,6 +137,7 @@ data class Translation(
 data class CardEntity(
     @PrimaryKey val id: String,
     val code: String,
+    val attachments: JsonElement?,
     @ColumnInfo("advanced_for")
     val advancedFor: String?,
     @ColumnInfo("alt_art_investigator")

@@ -24,7 +24,7 @@ import com.arkhamcompanion.data.objects.JsonElementConverter
 @Database(entities = [CardEntity::class, CycleEntity::class, PackEntity::class, EncounterSetEntity::class,
     TabooSetEntity::class, FactionEntity::class, CardTypeEntity::class, CardSubtypeEntity::class,
     FavoriteCardEntity::class, DecksManifestEntity::class, DeckEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false)
 @ColumnTypeConverters(JsonElementConverter::class)
 @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)

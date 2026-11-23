@@ -41,6 +41,7 @@ fun CardDetails.toListItem(): CardListItem = CardListItem(
     skillCombat = skillCombat,
     skillAgility = skillAgility,
     skillWild = skillWild,
+    attachments = null,
     parallel = parallel,
     isUnique = isUnique,
     stage = stage,
