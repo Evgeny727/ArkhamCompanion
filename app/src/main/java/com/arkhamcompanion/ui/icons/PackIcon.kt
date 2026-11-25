@@ -772,7 +772,7 @@ enum class PackIcon(
             "rtr" -> RedTideRising
             "enc" -> EnthrallingEncore
             "parallel", "otr", "on_the_road_again", "ptr", "path_of_the_righteous", "pap",
-                "pistols_and_pearls", "hfa", "hunting_for_answers" -> AppIcon.Parallel
+                "pistols_and_pearls", "hfa", "hunting_for_answers", "aof" -> AppIcon.Parallel
             "cotr" -> CurseOfTheRougarou
             "rougarou" -> Rougerauo2
             "bayou" -> TheBayou
