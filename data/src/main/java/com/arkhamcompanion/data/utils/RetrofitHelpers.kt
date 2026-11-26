@@ -1,6 +1,7 @@
 package com.arkhamcompanion.data.utils
 
 import com.arkhamcompanion.domain.exceptions.ArkhamBuildException
+import com.arkhamcompanion.domain.exceptions.UnknownApiException
 import com.arkhamcompanion.domain.exceptions.getArkhamBuildErrorByType
 import com.arkhamcompanion.domain.exceptions.getRemoteOAuthErrorByType
 import okio.IOException
@@ -30,25 +31,26 @@ internal fun Response<*>.ensureSuccessful() {
         null
     }
 
-    val oauthError = errorPayload.nonBlankField("error")
+    val apiError = errorPayload.nonNullField("error")
 
-    val description = errorPayload
-        .nonBlankField("error_description")
-        ?: errorPayload.nonBlankField("message")
-        ?: "Arkham.Build request failed (HTTP ${code()})"
+    val authError = errorPayload.nonNullField("error_description")
+    val userError = errorPayload.nonNullField("message")
 
-    val exception = getRemoteOAuthErrorByType(oauthError, description) ?:
-    getArkhamBuildErrorByType(oauthError, description)
+    val description = authError ?: userError ?: "Arkham.Build request failed (HTTP ${code()})"
+
+    val exception = when {
+        authError != null -> getRemoteOAuthErrorByType(apiError, description)
+        userError != null -> getArkhamBuildErrorByType(apiError, description)
+        else -> null
+    }
 
     exception?.let { throw it }
 
-    throw IllegalStateException("Arkham.Build request failed (HTTP ${code()})")
+    throw UnknownApiException(description)
 }
 
-private fun JSONObject?.nonBlankField(name: String): String? {
-    val value = this?.optString(name) ?: return null
+private fun JSONObject?.nonNullField(name: String): String? {
+    if (this == null || !has(name) || isNull(name)) return null
 
-    return value.takeIf {
-        it.isNotBlank() && it != "null"
-    }
+    return optString(name).takeIf { it != "null" }
 }

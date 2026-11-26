@@ -4,4 +4,22 @@
     <string name="account_error">Unable to connect to your Arkham.Build account. Usually it means that there is problem with local encrypted storage or you didn\'t use any Arkham.Build features in app for 180 days or more.</string>
     <string name="reconnect_account">If you are having trouble with your account you should try to reconnect.</string>
     <string name="log_in_suggestion">Arkham.Build is a popular deck building site where you can manage and share decks with others.\n\nSign in to access your decks or share decks you have created with others.</string>
+
+    //Errors
+    <string name="unknown_api_error">Something went wrong. Please try again later.</string>
+    <string name="invalid_request_error">The authorization request is invalid. Please try again.</string>
+    <string name="invalid_client_error">Unable to connect to the account service. Please try again later.</string>
+    <string name="invalid_grant_error">Your authorization has expired or is no longer valid. Please sign in again.</string>
+    <string name="unauthorized_client_error">This application is not authorized to perform this operation.</string>
+    <string name="invalid_scope_error">The requested permissions are unavailable. Please try again later.</string>
+    <string name="unsupported_type_error">The requested authorization method is not supported.</string>
+    <string name="invalid_tokens_store_data_error">Your saved authorization data is invalid. Please sign in again.</string>
+    <string name="invalid_token_error">The authorization session has expired or is invalid. Please try again.</string>
+    <string name="insufficient_scope_error">The application does not have permission to perform this operation. Please reconnect your account and grant the required permissions.</string>
+    <string name="account_banned_error">Your account is currently restricted from performing this operation.</string>
+    <string name="invalid_user_request_error">The request could not be processed. Please check your input and try again.</string>
+    <string name="not_found_error">The requested resource could not be found.</string>
+    <string name="conflict_error">This operation conflicts with the current state of the resource. Please refresh the data and try again.</string>
+    <string name="upstream_unavailable_error">The ArkhamDB is temporarily unavailable. Please try again later.</string>
+    <string name="empty_body_error">The server returned an unexpected response. Please try again later.</string>
 </resources>

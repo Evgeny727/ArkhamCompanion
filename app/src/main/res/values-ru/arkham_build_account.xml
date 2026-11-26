@@ -4,4 +4,20 @@
     <string name="account_error">Не удалось подключиться к вашей учетной записи Arkham.Build. Обычно это означает, что возникла проблема с локальным зашифрованным хранилищем или вы не пользовались какими-либо функциями Arkham.Build в приложении в течение 180 или более дней.</string>
     <string name="reconnect_account">При возникновении ошибки с аккаунтом, попробуйте переподключиться.</string>
     <string name="log_in_suggestion">Arkham.Build — это популярный веб-сайт, на котором вы можете собирать, редактировать и делиться колодами.\n\nПодключите аккаунт Arkham.Build, чтобы получить доступ к своим колодам.</string>
+    <string name="unknown_api_error">Произошла ошибка. Пожалуйста, попробуйте позже.</string>
+    <string name="invalid_request_error">Запрос на авторизацию неверный. Пожалуйста, попробуйте ещё раз.</string>
+    <string name="invalid_client_error">Не удалось подключиться к службе учетной записи. Пожалуйста, попробуйте позже.</string>
+    <string name="invalid_grant_error">Срок действия вашей авторизации истек или больше не действителен. Пожалуйста, войдите заново.</string>
+    <string name="unauthorized_client_error">Данное приложение не имеет прав на выполнение этой операции.</string>
+    <string name="invalid_scope_error">Запрашиваемые разрешения недоступны. Пожалуйста, попробуйте позже.</string>
+    <string name="unsupported_type_error">Запрашиваемый метод авторизации не поддерживается.</string>
+    <string name="invalid_tokens_store_data_error">Ваши сохраненные данные авторизации недействительны. Пожалуйста, войдите заново.</string>
+    <string name="invalid_token_error">Срок действия авторизации истек или недействителен. Пожалуйста, войдите заново.</string>
+    <string name="insufficient_scope_error">У приложения нет прав на выполнение этой операции. Пожалуйста, подключите свою учетную запись заново и предоставьте необходимые разрешения.</string>
+    <string name="account_banned_error">Ваша учетная запись в настоящее время не имеет прав на выполнение этой операции.</string>
+    <string name="invalid_user_request_error">Запрос не удалось обработать. Пожалуйста, проверьте введенные данные и попробуйте ещё раз.</string>
+    <string name="not_found_error">Не удалось найти запрошенный ресурс.</string>
+    <string name="conflict_error">Эта операция конфликтует с текущим состоянием ресурса. Обновите данные и попробуйте ещё раз.</string>
+    <string name="upstream_unavailable_error">ArkhamDB временно недоступен. Пожалуйста, попробуйте позже.</string>
+    <string name="empty_body_error">Сервер вернул неизестный ответ. Пожалуйста, попробуйте позже.</string>
 </resources>

@@ -9,3 +9,6 @@ class ClearRemoteDecksException : RuntimeException()
 class FailedToCheckForUpdateException(
     override val message: String? = null,
 ) : RuntimeException(message)
+class UnknownApiException(
+    override val message: String? = null,
+) : RuntimeException(message)
