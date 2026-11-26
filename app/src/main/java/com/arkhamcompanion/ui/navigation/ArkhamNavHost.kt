@@ -65,6 +65,7 @@ import com.arkhamcompanion.ui.components.ArkhamAlertDialog
 import com.arkhamcompanion.ui.navigation.cards.cardsEntries
 import com.arkhamcompanion.ui.theme.CustomTheme
 import com.arkhamcompanion.ui.theme.LocalLanguage
+import com.arkhamcompanion.ui.utils.applyNavigationBarInsets
 import com.arkhamcompanion.ui.utils.applyScaffoldPaddings
 import com.arkhamcompanion.ui.utils.resolveExceptionToStringResId
 
@@ -114,13 +115,18 @@ fun ArkhamNavHost(viewModel: AppViewModel) {
         bottomBar = {
            if (!topAppBarState.hideBottomBar) ArkhamNavigationBar(navigator = navigator)
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) { data ->
-            Snackbar(
-                data,
-                containerColor = CustomTheme.colors.d30,
-                contentColor = CustomTheme.colors.l30
-            )
-        } },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.applyNavigationBarInsets()
+            ) { data ->
+                Snackbar(
+                    data,
+                    containerColor = CustomTheme.colors.d30,
+                    contentColor = CustomTheme.colors.l30
+                )
+            }
+        },
     ) { innerPadding ->
         val languageTag = LocalLanguage.current.languageTag
         val resources = LocalResources.current
