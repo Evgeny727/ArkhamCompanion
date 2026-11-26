@@ -1,6 +1,7 @@
 package com.arkhamcompanion.data.utils
 
 import androidx.room3.RoomRawQuery
+import com.arkhamcompanion.data.local.dao.DecksDao.Companion.DECK_TOTAL_XP_QUERY
 import com.arkhamcompanion.data.objects.SortQueryBuilder.buildDecksSortClause
 import com.arkhamcompanion.domain.enums.DeckSource
 import com.arkhamcompanion.domain.model.decks.DeckFilters
@@ -13,223 +14,81 @@ internal fun buildDecksListItemsQuery(sort: String, filters: DeckFilters): RoomR
         sql = """
                 WITH RECURSIVE
 
-                current_decks AS (
+                current AS (
                     SELECT *
                     FROM deck
                     WHERE next_deck IS NULL
                 ),
-            
-                -- Split extra_deck into individual card codes
-                extra_deck_parts AS (
-                    SELECT
-                        id AS deckId,
-                        TRIM(
-                            SUBSTR(extra_deck || ',', 1,
-                                INSTR(extra_deck || ',', ',') - 1)
-                        ) AS cardCode,
-                        SUBSTR(
-                            extra_deck || ',',
-                            INSTR(extra_deck || ',', ',') + 1
-                        ) AS remaining
-                    FROM current_decks
-                    WHERE extra_deck IS NOT NULL
-                      AND TRIM(extra_deck) != ''
-            
-                    UNION ALL
-            
-                    SELECT
-                        deckId,
-                        TRIM(SUBSTR(remaining, 1, INSTR(remaining, ',') - 1)),
-                        SUBSTR(remaining, INSTR(remaining, ',') + 1)
-                    FROM extra_deck_parts
-                    WHERE remaining != ''
-                ),
-            
-                -- Extract cards from slots and extra_deck
-                deck_cards AS (
-                    SELECT
-                        d.id AS deckId,
-                        j.key AS cardCode,
-                        CAST(j.value AS INTEGER) AS quantity
-                    FROM current_decks d,
-                         json_each(d.slots) j
-            
-                    UNION ALL
-            
-                    SELECT
-                        deckId,
-                        cardCode,
-                        1
-                    FROM extra_deck_parts
-                    WHERE cardCode != ''
-                ),
-            
-                -- Combine quantities of identical card codes
-                card_counts AS (
-                    SELECT
-                        deckId,
-                        cardCode,
-                        SUM(quantity) AS quantity
-                    FROM deck_cards
-                    GROUP BY deckId, cardCode
-                ),
-            
-                -- Find the appropriate taboo version of every card
-                card_candidates AS (
-                    SELECT
-                        cc.deckId,
-                        cc.cardCode,
-                        cc.quantity,
-                        c.real_name,
-                        COALESCE(c.myriad, 0) AS myriad,
-                        COALESCE(c.xp, 0) *
-                            CASE WHEN c.exceptional = 1 THEN 2 ELSE 1 END
-                            + COALESCE(c.taboo_xp, 0) AS unitXp,
-            
-                        ROW_NUMBER() OVER (
-                            PARTITION BY cc.deckId, cc.cardCode
-                            ORDER BY
-                                CASE
-                                    WHEN c.taboo_set_id = d.taboo_id THEN 0
-                                    ELSE 1
-                                END
-                        ) AS versionRank
-            
-                    FROM card_counts cc
-                    INNER JOIN current_decks d
-                        ON d.id = cc.deckId
-                    INNER JOIN card c
-                        ON c.code = cc.cardCode
-                        AND (
-                            c.taboo_set_id = d.taboo_id
-                            OR c.taboo_set_id IS NULL
-                        )
-                ),
-            
-                -- Keep only the preferred card version
-                card_costs AS (
-                    SELECT *
-                    FROM card_candidates
-                    WHERE versionRank = 1
-                ),
-            
-                -- Deduplicate Myriad cards
-                ranked_cards AS (
-                    SELECT
-                        *,
-                        ROW_NUMBER() OVER (
-                            PARTITION BY
-                                deckId,
-                                CASE
-                                    WHEN myriad = 1
-                                        THEN 'M:' || COALESCE(real_name, cardCode)
-                                    ELSE 'C:' || cardCode
-                                END
-                            ORDER BY cardCode
-                        ) AS rn
-                    FROM card_costs
-                ),
-            
-                -- Calculate XP for each deck
-                deck_xp AS (
-                    SELECT
-                        deckId,
-                        SUM(
-                            CASE
-                                WHEN myriad = 1 THEN
-                                    CASE WHEN rn = 1 THEN unitXp ELSE 0 END
-                                ELSE
-                                    unitXp * quantity
-                            END
-                        ) AS totalXp
-                    FROM ranked_cards
-                    GROUP BY deckId
-                ),
                 
-                -- Split customisable card entries from meta
-                custom_xp_parts AS (
-                    SELECT
-                        d.id AS deckId,
-                        TRIM(
-                            SUBSTR(
-                                CAST(j.value AS TEXT) || ',',
-                                1,
-                                INSTR(CAST(j.value AS TEXT) || ',', ',') - 1
-                            )
-                        ) AS entry,
-                        SUBSTR(
-                            CAST(j.value AS TEXT) || ',',
-                            INSTR(CAST(j.value AS TEXT) || ',', ',') + 1
-                        ) AS remaining
-                    FROM current_decks d,
-                         json_each(COALESCE(d.meta, '{}')) j
-                    WHERE SUBSTR(j.key, 1, 4) = 'cus_'
-                      AND j.value IS NOT NULL
-                      AND TRIM(CAST(j.value AS TEXT)) != ''
-        
-                    UNION ALL
-        
-                    SELECT
-                        deckId,
-                        TRIM(SUBSTR(remaining, 1, INSTR(remaining, ',') - 1)),
-                        SUBSTR(remaining, INSTR(remaining, ',') + 1)
-                    FROM custom_xp_parts
-                    WHERE remaining != ''
-                ),
-        
-                -- Calculate XP spent on customisable cards
-                custom_deck_xp AS (
-                    SELECT
-                        deckId,
-                        SUM(
-                            CAST(
-                                SUBSTR(
-                                    entry,
-                                    INSTR(entry, '|') + 1,
-                                    INSTR(
-                                        SUBSTR(entry, INSTR(entry, '|') + 1) || '|',
-                                        '|'
-                                    ) - 1
-                                ) AS INTEGER
-                            )
-                        ) AS totalCustomXp
-                    FROM custom_xp_parts
-                    WHERE INSTR(entry, '|') > 0
-                    GROUP BY deckId
-                ),
+                $DECK_TOTAL_XP_QUERY,
             
                 -- Find the appropriate investigator card
                 investigator_candidates AS (
                     SELECT
-                        d.id AS deckId,
-                        i.name,
-                        i.parallel,
-                        i.faction_code,
-                        i.faction2_code,
-                        i.faction3_code,
-                        i.thumbnailurl,
-                        i.imageurl,
-            
+                        *,
                         ROW_NUMBER() OVER (
-                            PARTITION BY d.id
-                            ORDER BY
-                                CASE
-                                    WHEN i.taboo_set_id = d.taboo_id THEN 0
-                                    ELSE 1
-                                END
+                            PARTITION BY deckId
+                            ORDER BY sourceRank, tabooRank
                         ) AS investigatorRank
-            
-                    FROM current_decks d
-                    INNER JOIN card i
-                        ON i.code = COALESCE(
-                            d.transform_into,
-                            d.alternate_front_code,
-                            d.investigator_code
-                        )
-                        AND (
-                            i.taboo_set_id = d.taboo_id
-                            OR i.taboo_set_id IS NULL
-                        )
+                    FROM (
+                        -- Official cards
+                        SELECT
+                            d.id AS deckId,
+                            i.name,
+                            i.parallel,
+                            i.faction_code,
+                            i.faction2_code,
+                            i.faction3_code,
+                            i.thumbnailurl,
+                            i.imageurl,
+
+                            1 AS sourceRank,
+
+                            CASE
+                                WHEN i.taboo_set_id = d.taboo_id THEN 0
+                                ELSE 1
+                            END AS tabooRank
+
+                        FROM current d
+                        INNER JOIN card i
+                            ON i.code = COALESCE(
+                                d.transform_into,
+                                d.alternate_front_code,
+                                d.investigator_code
+                            )
+                            AND (
+                                i.taboo_set_id = d.taboo_id
+                                OR i.taboo_set_id IS NULL
+                            )
+
+                        UNION ALL
+
+                        -- Fan-made investigator
+                        SELECT
+                            d.id AS deckId,
+                            json_extract(fc.value, '$.name') AS name,
+                            COALESCE(json_extract(fc.value, '$.parallel'), 0) AS parallel,
+                            json_extract(fc.value, '$.faction_code') AS faction_code,
+                            json_extract(fc.value, '$.faction2_code') AS faction2_code,
+                            json_extract(fc.value, '$.faction3_code') AS faction3_code,
+                            json_extract(fc.value, '$.thumbnail_url') AS thumbnailurl,
+                            json_extract(fc.value, '$.image_url') AS imageurl,
+
+                            0 AS sourceRank,
+                            0 AS tabooRank
+
+                        FROM current d
+
+                        INNER JOIN json_each(
+                            COALESCE(d.meta, '{}'),
+                            '$.fan_made_content.cards'
+                        ) fc
+                            ON fc.key = COALESCE(
+                                d.transform_into,
+                                d.alternate_front_code,
+                                d.investigator_code
+                            )
+                    )
                 )
             
                 SELECT
@@ -256,7 +115,7 @@ internal fun buildDecksListItemsQuery(sort: String, filters: DeckFilters): RoomR
                     COALESCE(dx.totalXp, 0) + 
                     COALESCE(cx.totalCustomXp, 0) AS totalXp
             
-                FROM current_decks d
+                FROM current d
             
                 LEFT JOIN investigator_candidates i ON i.deckId = d.id
                     AND i.investigatorRank = 1

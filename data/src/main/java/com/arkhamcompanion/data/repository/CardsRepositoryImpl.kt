@@ -72,6 +72,7 @@ import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -573,6 +574,7 @@ class CardsRepositoryImpl @Inject constructor(
         val codes = resolveCardCodesWithRelations(code)
 
         return cardsDao.getCardsByCodeFlow(codes, tabooSetId)
+            .filter { it.isNotEmpty() }
             .map { cards ->
                 val detailsWithPackInfoMap = cards.toDetailsWithPackInfo()
 
