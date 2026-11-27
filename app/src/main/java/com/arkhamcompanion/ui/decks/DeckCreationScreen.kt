@@ -225,12 +225,11 @@ fun DeckCreationScreen(
                         editable = !isLoading
                     )
 
-                    deckOptions.forEachIndexed { index, option ->
+                    deckOptions.forEach { option ->
                         HorizontalDivider(color = CustomTheme.colors.divider)
 
                         DeckOptionSelectionSurfaceButton(
                             option = option,
-                            index = index,
                             selections = deckSelections,
                             onClick = decksCreationViewModel::putNewSelection,
                             editable = !isLoading
